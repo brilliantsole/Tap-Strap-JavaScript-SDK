@@ -4,8 +4,8 @@
  */
 'use strict';
 
-var autoBind = require('auto-bind');
 var webbluetooth = require('webbluetooth');
+var autoBind = require('auto-bind');
 var noble = require('@abandonware/noble');
 
 function _interopNamespaceDefault(e) {
@@ -79,7 +79,7 @@ var environment = /*#__PURE__*/Object.freeze({
     isSafari: isSafari
 });
 
-var _a$3, _Console_consoles, _Console_levelFlags;
+var _a$2, _Console_consoles, _Console_levelFlags;
 var __console;
 if (isInLensStudio) {
     const log = function (...args) {
@@ -122,27 +122,27 @@ class Console {
             error: true,
             table: true,
         });
-        if (__classPrivateFieldGet(_a$3, _a$3, "f", _Console_consoles)[type]) {
+        if (__classPrivateFieldGet(_a$2, _a$2, "f", _Console_consoles)[type]) {
             throw new Error(`"${type}" console already exists`);
         }
-        __classPrivateFieldGet(_a$3, _a$3, "f", _Console_consoles)[type] = this;
+        __classPrivateFieldGet(_a$2, _a$2, "f", _Console_consoles)[type] = this;
     }
     setLevelFlags(levelFlags) {
         Object.assign(__classPrivateFieldGet(this, _Console_levelFlags, "f"), levelFlags);
     }
     static setLevelFlagsForType(type, levelFlags) {
-        if (!__classPrivateFieldGet(this, _a$3, "f", _Console_consoles)[type]) {
+        if (!__classPrivateFieldGet(this, _a$2, "f", _Console_consoles)[type]) {
             throw new Error(`no console found with type "${type}"`);
         }
-        __classPrivateFieldGet(this, _a$3, "f", _Console_consoles)[type].setLevelFlags(levelFlags);
+        __classPrivateFieldGet(this, _a$2, "f", _Console_consoles)[type].setLevelFlags(levelFlags);
     }
     static setAllLevelFlags(levelFlags) {
-        for (const type in __classPrivateFieldGet(this, _a$3, "f", _Console_consoles)) {
-            __classPrivateFieldGet(this, _a$3, "f", _Console_consoles)[type].setLevelFlags(levelFlags);
+        for (const type in __classPrivateFieldGet(this, _a$2, "f", _Console_consoles)) {
+            __classPrivateFieldGet(this, _a$2, "f", _Console_consoles)[type].setLevelFlags(levelFlags);
         }
     }
     static create(type, levelFlags) {
-        const console = __classPrivateFieldGet(this, _a$3, "f", _Console_consoles)[type] || new _a$3(type);
+        const console = __classPrivateFieldGet(this, _a$2, "f", _Console_consoles)[type] || new _a$2(type);
         return console;
     }
     get log() {
@@ -172,7 +172,7 @@ class Console {
         this.assertWithError(enumeration.includes(value), `invalid enum "${value}"`);
     }
 }
-_a$3 = Console, _Console_levelFlags = new WeakMap();
+_a$2 = Console, _Console_levelFlags = new WeakMap();
 _Console_consoles = { value: {} };
 function createConsole(type, levelFlags) {
     return Console.create(type, levelFlags);
@@ -184,7 +184,7 @@ function setAllConsoleLevelFlags(levelFlags) {
     Console.setAllLevelFlags(levelFlags);
 }
 
-const _console$f = createConsole("EventDispatcher", { log: false });
+const _console$d = createConsole("EventDispatcher", { log: false });
 class EventDispatcher {
     constructor(target, validEventTypes) {
         this.target = target;
@@ -205,7 +205,7 @@ class EventDispatcher {
             return;
         this.listeners[type] = this.listeners[type].filter((listenerObj) => {
             if (listenerObj.shouldRemove) {
-                _console$f.log(`removing "${type}" eventListener`, listenerObj);
+                _console$d.log(`removing "${type}" eventListener`, listenerObj);
             }
             return !listenerObj.shouldRemove;
         });
@@ -216,18 +216,18 @@ class EventDispatcher {
         }
         if (!this.listeners[type]) {
             this.listeners[type] = [];
-            _console$f.log(`creating "${type}" listeners array`, this.listeners[type]);
+            _console$d.log(`creating "${type}" listeners array`, this.listeners[type]);
         }
         const alreadyAdded = this.listeners[type].find((listenerObject) => {
             return listenerObject.listener == listener && listenerObject.once == options.once;
         });
         if (alreadyAdded) {
-            _console$f.log("already added listener");
+            _console$d.log("already added listener");
             return;
         }
-        _console$f.log(`adding "${type}" listener`, listener, options);
+        _console$d.log(`adding "${type}" listener`, listener, options);
         this.listeners[type].push({ listener, once: options.once });
-        _console$f.log(`currently have ${this.listeners[type].length} "${type}" listeners`);
+        _console$d.log(`currently have ${this.listeners[type].length} "${type}" listeners`);
     }
     removeEventListener(type, listener) {
         if (!this.isValidEventType(type)) {
@@ -235,11 +235,11 @@ class EventDispatcher {
         }
         if (!this.listeners[type])
             return;
-        _console$f.log(`removing "${type}" listener...`, listener);
+        _console$d.log(`removing "${type}" listener...`, listener);
         this.listeners[type].forEach((listenerObj) => {
             const isListenerToRemove = listenerObj.listener === listener;
             if (isListenerToRemove) {
-                _console$f.log(`flagging "${type}" listener`, listener);
+                _console$d.log(`flagging "${type}" listener`, listener);
                 listenerObj.shouldRemove = true;
             }
         });
@@ -251,11 +251,11 @@ class EventDispatcher {
         }
         if (!this.listeners[type])
             return;
-        _console$f.log(`removing "${type}" listeners...`);
+        _console$d.log(`removing "${type}" listeners...`);
         this.listeners[type] = [];
     }
     removeAllEventListeners() {
-        _console$f.log(`removing listeners...`);
+        _console$d.log(`removing listeners...`);
         this.listeners = {};
     }
     dispatchEvent(type, message) {
@@ -268,10 +268,10 @@ class EventDispatcher {
             if (listenerObj.shouldRemove) {
                 return;
             }
-            _console$f.log(`dispatching "${type}" listener`, listenerObj);
+            _console$d.log(`dispatching "${type}" listener`, listenerObj);
             listenerObj.listener({ type, target: this.target, message });
             if (listenerObj.once) {
-                _console$f.log(`flagging "${type}" listener`, listenerObj);
+                _console$d.log(`flagging "${type}" listener`, listenerObj);
                 listenerObj.shouldRemove = true;
             }
         });
@@ -288,14 +288,14 @@ class EventDispatcher {
 }
 
 var _Timer_callback, _Timer_interval, _Timer_intervalId;
-const _console$e = createConsole("Timer", { log: false });
+const _console$c = createConsole("Timer", { log: false });
 class Timer {
     get callback() {
         return __classPrivateFieldGet(this, _Timer_callback, "f");
     }
     set callback(newCallback) {
-        _console$e.assertTypeWithError(newCallback, "function");
-        _console$e.log({ newCallback });
+        _console$c.assertTypeWithError(newCallback, "function");
+        _console$c.log({ newCallback });
         __classPrivateFieldSet(this, _Timer_callback, newCallback, "f");
         if (this.isRunning) {
             this.restart();
@@ -305,9 +305,9 @@ class Timer {
         return __classPrivateFieldGet(this, _Timer_interval, "f");
     }
     set interval(newInterval) {
-        _console$e.assertTypeWithError(newInterval, "number");
-        _console$e.assertWithError(newInterval > 0, "interval must be above 0");
-        _console$e.log({ newInterval });
+        _console$c.assertTypeWithError(newInterval, "number");
+        _console$c.assertWithError(newInterval > 0, "interval must be above 0");
+        _console$c.log({ newInterval });
         __classPrivateFieldSet(this, _Timer_interval, newInterval, "f");
         if (this.isRunning) {
             this.restart();
@@ -325,18 +325,18 @@ class Timer {
     }
     start() {
         if (this.isRunning) {
-            _console$e.log("interval already running");
+            _console$c.log("interval already running");
             return;
         }
-        _console$e.log("starting interval");
+        _console$c.log("starting interval");
         __classPrivateFieldSet(this, _Timer_intervalId, setInterval(__classPrivateFieldGet(this, _Timer_callback, "f"), __classPrivateFieldGet(this, _Timer_interval, "f")), "f");
     }
     stop() {
         if (!this.isRunning) {
-            _console$e.log("interval already not running");
+            _console$c.log("interval already not running");
             return;
         }
-        _console$e.log("stopping interval");
+        _console$c.log("stopping interval");
         clearInterval(__classPrivateFieldGet(this, _Timer_intervalId, "f"));
         __classPrivateFieldSet(this, _Timer_intervalId, undefined, "f");
     }
@@ -375,99 +375,8 @@ if (typeof TextDecoder == "undefined") {
 else {
     _TextDecoder = TextDecoder;
 }
-const textEncoder = new _TextEncoder();
+new _TextEncoder();
 const textDecoder = new _TextDecoder();
-
-const _console$d = createConsole("ArrayBufferUtils", { log: false });
-function concatenateArrayBuffers(...arrayBuffers) {
-    arrayBuffers = arrayBuffers.filter((arrayBuffer) => arrayBuffer != undefined || arrayBuffer != null);
-    arrayBuffers = arrayBuffers.map((arrayBuffer) => {
-        if (typeof arrayBuffer == "number") {
-            const number = arrayBuffer;
-            return Uint8Array.from([Math.floor(number)]);
-        }
-        else if (typeof arrayBuffer == "boolean") {
-            const boolean = arrayBuffer;
-            return Uint8Array.from([boolean ? 1 : 0]);
-        }
-        else if (typeof arrayBuffer == "string") {
-            const string = arrayBuffer;
-            return stringToArrayBuffer(string);
-        }
-        else if (arrayBuffer instanceof Array) {
-            const array = arrayBuffer;
-            return concatenateArrayBuffers(...array);
-        }
-        else if (arrayBuffer instanceof ArrayBuffer) {
-            return arrayBuffer;
-        }
-        else if ("buffer" in arrayBuffer && arrayBuffer.buffer instanceof ArrayBuffer) {
-            const bufferContainer = arrayBuffer;
-            return bufferContainer.buffer;
-        }
-        else if (arrayBuffer instanceof DataView) {
-            const dataView = arrayBuffer;
-            return dataView.buffer;
-        }
-        else if (typeof arrayBuffer == "object") {
-            const object = arrayBuffer;
-            return objectToArrayBuffer(object);
-        }
-        else {
-            return arrayBuffer;
-        }
-    });
-    arrayBuffers = arrayBuffers.filter((arrayBuffer) => arrayBuffer && "byteLength" in arrayBuffer);
-    const length = arrayBuffers.reduce((length, arrayBuffer) => length + arrayBuffer.byteLength, 0);
-    const uint8Array = new Uint8Array(length);
-    let byteOffset = 0;
-    arrayBuffers.forEach((arrayBuffer) => {
-        uint8Array.set(new Uint8Array(arrayBuffer), byteOffset);
-        byteOffset += arrayBuffer.byteLength;
-    });
-    return uint8Array.buffer;
-}
-function dataToArrayBuffer(data) {
-    return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-}
-function stringToArrayBuffer(string) {
-    const encoding = textEncoder.encode(string);
-    return concatenateArrayBuffers(encoding.byteLength, encoding);
-}
-function objectToArrayBuffer(object) {
-    return stringToArrayBuffer(JSON.stringify(object));
-}
-function sliceDataView(dataView, begin, length) {
-    let end;
-    if (length != undefined) {
-        end = dataView.byteOffset + begin + length;
-    }
-    _console$d.log({ dataView, begin, end, length });
-    return new DataView(dataView.buffer.slice(dataView.byteOffset + begin, end));
-}
-
-const _console$c = createConsole("ParseUtils", { log: true });
-function parseMessage(dataView, messageTypes, callback, context, parseMessageLengthAsUint16 = false) {
-    let byteOffset = 0;
-    while (byteOffset < dataView.byteLength) {
-        const messageTypeEnum = dataView.getUint8(byteOffset++);
-        _console$c.assertWithError(messageTypeEnum in messageTypes, `invalid messageTypeEnum ${messageTypeEnum}`);
-        const messageType = messageTypes[messageTypeEnum];
-        let messageLength;
-        if (parseMessageLengthAsUint16) {
-            messageLength = dataView.getUint16(byteOffset, true);
-            byteOffset += 2;
-        }
-        else {
-            messageLength = dataView.getUint8(byteOffset++);
-        }
-        _console$c.log({ messageTypeEnum, messageType, messageLength, dataView, byteOffset });
-        const _dataView = sliceDataView(dataView, byteOffset, messageLength);
-        _console$c.log({ _dataView });
-        callback(messageType, _dataView, context);
-        byteOffset += messageLength;
-    }
-}
 
 var _DeviceInformationManager_instances, _DeviceInformationManager_dispatchEvent_get, _DeviceInformationManager_information, _DeviceInformationManager_isComplete_get, _DeviceInformationManager_update;
 const _console$b = createConsole("DeviceInformationManager", { log: true });
@@ -562,32 +471,11 @@ _DeviceInformationManager_information = new WeakMap(), _DeviceInformationManager
     }
 };
 
-createConsole("VibrationManager");
-const VibrationMessageTypes = ["triggerVibration"];
-const MaxNumberOfVibrationSegments = 9;
-class VibrationManager {
-    constructor() {
-        autoBind(this);
-    }
-    async triggerVibration(segments) {
-    }
-}
-
-var _BaseConnectionManager_instances, _a$2, _BaseConnectionManager_AssertValidTxRxMessageType, _BaseConnectionManager_assertIsSupported, _BaseConnectionManager_status, _BaseConnectionManager_assertIsNotConnected, _BaseConnectionManager_assertIsNotConnecting, _BaseConnectionManager_assertIsConnected, _BaseConnectionManager_assertIsNotDisconnecting, _BaseConnectionManager_assertIsConnectedAndNotDisconnecting, _BaseConnectionManager_pendingMessages, _BaseConnectionManager_isSendingMessages, _BaseConnectionManager_onRxMessage, _BaseConnectionManager_timer, _BaseConnectionManager_checkConnection;
+var _BaseConnectionManager_instances, _BaseConnectionManager_assertIsSupported, _BaseConnectionManager_status, _BaseConnectionManager_assertIsNotConnected, _BaseConnectionManager_assertIsNotConnecting, _BaseConnectionManager_assertIsConnected, _BaseConnectionManager_assertIsNotDisconnecting, _BaseConnectionManager_timer, _BaseConnectionManager_checkConnection;
 const _console$a = createConsole("BaseConnectionManager", { log: true });
 const ConnectionStatuses = ["notConnected", "connecting", "connected", "disconnecting"];
 const ConnectionEventTypes = [...ConnectionStatuses, "connectionStatus", "isConnected"];
-const TxRxMessageTypes = [...VibrationMessageTypes];
-const SMPMessageTypes = ["smp"];
 const BatteryLevelMessageTypes = ["batteryLevel"];
-const MetaConnectionMessageTypes = ["rx", "tx"];
-[
-    ...BatteryLevelMessageTypes,
-    ...DeviceInformationMessageTypes,
-    ...MetaConnectionMessageTypes,
-    ...TxRxMessageTypes,
-    ...SMPMessageTypes,
-];
 class BaseConnectionManager {
     get baseConstructor() {
         return this.constructor;
@@ -604,8 +492,6 @@ class BaseConnectionManager {
     constructor() {
         _BaseConnectionManager_instances.add(this);
         _BaseConnectionManager_status.set(this, "notConnected");
-        _BaseConnectionManager_pendingMessages.set(this, []);
-        _BaseConnectionManager_isSendingMessages.set(this, false);
         _BaseConnectionManager_timer.set(this, new Timer(__classPrivateFieldGet(this, _BaseConnectionManager_instances, "m", _BaseConnectionManager_checkConnection).bind(this), 5000));
         __classPrivateFieldGet(this, _BaseConnectionManager_instances, "m", _BaseConnectionManager_assertIsSupported).call(this);
     }
@@ -626,9 +512,6 @@ class BaseConnectionManager {
         }
         else {
             __classPrivateFieldGet(this, _BaseConnectionManager_timer, "f").stop();
-        }
-        if (__classPrivateFieldGet(this, _BaseConnectionManager_status, "f") == "notConnected") {
-            this.mtu = undefined;
         }
     }
     get isConnected() {
@@ -653,67 +536,8 @@ class BaseConnectionManager {
         this.status = "disconnecting";
         _console$a.log("disconnecting from device...");
     }
-    async sendSmpMessage(data) {
-        __classPrivateFieldGet(this, _BaseConnectionManager_instances, "m", _BaseConnectionManager_assertIsConnectedAndNotDisconnecting).call(this);
-        _console$a.log("sending smp message", data);
-    }
-    async sendTxMessages(messages, sendImmediately = true) {
-        __classPrivateFieldGet(this, _BaseConnectionManager_instances, "m", _BaseConnectionManager_assertIsConnectedAndNotDisconnecting).call(this);
-        if (messages) {
-            __classPrivateFieldGet(this, _BaseConnectionManager_pendingMessages, "f").push(...messages);
-        }
-        if (!sendImmediately) {
-            return;
-        }
-        if (__classPrivateFieldGet(this, _BaseConnectionManager_isSendingMessages, "f")) {
-            return;
-        }
-        __classPrivateFieldSet(this, _BaseConnectionManager_isSendingMessages, true, "f");
-        _console$a.log("sendTxMessages", __classPrivateFieldGet(this, _BaseConnectionManager_pendingMessages, "f").slice());
-        const arrayBuffers = __classPrivateFieldGet(this, _BaseConnectionManager_pendingMessages, "f").map((message) => {
-            __classPrivateFieldGet(_a$2, _a$2, "m", _BaseConnectionManager_AssertValidTxRxMessageType).call(_a$2, message.type);
-            const messageTypeEnum = TxRxMessageTypes.indexOf(message.type);
-            const dataLength = new DataView(new ArrayBuffer(2));
-            dataLength.setUint16(0, message.data?.byteLength || 0, true);
-            return concatenateArrayBuffers(messageTypeEnum, dataLength, message.data);
-        });
-        if (this.mtu) {
-            while (arrayBuffers.length > 0) {
-                let arrayBufferByteLength = 0;
-                let arrayBufferCount = 0;
-                arrayBuffers.some((arrayBuffer) => {
-                    if (arrayBufferByteLength + arrayBuffer.byteLength > this.mtu - 3) {
-                        return true;
-                    }
-                    arrayBufferCount++;
-                    arrayBufferByteLength += arrayBuffer.byteLength;
-                });
-                const arrayBuffersToSend = arrayBuffers.splice(0, arrayBufferCount);
-                _console$a.log({ arrayBufferCount, arrayBuffersToSend });
-                const arrayBuffer = concatenateArrayBuffers(...arrayBuffersToSend);
-                _console$a.log("sending arrayBuffer", arrayBuffer);
-                await this.sendTxData(arrayBuffer);
-            }
-        }
-        else {
-            const arrayBuffer = concatenateArrayBuffers(...arrayBuffers);
-            _console$a.log("sending arrayBuffer", arrayBuffer);
-            await this.sendTxData(arrayBuffer);
-        }
-        __classPrivateFieldGet(this, _BaseConnectionManager_pendingMessages, "f").length = 0;
-        __classPrivateFieldSet(this, _BaseConnectionManager_isSendingMessages, false, "f");
-    }
-    async sendTxData(data) {
-        _console$a.log("sendTxData", data);
-    }
-    parseRxMessage(dataView) {
-        parseMessage(dataView, TxRxMessageTypes, __classPrivateFieldGet(this, _BaseConnectionManager_instances, "m", _BaseConnectionManager_onRxMessage).bind(this), null, true);
-        this.onMessagesReceived();
-    }
 }
-_a$2 = BaseConnectionManager, _BaseConnectionManager_status = new WeakMap(), _BaseConnectionManager_pendingMessages = new WeakMap(), _BaseConnectionManager_isSendingMessages = new WeakMap(), _BaseConnectionManager_timer = new WeakMap(), _BaseConnectionManager_instances = new WeakSet(), _BaseConnectionManager_AssertValidTxRxMessageType = function _BaseConnectionManager_AssertValidTxRxMessageType(messageType) {
-    _console$a.assertEnumWithError(messageType, TxRxMessageTypes);
-}, _BaseConnectionManager_assertIsSupported = function _BaseConnectionManager_assertIsSupported() {
+_BaseConnectionManager_status = new WeakMap(), _BaseConnectionManager_timer = new WeakMap(), _BaseConnectionManager_instances = new WeakSet(), _BaseConnectionManager_assertIsSupported = function _BaseConnectionManager_assertIsSupported() {
     _console$a.assertWithError(this.isSupported, `${this.constructor.name} is not supported`);
 }, _BaseConnectionManager_assertIsNotConnected = function _BaseConnectionManager_assertIsNotConnected() {
     _console$a.assertWithError(!this.isConnected, "device is already connected");
@@ -723,12 +547,6 @@ _a$2 = BaseConnectionManager, _BaseConnectionManager_status = new WeakMap(), _Ba
     _console$a.assertWithError(this.isConnected, "device is not connected");
 }, _BaseConnectionManager_assertIsNotDisconnecting = function _BaseConnectionManager_assertIsNotDisconnecting() {
     _console$a.assertWithError(this.status != "disconnecting", "device is already disconnecting");
-}, _BaseConnectionManager_assertIsConnectedAndNotDisconnecting = function _BaseConnectionManager_assertIsConnectedAndNotDisconnecting() {
-    __classPrivateFieldGet(this, _BaseConnectionManager_instances, "m", _BaseConnectionManager_assertIsConnected).call(this);
-    __classPrivateFieldGet(this, _BaseConnectionManager_instances, "m", _BaseConnectionManager_assertIsNotDisconnecting).call(this);
-}, _BaseConnectionManager_onRxMessage = function _BaseConnectionManager_onRxMessage(messageType, dataView) {
-    _console$a.log({ messageType, dataView });
-    this.onMessageReceived(messageType, dataView);
 }, _BaseConnectionManager_checkConnection = function _BaseConnectionManager_checkConnection() {
     if (!this.isConnected) {
         _console$a.log("timer detected disconnection");
@@ -758,8 +576,8 @@ const _console$8 = createConsole("bluetoothUUIDs", { log: false });
 var BluetoothUUID = webbluetooth__namespace.BluetoothUUID;
 function generateBluetoothUUID(value) {
     _console$8.assertTypeWithError(value, "string");
-    _console$8.assertWithError(value.length == 4, "value must be 4 characters long");
-    return `ea6da725-${value}-4f9b-893d-c3913e33b39f`;
+    _console$8.assertWithError(value.length == 1, "value must be 1 character long");
+    return `C3FF000${value}-1D8B-40FD-A56F-C7BD5D0F3370`.toLowerCase();
 }
 function stringToCharacteristicUUID(identifier) {
     return BluetoothUUID?.getCharacteristic?.(identifier);
@@ -804,16 +622,19 @@ const bluetoothUUIDs = Object.freeze({
             },
         },
         main: {
-            uuid: generateBluetoothUUID("0000"),
+            uuid: generateBluetoothUUID("1"),
             characteristics: {
-                rx: { uuid: generateBluetoothUUID("1000") },
-                tx: { uuid: generateBluetoothUUID("1001") },
-            },
-        },
-        smp: {
-            uuid: "8d53dc1d-1db7-4cd3-868b-8a527460aa84",
-            characteristics: {
-                smp: { uuid: "da2e7828-fbce-4e01-ae9e-261174997c48" },
+                tapData: { uuid: generateBluetoothUUID("5") },
+                mouseData: { uuid: generateBluetoothUUID("6") },
+                airGestures: { uuid: generateBluetoothUUID("A") },
+                uiCommands: { uuid: generateBluetoothUUID("9") },
+                settings: { uuid: generateBluetoothUUID("2") },
+                unknown3: { uuid: generateBluetoothUUID("3") },
+                unknown7: { uuid: generateBluetoothUUID("7") },
+                unknown8: { uuid: generateBluetoothUUID("8") },
+                unknownB: { uuid: generateBluetoothUUID("B") },
+                unknownC: { uuid: generateBluetoothUUID("C") },
+                unknownD: { uuid: generateBluetoothUUID("D") },
             },
         },
     },
@@ -822,7 +643,6 @@ const serviceUUIDs = [bluetoothUUIDs.services.main.uuid];
 const optionalServiceUUIDs = [
     bluetoothUUIDs.services.deviceInformation.uuid,
     bluetoothUUIDs.services.battery.uuid,
-    bluetoothUUIDs.services.smp.uuid,
 ];
 const allServiceUUIDs = [...serviceUUIDs, ...optionalServiceUUIDs];
 function getServiceNameFromUUID(serviceUUID) {
@@ -891,26 +711,37 @@ function getCharacteristicProperties(characteristicName) {
         writableAuxiliaries: false,
     };
     switch (characteristicName) {
-        case "rx":
-        case "tx":
-        case "smp":
+        case "settings":
+        case "tapData":
+        case "mouseData":
+        case "unknown7":
             properties.read = false;
             break;
     }
     switch (characteristicName) {
         case "batteryLevel":
-        case "rx":
-        case "smp":
+        case "tapData":
+        case "mouseData":
+        case "airGestures":
+        case "unknown8":
+        case "unknownB":
+        case "unknownC":
+        case "unknownD":
             properties.notify = true;
             break;
     }
     switch (characteristicName) {
-        case "smp":
+        case "airGestures":
+        case "uiCommands":
+        case "unknown7":
+        case "unknownB":
             properties.writeWithoutResponse = true;
             break;
     }
     switch (characteristicName) {
-        case "tx":
+        case "settings":
+        case "unknown3":
+        case "unknown7":
             properties.write = true;
             break;
     }
@@ -966,6 +797,9 @@ class WebBluetoothConnectionManager extends BluetoothConnectionManager {
     }
     get bluetoothId() {
         return this.device.id;
+    }
+    get name() {
+        return this.device.name;
     }
     static get isSupported() {
         return Boolean(bluetooth);
@@ -1148,6 +982,16 @@ _WebBluetoothConnectionManager_boundBluetoothCharacteristicEventListeners = new 
     _console$6.log("gattserverdisconnected");
     this.status = "notConnected";
 };
+
+createConsole("VibrationManager");
+const MaxNumberOfVibrationSegments = 9;
+class VibrationManager {
+    constructor() {
+        autoBind(this);
+    }
+    async triggerVibration(segments) {
+    }
+}
 
 var _DeviceManager_instances, _DeviceManager_boundDeviceEventListeners, _DeviceManager_ConnectedDevices, _DeviceManager_UseLocalStorage, _DeviceManager_DefaultLocalStorageConfiguration, _DeviceManager_LocalStorageConfiguration, _DeviceManager_AssertLocalStorage, _DeviceManager_LocalStorageKey, _DeviceManager_SaveToLocalStorage, _DeviceManager_LoadFromLocalStorage, _DeviceManager_AvailableDevices, _DeviceManager_EventDispatcher, _DeviceManager_DispatchEvent_get, _DeviceManager_OnDeviceIsConnected, _DeviceManager_DispatchAvailableDevices, _DeviceManager_DispatchConnectedDevices;
 const _console$5 = createConsole("DeviceManager", { log: true });
@@ -1380,12 +1224,11 @@ _DeviceManager_boundDeviceEventListeners = new WeakMap(), _DeviceManager_Connect
 DeviceManager.shared = new DeviceManager();
 var DeviceManager$1 = DeviceManager.shared;
 
-var _Device_instances, _a$1, _Device_DefaultConnectionManager, _Device_eventDispatcher, _Device_dispatchEvent_get, _Device_connectionManager, _Device_sendTxMessages, _Device_isConnected, _Device_assertIsConnected, _Device_assertCanReconnect, _Device_ReconnectOnDisconnection, _Device_reconnectOnDisconnection, _Device_reconnectIntervalId, _Device_onConnectionStatusUpdated, _Device_dispatchConnectionEvents, _Device_checkConnection, _Device_clear, _Device_onConnectionMessageReceived, _Device_onConnectionMessagesReceived, _Device_deviceInformationManager, _Device_batteryLevel, _Device_updateBatteryLevel, _Device_vibrationManager, _Device_isServerSide;
+var _Device_instances, _a$1, _Device_DefaultConnectionManager, _Device_eventDispatcher, _Device_dispatchEvent_get, _Device_connectionManager, _Device_isConnected, _Device_assertIsConnected, _Device_assertCanReconnect, _Device_ReconnectOnDisconnection, _Device_reconnectOnDisconnection, _Device_reconnectIntervalId, _Device_onConnectionStatusUpdated, _Device_dispatchConnectionEvents, _Device_checkConnection, _Device_clear, _Device_onConnectionMessageReceived, _Device_onConnectionMessagesReceived, _Device_deviceInformationManager, _Device_batteryLevel, _Device_updateBatteryLevel, _Device_vibrationManager, _Device_isServerSide;
 const _console$4 = createConsole("Device", { log: true });
 const DeviceEventTypes = [
     "connectionMessage",
     ...ConnectionEventTypes,
-    ...MetaConnectionMessageTypes,
     ...BatteryLevelMessageTypes,
     ...DeviceInformationEventTypes,
 ];
@@ -1393,11 +1236,13 @@ class Device {
     get bluetoothId() {
         return __classPrivateFieldGet(this, _Device_connectionManager, "f")?.bluetoothId;
     }
+    get name() {
+        return __classPrivateFieldGet(this, _Device_connectionManager, "f")?.name;
+    }
     constructor() {
         _Device_instances.add(this);
         _Device_eventDispatcher.set(this, new EventDispatcher(this, DeviceEventTypes));
         _Device_connectionManager.set(this, void 0);
-        this.sendTxMessages = __classPrivateFieldGet(this, _Device_instances, "m", _Device_sendTxMessages).bind(this);
         _Device_isConnected.set(this, false);
         _Device_reconnectOnDisconnection.set(this, _a$1.ReconnectOnDisconnection);
         _Device_reconnectIntervalId.set(this, void 0);
@@ -1407,7 +1252,6 @@ class Device {
         _Device_vibrationManager.set(this, new VibrationManager());
         _Device_isServerSide.set(this, false);
         __classPrivateFieldGet(this, _Device_deviceInformationManager, "f").eventDispatcher = __classPrivateFieldGet(this, _Device_eventDispatcher, "f");
-        __classPrivateFieldGet(this, _Device_vibrationManager, "f").sendMessage = this.sendTxMessages;
         DeviceManager$1.onDevice(this);
         if (isInBrowser) {
             window.addEventListener("beforeunload", () => {
@@ -1557,8 +1401,6 @@ _a$1 = Device, _Device_eventDispatcher = new WeakMap(), _Device_connectionManage
     return new WebBluetoothConnectionManager();
 }, _Device_dispatchEvent_get = function _Device_dispatchEvent_get() {
     return __classPrivateFieldGet(this, _Device_eventDispatcher, "f").dispatchEvent;
-}, _Device_sendTxMessages = async function _Device_sendTxMessages(messages, sendImmediately) {
-    await __classPrivateFieldGet(this, _Device_connectionManager, "f")?.sendTxMessages(messages, sendImmediately);
 }, _Device_assertIsConnected = function _Device_assertIsConnected() {
     _console$4.assertWithError(this.isConnected, "notConnected");
 }, _Device_assertCanReconnect = function _Device_assertCanReconnect() {
@@ -1623,7 +1465,6 @@ _a$1 = Device, _Device_eventDispatcher = new WeakMap(), _Device_connectionManage
     if (!this.isConnected) {
         __classPrivateFieldGet(this, _Device_instances, "m", _Device_checkConnection).call(this);
     }
-    __classPrivateFieldGet(this, _Device_instances, "m", _Device_sendTxMessages).call(this);
 }, _Device_updateBatteryLevel = function _Device_updateBatteryLevel(updatedBatteryLevel) {
     _console$4.assertTypeWithError(updatedBatteryLevel, "number");
     if (__classPrivateFieldGet(this, _Device_batteryLevel, "f") == updatedBatteryLevel) {
@@ -1758,6 +1599,11 @@ _a = BaseScanner, _BaseScanner_boundEventListeners = new WeakMap(), _BaseScanner
 };
 _BaseScanner_DiscoveredDeviceExpirationTimeout = { value: 5000 };
 
+createConsole("ArrayBufferUtils", { log: false });
+function dataToArrayBuffer(data) {
+    return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+}
+
 var _NobleConnectionManager_instances, _NobleConnectionManager_noblePeripheral, _NobleConnectionManager_unboundNoblePeripheralListeners, _NobleConnectionManager_onNoblePeripheralConnect, _NobleConnectionManager_onNoblePeripheralDisconnect, _NobleConnectionManager_onNoblePeripheralState, _NobleConnectionManager_removeEventListeners, _NobleConnectionManager_onNoblePeripheralRssiUpdate, _NobleConnectionManager_onNoblePeripheralServicesDiscover, _NobleConnectionManager_services, _NobleConnectionManager_unboundNobleServiceListeners, _NobleConnectionManager_onNobleServiceCharacteristicsDiscover, _NobleConnectionManager_unboundNobleCharacteristicListeners, _NobleConnectionManager_characteristics, _NobleConnectionManager_hasAllCharacteristics_get, _NobleConnectionManager_onNobleCharacteristicData, _NobleConnectionManager_onNobleCharacteristicWrite, _NobleConnectionManager_onNobleCharacteristicNotify;
 const _console$2 = createConsole("NobleConnectionManager", { log: true });
 class NobleConnectionManager extends BluetoothConnectionManager {
@@ -1784,6 +1630,9 @@ class NobleConnectionManager extends BluetoothConnectionManager {
     }
     get bluetoothId() {
         return __classPrivateFieldGet(this, _NobleConnectionManager_noblePeripheral, "f").id;
+    }
+    get name() {
+        return "";
     }
     static get isSupported() {
         return isInNode;

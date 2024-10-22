@@ -15,8 +15,8 @@ if (isInBrowser) {
 
 function generateBluetoothUUID(value: string): BluetoothServiceUUID {
   _console.assertTypeWithError(value, "string");
-  _console.assertWithError(value.length == 4, "value must be 4 characters long");
-  return `ea6da725-${value}-4f9b-893d-c3913e33b39f`;
+  _console.assertWithError(value.length == 1, "value must be 1 character long");
+  return `C3FF000${value}-1D8B-40FD-A56F-C7BD5D0F3370`.toLowerCase();
 }
 
 function stringToCharacteristicUUID(identifier: string): BluetoothCharacteristicUUID {
@@ -27,9 +27,23 @@ function stringToServiceUUID(identifier: string): BluetoothServiceUUID {
   return BluetoothUUID?.getService?.(identifier);
 }
 
-export type BluetoothServiceName = "deviceInformation" | "battery" | "main" | "smp";
+export type BluetoothServiceName = "deviceInformation" | "battery" | "main";
 import { DeviceInformationMessageType } from "../../DeviceInformationManager.ts";
-export type BluetoothCharacteristicName = DeviceInformationMessageType | "batteryLevel" | "rx" | "tx" | "smp";
+export type BluetoothCharacteristicName =
+  | DeviceInformationMessageType
+  | "batteryLevel"
+  | "tapData"
+  | "mouseData"
+  | "airGestures"
+  | "uiCommands"
+  | "settings"
+  | "unknown3"
+  | "unknown2"
+  | "unknown7"
+  | "unknown8"
+  | "unknownB"
+  | "unknownC"
+  | "unknownD";
 
 interface BluetoothCharacteristicInformation {
   uuid: BluetoothCharacteristicUUID;
@@ -41,6 +55,7 @@ interface BluetoothServiceInformation {
 interface BluetoothServicesInformation {
   services: { [serviceName in BluetoothServiceName]: BluetoothServiceInformation };
 }
+
 const bluetoothUUIDs: BluetoothServicesInformation = Object.freeze({
   services: {
     deviceInformation: {
@@ -78,16 +93,19 @@ const bluetoothUUIDs: BluetoothServicesInformation = Object.freeze({
       },
     },
     main: {
-      uuid: generateBluetoothUUID("0000"),
+      uuid: generateBluetoothUUID("1"),
       characteristics: {
-        rx: { uuid: generateBluetoothUUID("1000") },
-        tx: { uuid: generateBluetoothUUID("1001") },
-      },
-    },
-    smp: {
-      uuid: "8d53dc1d-1db7-4cd3-868b-8a527460aa84",
-      characteristics: {
-        smp: { uuid: "da2e7828-fbce-4e01-ae9e-261174997c48" },
+        tapData: { uuid: generateBluetoothUUID("5") },
+        mouseData: { uuid: generateBluetoothUUID("6") },
+        airGestures: { uuid: generateBluetoothUUID("A") },
+        uiCommands: { uuid: generateBluetoothUUID("9") },
+        settings: { uuid: generateBluetoothUUID("2") },
+        unknown3: { uuid: generateBluetoothUUID("3") },
+        unknown7: { uuid: generateBluetoothUUID("7") },
+        unknown8: { uuid: generateBluetoothUUID("8") },
+        unknownB: { uuid: generateBluetoothUUID("B") },
+        unknownC: { uuid: generateBluetoothUUID("C") },
+        unknownD: { uuid: generateBluetoothUUID("D") },
       },
     },
   },
@@ -97,7 +115,6 @@ export const serviceUUIDs = [bluetoothUUIDs.services.main.uuid];
 export const optionalServiceUUIDs = [
   bluetoothUUIDs.services.deviceInformation.uuid,
   bluetoothUUIDs.services.battery.uuid,
-  bluetoothUUIDs.services.smp.uuid,
 ];
 export const allServiceUUIDs = [...serviceUUIDs, ...optionalServiceUUIDs];
 
@@ -182,9 +199,10 @@ export function getCharacteristicProperties(
 
   // read
   switch (characteristicName) {
-    case "rx":
-    case "tx":
-    case "smp":
+    case "settings":
+    case "tapData":
+    case "mouseData":
+    case "unknown7":
       properties.read = false;
       break;
   }
@@ -192,27 +210,35 @@ export function getCharacteristicProperties(
   // notify
   switch (characteristicName) {
     case "batteryLevel":
-    case "rx":
-    case "smp":
+    case "tapData":
+    case "mouseData":
+    case "airGestures":
+    case "unknown8":
+    case "unknownB":
+    case "unknownC":
+    case "unknownD":
       properties.notify = true;
       break;
   }
 
   // write without response
   switch (characteristicName) {
-    case "smp":
+    case "airGestures":
+    case "uiCommands":
+    case "unknown7":
+    case "unknownB":
       properties.writeWithoutResponse = true;
       break;
   }
 
   // write
   switch (characteristicName) {
-    case "tx":
+    case "settings":
+    case "unknown3":
+    case "unknown7":
       properties.write = true;
       break;
   }
 
   return properties;
 }
-
-export const serviceDataUUID = "0000";

@@ -1,6 +1,6 @@
-export type BluetoothServiceName = "deviceInformation" | "battery" | "main" | "smp";
+export type BluetoothServiceName = "deviceInformation" | "battery" | "main";
 import { DeviceInformationMessageType } from "../../DeviceInformationManager.ts";
-export type BluetoothCharacteristicName = DeviceInformationMessageType | "batteryLevel" | "rx" | "tx" | "smp";
+export type BluetoothCharacteristicName = DeviceInformationMessageType | "batteryLevel" | "tapData" | "mouseData" | "airGestures" | "uiCommands" | "settings" | "unknown3" | "unknown2" | "unknown7" | "unknown8" | "unknownB" | "unknownC" | "unknownD";
 export declare const serviceUUIDs: BluetoothServiceUUID[];
 export declare const optionalServiceUUIDs: BluetoothServiceUUID[];
 export declare const allServiceUUIDs: BluetoothServiceUUID[];
@@ -11,4 +11,3 @@ export declare const characteristicNames: BluetoothCharacteristicName[];
 export declare const allCharacteristicNames: BluetoothCharacteristicName[];
 export declare function getCharacteristicNameFromUUID(characteristicUUID: BluetoothCharacteristicUUID): BluetoothCharacteristicName | undefined;
 export declare function getCharacteristicProperties(characteristicName: BluetoothCharacteristicName): BluetoothCharacteristicProperties;
-export declare const serviceDataUUID = "0000";

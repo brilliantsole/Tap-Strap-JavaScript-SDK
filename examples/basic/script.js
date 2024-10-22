@@ -23,7 +23,6 @@ function onAvailableDevices(availableDevices) {
         .cloneNode(true)
         .querySelector(".availableDevice");
       availableDeviceContainer.querySelector(".name").innerText = availableDevice.name;
-      availableDeviceContainer.querySelector(".type").innerText = availableDevice.type;
 
       /** @type {HTMLButtonElement} */
       const toggleConnectionButton = availableDeviceContainer.querySelector(".toggleConnection");
@@ -99,15 +98,6 @@ reconnectOnDisconnectionCheckbox.addEventListener("input", () => {
   device.reconnectOnDisconnection = reconnectOnDisconnectionCheckbox.checked;
 });
 
-/** @type {HTMLButtonElement} */
-const resetDeviceButton = document.getElementById("resetDevice");
-device.addEventListener("isConnected", () => {
-  resetDeviceButton.disabled = !device.isConnected;
-});
-resetDeviceButton.addEventListener("click", () => {
-  device.reset();
-});
-
 // DEVICE INFORMATION
 
 /** @type {HTMLPreElement} */
@@ -129,8 +119,7 @@ device.addEventListener("batteryLevel", () => {
 
 /** @type {HTMLSpanElement} */
 const nameSpan = document.getElementById("name");
-device.addEventListener("getName", () => {
-  console.log(`name updated to ${device.name}`);
+device.addEventListener("isConnected", () => {
   nameSpan.innerText = device.name;
 });
 

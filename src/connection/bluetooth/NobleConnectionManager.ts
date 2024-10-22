@@ -38,6 +38,10 @@ class NobleConnectionManager extends BluetoothConnectionManager {
   get bluetoothId() {
     return this.#noblePeripheral!.id;
   }
+  get name() {
+    // FILL
+    return "";
+  }
 
   static get isSupported() {
     return isInNode;

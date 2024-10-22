@@ -16,19 +16,9 @@ export interface ConnectionStatusEventMessages {
         isConnected: boolean;
     };
 }
-export interface TxMessage {
-    type: TxRxMessageType;
-    data?: ArrayBuffer;
-}
-export declare const TxRxMessageTypes: readonly ["triggerVibration"];
-export type TxRxMessageType = (typeof TxRxMessageTypes)[number];
-export declare const SMPMessageTypes: readonly ["smp"];
-export type SMPMessageType = (typeof SMPMessageTypes)[number];
 export declare const BatteryLevelMessageTypes: readonly ["batteryLevel"];
 export type BatteryLevelMessageType = (typeof BatteryLevelMessageTypes)[number];
-export declare const MetaConnectionMessageTypes: readonly ["rx", "tx"];
-export type MetaConnectionMessageType = (typeof MetaConnectionMessageTypes)[number];
-export declare const ConnectionMessageTypes: readonly ["batteryLevel", "manufacturerName", "modelNumber", "softwareRevision", "hardwareRevision", "firmwareRevision", "pnpId", "serialNumber", "rx", "tx", "triggerVibration", "smp"];
+export declare const ConnectionMessageTypes: readonly ["batteryLevel", "manufacturerName", "modelNumber", "softwareRevision", "hardwareRevision", "firmwareRevision", "pnpId", "serialNumber"];
 export type ConnectionMessageType = (typeof ConnectionMessageTypes)[number];
 export type ConnectionStatusCallback = (status: ConnectionStatus) => void;
 export type MessageReceivedCallback = (messageType: ConnectionMessageType, dataView: DataView) => void;
@@ -36,6 +26,7 @@ export type MessagesReceivedCallback = () => void;
 declare abstract class BaseConnectionManager {
     #private;
     abstract get bluetoothId(): string;
+    abstract get name(): string;
     onStatusUpdated?: ConnectionStatusCallback;
     onMessageReceived?: MessageReceivedCallback;
     onMessagesReceived?: MessagesReceivedCallback;
@@ -52,10 +43,5 @@ declare abstract class BaseConnectionManager {
     get canReconnect(): boolean;
     reconnect(): Promise<void>;
     disconnect(): Promise<void>;
-    sendSmpMessage(data: ArrayBuffer): Promise<void>;
-    sendTxMessages(messages: TxMessage[] | undefined, sendImmediately?: boolean): Promise<void>;
-    mtu?: number;
-    sendTxData(data: ArrayBuffer): Promise<void>;
-    parseRxMessage(dataView: DataView): void;
 }
 export default BaseConnectionManager;

@@ -1,11 +1,8 @@
 import { createConsole } from "./utils/Console.ts";
 import EventDispatcher, { BoundEventListeners, Event, EventListenerMap, EventMap } from "./utils/EventDispatcher.ts";
 import BaseConnectionManager, {
-  TxMessage,
-  TxRxMessageType,
   ConnectionStatus,
   ConnectionMessageType,
-  MetaConnectionMessageTypes,
   BatteryLevelMessageTypes,
   ConnectionEventTypes,
   ConnectionStatusEventMessages,
@@ -28,7 +25,6 @@ const _console = createConsole("Device", { log: true });
 export const DeviceEventTypes = [
   "connectionMessage",
   ...ConnectionEventTypes,
-  ...MetaConnectionMessageTypes,
   ...BatteryLevelMessageTypes,
   ...DeviceInformationEventTypes,
 ] as const;
@@ -56,11 +52,15 @@ class Device {
   get bluetoothId() {
     return this.#connectionManager?.bluetoothId;
   }
+  get name() {
+    return this.#connectionManager?.name;
+  }
 
   constructor() {
     this.#deviceInformationManager.eventDispatcher = this.#eventDispatcher as DeviceInformationEventDispatcher;
 
-    this.#vibrationManager.sendMessage = this.sendTxMessages as SendVibrationMessageCallback;
+    // FIX
+    //this.#vibrationManager.sendMessage = this.sendTxMessages as SendVibrationMessageCallback;
 
     DeviceManager.onDevice(this);
     if (isInBrowser) {
@@ -130,10 +130,6 @@ class Device {
     this.#connectionManager = newConnectionManager;
     _console.log("assigned new connectionManager", this.#connectionManager);
   }
-  async #sendTxMessages(messages?: TxMessage[], sendImmediately?: boolean) {
-    await this.#connectionManager?.sendTxMessages(messages, sendImmediately);
-  }
-  private sendTxMessages = this.#sendTxMessages.bind(this);
 
   async connect() {
     if (!this.connectionManager) {
@@ -331,7 +327,6 @@ class Device {
     if (!this.isConnected) {
       this.#checkConnection();
     }
-    this.#sendTxMessages();
   }
 
   latestConnectionMessage: Map<ConnectionMessageType, DataView> = new Map();

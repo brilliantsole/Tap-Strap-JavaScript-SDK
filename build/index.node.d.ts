@@ -120,13 +120,7 @@ interface ConnectionStatusEventMessages {
         isConnected: boolean;
     };
 }
-interface TxMessage {
-    type: TxRxMessageType;
-    data?: ArrayBuffer;
-}
-declare const TxRxMessageTypes: readonly ["triggerVibration"];
-type TxRxMessageType = (typeof TxRxMessageTypes)[number];
-declare const ConnectionMessageTypes: readonly ["batteryLevel", "manufacturerName", "modelNumber", "softwareRevision", "hardwareRevision", "firmwareRevision", "pnpId", "serialNumber", "rx", "tx", "triggerVibration", "smp"];
+declare const ConnectionMessageTypes: readonly ["batteryLevel", "manufacturerName", "modelNumber", "softwareRevision", "hardwareRevision", "firmwareRevision", "pnpId", "serialNumber"];
 type ConnectionMessageType = (typeof ConnectionMessageTypes)[number];
 type ConnectionStatusCallback = (status: ConnectionStatus) => void;
 type MessageReceivedCallback = (messageType: ConnectionMessageType, dataView: DataView) => void;
@@ -134,6 +128,7 @@ type MessagesReceivedCallback = () => void;
 declare abstract class BaseConnectionManager {
     #private;
     abstract get bluetoothId(): string;
+    abstract get name(): string;
     onStatusUpdated?: ConnectionStatusCallback;
     onMessageReceived?: MessageReceivedCallback;
     onMessagesReceived?: MessagesReceivedCallback;
@@ -150,14 +145,9 @@ declare abstract class BaseConnectionManager {
     get canReconnect(): boolean;
     reconnect(): Promise<void>;
     disconnect(): Promise<void>;
-    sendSmpMessage(data: ArrayBuffer): Promise<void>;
-    sendTxMessages(messages: TxMessage[] | undefined, sendImmediately?: boolean): Promise<void>;
-    mtu?: number;
-    sendTxData(data: ArrayBuffer): Promise<void>;
-    parseRxMessage(dataView: DataView): void;
 }
 
-declare const DeviceEventTypes: readonly ["connectionMessage", "notConnected", "connecting", "connected", "disconnecting", "connectionStatus", "isConnected", "rx", "tx", "batteryLevel", "manufacturerName", "modelNumber", "softwareRevision", "hardwareRevision", "firmwareRevision", "pnpId", "serialNumber", "deviceInformation"];
+declare const DeviceEventTypes: readonly ["connectionMessage", "notConnected", "connecting", "connected", "disconnecting", "connectionStatus", "isConnected", "batteryLevel", "manufacturerName", "modelNumber", "softwareRevision", "hardwareRevision", "firmwareRevision", "pnpId", "serialNumber", "deviceInformation"];
 type DeviceEventType = (typeof DeviceEventTypes)[number];
 interface DeviceEventMessages extends ConnectionStatusEventMessages, DeviceInformationEventMessages {
     batteryLevel: {
@@ -175,29 +165,31 @@ type BoundDeviceEventListeners = BoundEventListeners<Device, DeviceEventType, De
 declare class Device {
     #private;
     get bluetoothId(): string | undefined;
+    get name(): string | undefined;
     constructor();
-    get addEventListener(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "rx" | "tx" | "connectionMessage">(type: T, listener: (event: {
+    get addEventListener(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "connectionMessage">(type: T, listener: (event: {
         type: T;
         target: Device;
         message: DeviceEventMessages[T];
     }) => void, options?: {
-        once?: boolean;
+        once
+        /** can add more node leave handlers https://gist.github.com/hyrious/30a878f6e6a057f09db87638567cb11a */
+        ? /** can add more node leave handlers https://gist.github.com/hyrious/30a878f6e6a057f09db87638567cb11a */: boolean;
     }) => void;
-    get removeEventListener(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "rx" | "tx" | "connectionMessage">(type: T, listener: (event: {
+    get removeEventListener(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "connectionMessage">(type: T, listener: (event: {
         type: T;
         target: Device;
         message: DeviceEventMessages[T];
     }) => void) => void;
-    get waitForEvent(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "rx" | "tx" | "connectionMessage">(type: T) => Promise<{
+    get waitForEvent(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "connectionMessage">(type: T) => Promise<{
         type: T;
         target: Device;
         message: DeviceEventMessages[T];
     }>;
-    get removeEventListeners(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "rx" | "tx" | "connectionMessage">(type: T) => void;
+    get removeEventListeners(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "connectionMessage">(type: T) => void;
     get removeAllEventListeners(): () => void;
     get connectionManager(): BaseConnectionManager | undefined;
     set connectionManager(newConnectionManager: BaseConnectionManager | undefined);
-    private sendTxMessages;
     connect(): Promise<void>;
     get isConnected(): boolean;
     get canReconnect(): boolean | undefined;

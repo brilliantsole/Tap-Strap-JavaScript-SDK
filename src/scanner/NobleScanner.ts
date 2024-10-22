@@ -1,7 +1,7 @@
 import BaseScanner, { DiscoveredDevice, ScannerEventMap } from "./BaseScanner.ts";
 import { createConsole } from "../utils/Console.ts";
 import { addEventListeners } from "../utils/EventUtils.ts";
-import { serviceDataUUID, serviceUUIDs } from "../connection/bluetooth/bluetoothUUIDs.ts";
+import { serviceUUIDs } from "../connection/bluetooth/bluetoothUUIDs.ts";
 import Device from "../Device.ts";
 import NobleConnectionManager, { NoblePeripheral } from "../connection/bluetooth/NobleConnectionManager.ts";
 

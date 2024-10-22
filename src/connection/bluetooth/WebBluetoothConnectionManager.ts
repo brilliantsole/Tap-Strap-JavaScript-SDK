@@ -41,6 +41,9 @@ class WebBluetoothConnectionManager extends BluetoothConnectionManager {
   get bluetoothId() {
     return this.device!.id;
   }
+  get name() {
+    return this.device!.name!;
+  }
 
   #boundBluetoothCharacteristicEventListeners: { [eventType: string]: EventListener } = {
     characteristicvaluechanged: this.#onCharacteristicvaluechanged.bind(this),
