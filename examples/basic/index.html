@@ -1,0 +1,71 @@
+<html>
+  <head>
+    <title>Basic | Tap Strap JavaScript SDK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <script type="module" src="./script.js"></script>
+  </head>
+  <style>
+    label {
+      display: block;
+    }
+    div {
+      margin-top: 1rem;
+    }
+    ul,
+    ol {
+      margin-top: 0;
+      list-style: none;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+  <body>
+    <nav>
+      <a href="../../">home</a>
+    </nav>
+
+    <h1>Basic | Tap Strap JavaScript SDK</h1>
+
+    <div>
+      <h2>available devices</h2>
+      <div id="availableDevices">
+        <template id="availableDeviceTemplate">
+          <div class="availableDevice">
+            <ul>
+              <li><b>name: </b> <span class="name"></span></li>
+              <li><b>type: </b> <span class="type"></span></li>
+              <li><button class="toggleConnection">connect</button></li>
+            </ul>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <div>
+      <h2>connection</h2>
+      <button id="toggleConnection">connect</button>
+      <button id="reconnect" disabled>reconnect</button>
+      <label>reconnect on disconnection? <input id="reconnectOnDisconnection" type="checkbox" /></label>
+      <button id="resetDevice" disabled>reset</button>
+    </div>
+
+    <div>
+      <h2>device information</h2>
+      <pre id="deviceInformationPre"></pre>
+    </div>
+
+    <div>
+      <label><b>battery level:</b> <span id="batteryLevel"></span></label>
+    </div>
+
+    <div>
+      <label><b>name:</b> <span id="name"></span></label>
+    </div>
+
+    <div>
+      <h2>vibration</h2>
+    </div>
+  </body>
+</html>

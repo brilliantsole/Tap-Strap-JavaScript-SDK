@@ -2,26 +2,26 @@
   "name": "tapstrap",
   "version": "0.0.1",
   "description": "JavaScript SDK for the Tap Strap",
-  "main": "./build/brilliantsole.module.js",
-  "module": "./build/brilliantsole.module.js",
-  "browser": "./build/brilliantsole.module.js",
+  "main": "./build/tapstrap.module.js",
+  "module": "./build/tapstrap.module.js",
+  "browser": "./build/tapstrap.module.js",
   "types": "./build/index.d.ts",
   "type": "module",
   "exports": {
     "./browser": {
-      "import": "./build/brilliantsole.module.js",
-      "default": "./build/brilliantsole.module.js",
+      "import": "./build/tapstrap.module.js",
+      "default": "./build/tapstrap.module.js",
       "types": "./build/index.d.ts"
     },
     "./node": {
-      "import": "./build/brilliantsole.node.module.js",
-      "node": "./build/brilliantsole.node.module.js",
-      "require": "./build/brilliantsole.cjs",
-      "default": "./build/brilliantsole.node.module.js",
+      "import": "./build/tapstrap.node.module.js",
+      "node": "./build/tapstrap.node.module.js",
+      "require": "./build/tapstrap.cjs",
+      "default": "./build/tapstrap.node.module.js",
       "types": "./build/index.node.d.ts"
     },
     "./ls": {
-      "default": "./build/brilliantsole.ls.module.js",
+      "default": "./build/tapstrap.ls.module.js",
       "types": "./build/index.d.ts"
     }
   },

@@ -7,7 +7,7 @@ import ip from "ip";
 import * as TS from "./build/tapstrap.node.module.js";
 import nocache from "nocache";
 
-//BS.setAllConsoleLevelFlags({ log: false });
+//TS.setAllConsoleLevelFlags({ log: false });
 
 // HTTPS SERVER
 app.use(nocache());
