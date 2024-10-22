@@ -1,0 +1,91 @@
+{
+  "name": "tapstrap",
+  "version": "0.0.1",
+  "description": "JavaScript SDK for the Tap Strap",
+  "main": "./build/brilliantsole.module.js",
+  "module": "./build/brilliantsole.module.js",
+  "browser": "./build/brilliantsole.module.js",
+  "types": "./build/index.d.ts",
+  "type": "module",
+  "exports": {
+    "./browser": {
+      "import": "./build/brilliantsole.module.js",
+      "default": "./build/brilliantsole.module.js",
+      "types": "./build/index.d.ts"
+    },
+    "./node": {
+      "import": "./build/brilliantsole.node.module.js",
+      "node": "./build/brilliantsole.node.module.js",
+      "require": "./build/brilliantsole.cjs",
+      "default": "./build/brilliantsole.node.module.js",
+      "types": "./build/index.node.d.ts"
+    },
+    "./ls": {
+      "default": "./build/brilliantsole.ls.module.js",
+      "types": "./build/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "server": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zakaton/BrilliantSole.js.git"
+  },
+  "homepage": "https://www.tapwithus.com/",
+  "author": "Zack Qattan <zack@brilliantsole.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.24.6",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-numeric-separator": "^7.18.6",
+    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
+    "@babel/plugin-proposal-private-methods": "^7.18.6",
+    "@babel/preset-env": "^7.24.6",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.8",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^5.0.5",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/web-bluetooth": "^0.0.20",
+    "@types/ws": "^8.5.10",
+    "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "express": "^4.18.3",
+    "ip": "^2.0.1",
+    "magic-string": "^0.30.5",
+    "nocache": "^4.0.0",
+    "rollup": "^4.18.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-cleanup": "^3.2.1",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-eslint": "^7.0.0",
+    "rollup-plugin-filesize": "^10.0.0",
+    "rollup-plugin-multi-entry": "^2.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-progress": "^1.1.2",
+    "rollup-plugin-uglify": "^6.0.4",
+    "tslib": "^2.6.3",
+    "typescript": "^5.5.3",
+    "ws": "^8.16.0"
+  },
+  "dependencies": {
+    "@abandonware/noble": "^1.9.2-24",
+    "auto-bind": "^5.0.1",
+    "webbluetooth": "^3.2.1"
+  },
+  "files": [
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "src",
+    "build",
+    "examples",
+    "assets"
+  ]
+}
