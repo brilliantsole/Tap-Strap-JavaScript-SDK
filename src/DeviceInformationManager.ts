@@ -67,7 +67,16 @@ class DeviceInformationManager {
     this.#information = {};
   }
   get #isComplete() {
-    return DeviceInformationMessageTypes.every((key) => key in this.#information);
+    return DeviceInformationMessageTypes.every((key) => {
+      switch (key as DeviceInformationMessageType) {
+        case "modelNumber":
+        case "serialNumber":
+          return true;
+          break;
+        default:
+          return key in this.#information;
+      }
+    });
   }
 
   #update(partialDeviceInformation: Partial<DeviceInformation>) {

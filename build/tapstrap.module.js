@@ -18,8 +18,9 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-const isInProduction = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__PROD__";
-const isInDev = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__DEV__";
+const __BRILLIANTSOLE__ENVIRONMENT__ = "__BRILLIANTSOLE__DEV__";
+const isInProduction = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__PROD__";
+const isInDev = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__DEV__";
 const isInBrowser = typeof window !== "undefined" && typeof window?.document !== "undefined";
 const isInNode = typeof process !== "undefined" && process?.versions?.node != null;
 const userAgent = (isInBrowser && navigator.userAgent) || "";
@@ -118,6 +119,9 @@ class Console {
     }
     static create(type, levelFlags) {
         const console = __classPrivateFieldGet(this, _a$1, "f", _Console_consoles)[type] || new _a$1(type);
+        if (levelFlags) {
+            console.setLevelFlags(levelFlags);
+        }
         return console;
     }
     get log() {
@@ -429,7 +433,15 @@ class DeviceInformationManager {
 _DeviceInformationManager_information = new WeakMap(), _DeviceInformationManager_instances = new WeakSet(), _DeviceInformationManager_dispatchEvent_get = function _DeviceInformationManager_dispatchEvent_get() {
     return this.eventDispatcher.dispatchEvent;
 }, _DeviceInformationManager_isComplete_get = function _DeviceInformationManager_isComplete_get() {
-    return DeviceInformationMessageTypes.every((key) => key in __classPrivateFieldGet(this, _DeviceInformationManager_information, "f"));
+    return DeviceInformationMessageTypes.every((key) => {
+        switch (key) {
+            case "modelNumber":
+            case "serialNumber":
+                return true;
+            default:
+                return key in __classPrivateFieldGet(this, _DeviceInformationManager_information, "f");
+        }
+    });
 }, _DeviceInformationManager_update = function _DeviceInformationManager_update(partialDeviceInformation) {
     _console$7.log({ partialDeviceInformation });
     const deviceInformationNames = Object.keys(partialDeviceInformation);
@@ -690,6 +702,7 @@ function getCharacteristicProperties(characteristicName) {
         case "tapData":
         case "mouseData":
         case "unknown7":
+        case "unknown8":
             properties.read = false;
             break;
     }
@@ -730,23 +743,21 @@ class BluetoothConnectionManager extends BaseConnectionManager {
         this.isInRange = true;
     }
     onCharacteristicValueChanged(characteristicName, dataView) {
-        if (characteristicName == "rx") {
-            this.parseRxMessage(dataView);
-        }
-        else {
-            this.onMessageReceived?.(characteristicName, dataView);
+        switch (characteristicName) {
+            case "batteryLevel":
+            case "firmwareRevision":
+            case "hardwareRevision":
+            case "manufacturerName":
+            case "modelNumber":
+            case "pnpId":
+            case "serialNumber":
+            case "softwareRevision":
+                this.onMessageReceived?.(characteristicName, dataView);
+                break;
         }
     }
     async writeCharacteristic(characteristicName, data) {
         _console$3.log("writeCharacteristic", ...arguments);
-    }
-    async sendSmpMessage(data) {
-        super.sendSmpMessage(data);
-        await this.writeCharacteristic("smp", data);
-    }
-    async sendTxData(data) {
-        super.sendTxData(data);
-        await this.writeCharacteristic("tx", data);
     }
 }
 
@@ -1465,6 +1476,13 @@ _a = Device, _Device_eventDispatcher = new WeakMap(), _Device_connectionManager 
             _console.log("received battery level", { batteryLevel });
             __classPrivateFieldGet(this, _Device_instances, "m", _Device_updateBatteryLevel).call(this, batteryLevel);
             break;
+        default:
+            if (DeviceInformationMessageTypes.includes(messageType)) {
+                __classPrivateFieldGet(this, _Device_deviceInformationManager, "f").parseMessage(messageType, dataView);
+            }
+            else {
+                throw Error(`uncaught messageType ${messageType}`);
+            }
     }
     this.latestConnectionMessage.set(messageType, dataView);
     __classPrivateFieldGet(this, _Device_instances, "a", _Device_dispatchEvent_get).call(this, "connectionMessage", { messageType, dataView });
