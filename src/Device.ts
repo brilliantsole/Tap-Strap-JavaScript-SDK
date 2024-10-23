@@ -380,6 +380,9 @@ class Device {
   get setInputMode() {
     return this.#inputManager.setMode;
   }
+  get setSensitivityForType() {
+    return this.#inputManager.setSensitivityForType;
+  }
 
   // RAW SENSOR
   #rawSensorManager = new RawSensorManager();

@@ -29,7 +29,7 @@
     <h1>Basic | Tap Strap JavaScript SDK</h1>
 
     <div>
-      <h2>available devices</h2>
+      <h2>Available Devices</h2>
       <div id="availableDevices">
         <template id="availableDeviceTemplate">
           <div class="availableDevice">
@@ -43,14 +43,14 @@
     </div>
 
     <div>
-      <h2>connection</h2>
+      <h2>Connection</h2>
       <button id="toggleConnection">connect</button>
       <button id="reconnect" disabled>reconnect</button>
       <label>reconnect on disconnection? <input id="reconnectOnDisconnection" type="checkbox" /></label>
     </div>
 
     <div>
-      <h2>device information</h2>
+      <h2>Device Information</h2>
       <label><b>battery level:</b> <span id="batteryLevel"></span></label>
       <label><b>name:</b> <span id="name"></span></label>
       <pre id="deviceInformationPre"></pre>
@@ -59,7 +59,7 @@
     <div>
       <h2>Input Mode</h2>
       <label>
-        input mode
+        <b>input mode</b>
         <select id="inputMode">
           <optgroup label="input mode"></optgroup>
         </select>
@@ -67,7 +67,31 @@
     </div>
 
     <div>
+      <h2>Tap Data</h2>
+    </div>
+
+    <div>
+      <h2>Mouse Data</h2>
+    </div>
+
+    <div>
+      <h2>Gesture Data</h2>
+    </div>
+
+    <div>
+      <h2>Raw Sensor Data</h2>
+    </div>
+
+    <div>
       <h2>Raw Sensor Sensitivity</h2>
+      <template id="rawSensorSensitivityTemplate">
+        <label class="rawSensorSensitivity">
+          <b><span class="rawSensorType"></span></b>
+          <select class="sensitivity">
+            <optgroup label="sensitivity"></optgroup>
+          </select>
+        </label>
+      </template>
     </div>
 
     <div>
@@ -78,12 +102,12 @@
         <template id="vibrationSegmentTemplate">
           <div class="vibrationSegment">
             <label>
-              vibration
+              <b>vibration</b>
               <input class="vibrationDuration" type="range" min="0" value="100" max="2550" step="10" />
               (<span class="vibrationDurationSpan"></span>ms)
             </label>
             <label>
-              pause
+              <b>pause</b>
               <input class="pauseDuration" type="range" min="0" value="100" max="2550" step="10" />
               (<span class="pauseDurationSpan"></span>ms)
             </label>

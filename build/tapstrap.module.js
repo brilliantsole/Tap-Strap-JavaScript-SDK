@@ -1049,7 +1049,8 @@ function clamp(value, min = 0, max = 1) {
 
 var _VibrationManager_instances, _VibrationManager_createData;
 const _console$4 = createConsole("VibrationManager");
-const MaxNumberOfVibrationSegments = 18;
+const MaxNumberOfVibrations = 9;
+const MaxNumberOfVibrationSegments = MaxNumberOfVibrations * 2;
 class VibrationManager {
     constructor() {
         _VibrationManager_instances.add(this);
@@ -1371,11 +1372,19 @@ const RawSensorSensitivityFactors = {
     imuGyroscope: [17.5, 4.375, 8.75, 17.5, 35, 70],
     imuAccelerometer: [0.122, 0.061, 0.122, 0.244, 0.488],
 };
+const DefaultRawSensorSensitivity = {
+    deviceAccelerometer: 0,
+    imuGyroscope: 0,
+    imuAccelerometer: 0,
+};
+function assertValidRawSensorSensitivityForType(rawSensorType, index) {
+    const value = RawSensorSensitivityFactors[rawSensorType][index];
+    _console$2.assertWithError(value != undefined, `invalid RawSensorSensitivity index ${index} for sensor "${rawSensorType}" (got value ${value})`);
+}
 function assertValidRawSensorSensitivity(sensitivity) {
     RawSensorTypes.forEach((rawSensorType) => {
         const index = sensitivity[rawSensorType];
-        const value = RawSensorSensitivityFactors[rawSensorType][index];
-        _console$2.assertWithError(value != undefined, `invalid RawSensorSensitivity index ${index} for sensor "${rawSensorType}"`);
+        assertValidRawSensorSensitivityForType(rawSensorType, index);
     });
 }
 
@@ -1398,7 +1407,7 @@ const InputModeBytes = {
 class InputManager {
     constructor() {
         _InputManager_instances.add(this);
-        _InputManager_sensitivity.set(this, void 0);
+        _InputManager_sensitivity.set(this, Object.assign({}, DefaultRawSensorSensitivity));
         _InputManager_mode.set(this, "controller");
         _InputManager_timer.set(this, new Timer(__classPrivateFieldGet(this, _InputManager_instances, "m", _InputManager_sendModeData).bind(this), 10 * 1000));
         autoBind(this);
@@ -1408,6 +1417,11 @@ class InputManager {
     }
     set sensitivity(newSensitivity) {
         __classPrivateFieldSet(this, _InputManager_sensitivity, newSensitivity, "f");
+    }
+    setSensitivityForType(rawSensorType, index) {
+        assertValidRawSensorSensitivityForType(rawSensorType, index);
+        _console$1.log(`setting ${rawSensorType} sensitivity index to ${index}`);
+        __classPrivateFieldGet(this, _InputManager_sensitivity, "f")[rawSensorType] = index;
     }
     get mode() {
         return __classPrivateFieldGet(this, _InputManager_mode, "f");
@@ -1637,6 +1651,9 @@ class Device {
     get setInputMode() {
         return __classPrivateFieldGet(this, _Device_inputManager, "f").setMode;
     }
+    get setSensitivityForType() {
+        return __classPrivateFieldGet(this, _Device_inputManager, "f").setSensitivityForType;
+    }
     get vibrate() {
         return __classPrivateFieldGet(this, _Device_vibrationManager, "f").vibrate;
     }
@@ -1790,5 +1807,5 @@ _RangeHelper_range = new WeakMap(), _RangeHelper_instances = new WeakSet(), _Ran
     __classPrivateFieldGet(this, _RangeHelper_range, "f").span = __classPrivateFieldGet(this, _RangeHelper_range, "f").max - __classPrivateFieldGet(this, _RangeHelper_range, "f").min;
 };
 
-export { Device, DeviceManager$1 as DeviceManager, environment as Environment, InputModes, MaxNumberOfVibrationSegments, RangeHelper, RawSensorSensitivityFactors, RawSensorTypes, setAllConsoleLevelFlags, setConsoleLevelFlagsForType };
+export { Device, DeviceManager$1 as DeviceManager, environment as Environment, InputModes, MaxNumberOfVibrationSegments, MaxNumberOfVibrations, RangeHelper, RawSensorSensitivityFactors, RawSensorTypes, setAllConsoleLevelFlags, setConsoleLevelFlagsForType };
 //# sourceMappingURL=tapstrap.module.js.map

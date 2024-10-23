@@ -3,7 +3,7 @@ export * as Environment from "./utils/environment.ts";
 export { default as Device, DeviceEvent, DeviceEventMap, DeviceEventListenerMap, BoundDeviceEventListeners, } from "./Device.ts";
 export { default as DeviceManager, DeviceManagerEvent, DeviceManagerEventMap, DeviceManagerEventListenerMap, BoundDeviceManagerEventListeners, } from "./DeviceManager.ts";
 export { DeviceInformation } from "./DeviceInformationManager.ts";
-export { MaxNumberOfVibrationSegments } from "./VibrationManager.ts";
+export { MaxNumberOfVibrationSegments, MaxNumberOfVibrations } from "./VibrationManager.ts";
 export { InputModes, type InputMode } from "./InputManager.ts";
 export { default as RangeHelper } from "./utils/RangeHelper.ts";
 export { type RawSensorType, RawSensorTypes, type RawSensorSensitivity, RawSensorSensitivityFactors, } from "./utils/RawSensorUtils.ts";

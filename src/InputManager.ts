@@ -2,7 +2,14 @@ import { createConsole } from "./utils/Console.ts";
 import autoBind from "auto-bind";
 import { SendDataCallback } from "./connection/BaseConnectionManager.ts";
 import { concatenateArrayBuffers } from "./utils/ArrayBufferUtils.ts";
-import { assertValidRawSensorSensitivity, RawSensorSensitivity, RawSensorTypes } from "./utils/RawSensorUtils.ts";
+import {
+  assertValidRawSensorSensitivity,
+  assertValidRawSensorSensitivityForType,
+  DefaultRawSensorSensitivity,
+  RawSensorSensitivity,
+  RawSensorType,
+  RawSensorTypes,
+} from "./utils/RawSensorUtils.ts";
 import Timer from "./utils/Timer.ts";
 
 const _console = createConsole("InputManager");
@@ -31,12 +38,18 @@ class InputManager {
   }
   sendRxData!: SendDataCallback;
 
-  #sensitivity?: RawSensorSensitivity;
+  #sensitivity: RawSensorSensitivity = Object.assign({}, DefaultRawSensorSensitivity);
   get sensitivity() {
     return this.#sensitivity;
   }
   set sensitivity(newSensitivity) {
     this.#sensitivity = newSensitivity;
+  }
+
+  setSensitivityForType(rawSensorType: RawSensorType, index: number) {
+    assertValidRawSensorSensitivityForType(rawSensorType, index);
+    _console.log(`setting ${rawSensorType} sensitivity index to ${index}`);
+    this.#sensitivity[rawSensorType] = index;
   }
 
   #mode: InputMode = "controller";

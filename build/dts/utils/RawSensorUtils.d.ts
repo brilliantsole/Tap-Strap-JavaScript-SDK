@@ -6,6 +6,8 @@ export declare const RawSensorSensitivityFactors: {
 export type RawSensorSensitivity = {
     [rawSensorType in RawSensorType]: number;
 };
+export declare const DefaultRawSensorSensitivity: RawSensorSensitivity;
 export declare const RawSensorDataTypes: readonly ["none", "imu", "device"];
 export type RawSensorDataTypes = (typeof RawSensorDataTypes)[number];
+export declare function assertValidRawSensorSensitivityForType(rawSensorType: RawSensorType, index: number): void;
 export declare function assertValidRawSensorSensitivity(sensitivity: RawSensorSensitivity): void;

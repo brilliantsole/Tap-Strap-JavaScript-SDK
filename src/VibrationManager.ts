@@ -5,7 +5,8 @@ import { SendDataCallback } from "./connection/BaseConnectionManager.ts";
 
 const _console = createConsole("VibrationManager");
 
-export const MaxNumberOfVibrationSegments = 18;
+export const MaxNumberOfVibrations = 9;
+export const MaxNumberOfVibrationSegments = MaxNumberOfVibrations * 2;
 
 class VibrationManager {
   constructor() {

@@ -17,7 +17,7 @@ export {
 } from "./DeviceManager.ts";
 
 export { DeviceInformation } from "./DeviceInformationManager.ts";
-export { MaxNumberOfVibrationSegments } from "./VibrationManager.ts";
+export { MaxNumberOfVibrationSegments, MaxNumberOfVibrations } from "./VibrationManager.ts";
 export { InputModes, type InputMode } from "./InputManager.ts";
 
 export { default as RangeHelper } from "./utils/RangeHelper.ts";

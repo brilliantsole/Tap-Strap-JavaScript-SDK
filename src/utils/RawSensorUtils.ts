@@ -12,18 +12,27 @@ export const RawSensorSensitivityFactors: { [rawSensorType in RawSensorType]: nu
   imuAccelerometer: [0.122, 0.061, 0.122, 0.244, 0.488],
 };
 export type RawSensorSensitivity = { [rawSensorType in RawSensorType]: number };
+export const DefaultRawSensorSensitivity: RawSensorSensitivity = {
+  deviceAccelerometer: 0,
+  imuGyroscope: 0,
+  imuAccelerometer: 0,
+};
 
 //https://github.com/TapWithUs/tap-ios-sdk/blob/master/TAPKit-iOS/Helpers/RawSensorData/RawSensorData.swift#L50
 export const RawSensorDataTypes = ["none", "imu", "device"] as const;
 export type RawSensorDataTypes = (typeof RawSensorDataTypes)[number];
 
+export function assertValidRawSensorSensitivityForType(rawSensorType: RawSensorType, index: number) {
+  const value = RawSensorSensitivityFactors[rawSensorType][index];
+  _console.assertWithError(
+    value != undefined,
+    `invalid RawSensorSensitivity index ${index} for sensor "${rawSensorType}" (got value ${value})`
+  );
+}
+
 export function assertValidRawSensorSensitivity(sensitivity: RawSensorSensitivity) {
   RawSensorTypes.forEach((rawSensorType) => {
     const index = sensitivity[rawSensorType];
-    const value = RawSensorSensitivityFactors[rawSensorType][index];
-    _console.assertWithError(
-      value != undefined,
-      `invalid RawSensorSensitivity index ${index} for sensor "${rawSensorType}"`
-    );
+    assertValidRawSensorSensitivityForType(rawSensorType, index);
   });
 }

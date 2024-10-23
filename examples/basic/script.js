@@ -131,14 +131,27 @@ const inputModeOptgroup = inputModeSelect.querySelector("optgroup");
 TS.InputModes.forEach((inputMode) => {
   inputModeOptgroup.appendChild(new Option(inputMode));
 });
-device.addEventListener("isConnected", () => {
-  inputModeSelect.disabled = !device.isConnected;
-  if (!device.isConnected) {
-    inputModeSelect.value = TS.InputModes[0];
-  }
-});
 inputModeSelect.addEventListener("input", () => {
   device.setInputMode(inputModeSelect.value);
+});
+
+/** @type {HTMLTemplateElement} */
+const rawSensorSensitivityTemplate = document.getElementById("rawSensorSensitivityTemplate");
+TS.RawSensorTypes.forEach((rawSensorType) => {
+  const rawSensorSensitivityContainer = rawSensorSensitivityTemplate.content
+    .cloneNode(true)
+    .querySelector(".rawSensorSensitivity");
+  /** @type {HTMLSelectElement} */
+  const sensitivitySelect = rawSensorSensitivityContainer.querySelector(".sensitivity");
+  const sensitivityOptgroup = sensitivitySelect.querySelector("optgroup");
+  TS.RawSensorSensitivityFactors[rawSensorType].forEach((sensitivity, index) => {
+    sensitivityOptgroup.appendChild(new Option(sensitivity, index));
+  });
+  sensitivitySelect.addEventListener("input", () => {
+    device.setSensitivityForType(rawSensorType, Number(sensitivitySelect.value));
+  });
+  rawSensorSensitivityContainer.querySelector(".rawSensorType").innerText = rawSensorType;
+  rawSensorSensitivityTemplate.parentElement.appendChild(rawSensorSensitivityContainer);
 });
 
 // VIBRATION
@@ -191,7 +204,7 @@ function addVibrationSegment() {
 const addVibrationSegmentButton = document.getElementById("addVibrationSegment");
 addVibrationSegmentButton.addEventListener("click", () => addVibrationSegment());
 function updateAddVibrationSegmentButton() {
-  addVibrationSegmentButton.disabled = vibrationSegmentContainers.length >= TS.MaxNumberOfVibrationSegments;
+  addVibrationSegmentButton.disabled = vibrationSegmentContainers.length >= TS.MaxNumberOfVibrations;
 }
 
 /** @type {HTMLButtonElement} */
