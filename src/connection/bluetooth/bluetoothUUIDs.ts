@@ -203,6 +203,7 @@ export function getCharacteristicProperties(
     case "tapData":
     case "mouseData":
     case "unknown7":
+    case "unknown8":
       properties.read = false;
       break;
   }

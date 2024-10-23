@@ -136,6 +136,10 @@ abstract class BaseConnectionManager {
     _console.log("disconnecting from device...");
   }
 
+  // async sendTxData(data: ArrayBuffer) {
+  //   _console.log("sendTxData", data);
+  // }
+
   #timer = new Timer(this.#checkConnection.bind(this), 5000);
   #checkConnection() {
     //console.log("checking connection...");

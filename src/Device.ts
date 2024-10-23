@@ -299,6 +299,11 @@ class Device {
         break;
 
       default:
+        if (DeviceInformationMessageTypes.includes(messageType as DeviceInformationMessageType)) {
+          this.#deviceInformationManager.parseMessage(messageType as DeviceInformationMessageType, dataView);
+        } else {
+          throw Error(`uncaught messageType ${messageType}`);
+        }
       /*
         if (FileTransferMessageTypes.includes(messageType as FileTransferMessageType)) {
           this.#fileTransferManager.parseMessage(messageType as FileTransferMessageType, dataView);

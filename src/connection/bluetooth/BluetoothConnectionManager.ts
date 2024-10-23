@@ -9,25 +9,25 @@ abstract class BluetoothConnectionManager extends BaseConnectionManager {
   isInRange = true;
 
   protected onCharacteristicValueChanged(characteristicName: BluetoothCharacteristicName, dataView: DataView) {
-    if (characteristicName == "rx") {
-      this.parseRxMessage(dataView);
-    } else {
-      this.onMessageReceived?.(characteristicName, dataView);
+    switch (characteristicName) {
+      case "batteryLevel":
+
+      case "firmwareRevision":
+      case "hardwareRevision":
+      case "manufacturerName":
+      case "modelNumber":
+      case "pnpId":
+      case "serialNumber":
+      case "softwareRevision":
+        this.onMessageReceived?.(characteristicName, dataView);
+        break;
+      default:
+        break;
     }
   }
 
   protected async writeCharacteristic(characteristicName: BluetoothCharacteristicName, data: ArrayBuffer) {
     _console.log("writeCharacteristic", ...arguments);
-  }
-
-  async sendSmpMessage(data: ArrayBuffer) {
-    super.sendSmpMessage(data);
-    await this.writeCharacteristic("smp", data);
-  }
-
-  async sendTxData(data: ArrayBuffer) {
-    super.sendTxData(data);
-    await this.writeCharacteristic("tx", data);
   }
 }
 
