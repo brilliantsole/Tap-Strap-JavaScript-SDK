@@ -29,6 +29,16 @@ abstract class BluetoothConnectionManager extends BaseConnectionManager {
   protected async writeCharacteristic(characteristicName: BluetoothCharacteristicName, data: ArrayBuffer) {
     _console.log("writeCharacteristic", ...arguments);
   }
+
+  async sendUICommandsData(data: ArrayBuffer) {
+    super.sendUICommandsData(data);
+    await this.writeCharacteristic("uiCommands", data);
+  }
+
+  async sendRxData(data: ArrayBuffer) {
+    super.sendRxData(data);
+    await this.writeCharacteristic("rx", data);
+  }
 }
 
 export default BluetoothConnectionManager;

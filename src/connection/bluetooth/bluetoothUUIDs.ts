@@ -1,7 +1,7 @@
 import { isInBrowser, isInNode } from "../../utils/environment.ts";
 import { createConsole } from "../../utils/Console.ts";
 
-const _console = createConsole("bluetoothUUIDs", { log: false });
+const _console = createConsole("bluetoothUUIDs", { log: true });
 
 /** NODE_START */
 import * as webbluetooth from "webbluetooth";
@@ -13,10 +13,17 @@ if (isInBrowser) {
 }
 /** BROWSER_END */
 
-function generateBluetoothUUID(value: string): BluetoothServiceUUID {
+//https://github.com/TapWithUs/tap-ios-sdk/blob/155ab66658662a19d39b231264a3efdd8b5b7e7b/TAPKit-iOS/Helpers/TAPCBUUID.swift#L57
+function generateTapBluetoothUUID(value: string): BluetoothServiceUUID {
   _console.assertTypeWithError(value, "string");
   _console.assertWithError(value.length == 1, "value must be 1 character long");
   return `C3FF000${value}-1D8B-40FD-A56F-C7BD5D0F3370`.toLowerCase();
+}
+// https://github.com/TapWithUs/tap-ios-sdk/blob/155ab66658662a19d39b231264a3efdd8b5b7e7b/TAPKit-iOS/Helpers/TAPCBUUID.swift#L58
+function generateNUSBluetoothUUID(value: string): BluetoothServiceUUID {
+  _console.assertTypeWithError(value, "string");
+  _console.assertWithError(value.length == 1, "value must be 1 character long");
+  return `6E40000${value}-B5A3-F393-E0A9-E50E24DCCA9E`.toLowerCase();
 }
 
 function stringToCharacteristicUUID(identifier: string): BluetoothCharacteristicUUID {
@@ -27,7 +34,7 @@ function stringToServiceUUID(identifier: string): BluetoothServiceUUID {
   return BluetoothUUID?.getService?.(identifier);
 }
 
-export type BluetoothServiceName = "deviceInformation" | "battery" | "main";
+export type BluetoothServiceName = "deviceInformation" | "battery" | "tap" | "nus";
 import { DeviceInformationMessageType } from "../../DeviceInformationManager.ts";
 export type BluetoothCharacteristicName =
   | DeviceInformationMessageType
@@ -43,7 +50,9 @@ export type BluetoothCharacteristicName =
   | "unknown8"
   | "unknownB"
   | "unknownC"
-  | "unknownD";
+  | "unknownD"
+  | "rx"
+  | "tx";
 
 interface BluetoothCharacteristicInformation {
   uuid: BluetoothCharacteristicUUID;
@@ -92,29 +101,37 @@ const bluetoothUUIDs: BluetoothServicesInformation = Object.freeze({
         },
       },
     },
-    main: {
-      uuid: generateBluetoothUUID("1"),
+    tap: {
+      uuid: generateTapBluetoothUUID("1"),
       characteristics: {
-        tapData: { uuid: generateBluetoothUUID("5") },
-        mouseData: { uuid: generateBluetoothUUID("6") },
-        airGestures: { uuid: generateBluetoothUUID("A") },
-        uiCommands: { uuid: generateBluetoothUUID("9") },
-        settings: { uuid: generateBluetoothUUID("2") },
-        unknown3: { uuid: generateBluetoothUUID("3") },
-        unknown7: { uuid: generateBluetoothUUID("7") },
-        unknown8: { uuid: generateBluetoothUUID("8") },
-        unknownB: { uuid: generateBluetoothUUID("B") },
-        unknownC: { uuid: generateBluetoothUUID("C") },
-        unknownD: { uuid: generateBluetoothUUID("D") },
+        tapData: { uuid: generateTapBluetoothUUID("5") },
+        mouseData: { uuid: generateTapBluetoothUUID("6") },
+        airGestures: { uuid: generateTapBluetoothUUID("A") },
+        uiCommands: { uuid: generateTapBluetoothUUID("9") },
+        settings: { uuid: generateTapBluetoothUUID("2") },
+        unknown3: { uuid: generateTapBluetoothUUID("3") },
+        unknown7: { uuid: generateTapBluetoothUUID("7") },
+        unknown8: { uuid: generateTapBluetoothUUID("8") },
+        unknownB: { uuid: generateTapBluetoothUUID("B") },
+        unknownC: { uuid: generateTapBluetoothUUID("C") },
+        unknownD: { uuid: generateTapBluetoothUUID("D") },
+      },
+    },
+    nus: {
+      uuid: generateNUSBluetoothUUID("1"),
+      characteristics: {
+        rx: { uuid: generateNUSBluetoothUUID("2") },
+        tx: { uuid: generateNUSBluetoothUUID("3") },
       },
     },
   },
 });
 
-export const serviceUUIDs = [bluetoothUUIDs.services.main.uuid];
+export const serviceUUIDs = [bluetoothUUIDs.services.tap.uuid];
 export const optionalServiceUUIDs = [
   bluetoothUUIDs.services.deviceInformation.uuid,
   bluetoothUUIDs.services.battery.uuid,
+  bluetoothUUIDs.services.nus.uuid,
 ];
 export const allServiceUUIDs = [...serviceUUIDs, ...optionalServiceUUIDs];
 
@@ -156,7 +173,7 @@ Object.values(bluetoothUUIDs.services).forEach((serviceInfo) => {
   });
 }, []);
 
-//_console.log({ characteristicUUIDs, allCharacteristicUUIDs });
+_console.log({ serviceUUIDs, optionalServiceUUIDs, characteristicUUIDs, allCharacteristicUUIDs });
 
 export function getCharacteristicNameFromUUID(
   characteristicUUID: BluetoothCharacteristicUUID
@@ -218,6 +235,7 @@ export function getCharacteristicProperties(
     case "unknownB":
     case "unknownC":
     case "unknownD":
+    case "tx":
       properties.notify = true;
       break;
   }
@@ -237,6 +255,7 @@ export function getCharacteristicProperties(
     case "settings":
     case "unknown3":
     case "unknown7":
+    case "rx":
       properties.write = true;
       break;
   }

@@ -123,6 +123,91 @@ device.addEventListener("isConnected", () => {
   nameSpan.innerText = device.name;
 });
 
+// INPUT MODE
+
+/** @type {HTMLSelectElement} */
+const inputModeSelect = document.getElementById("inputMode");
+const inputModeOptgroup = inputModeSelect.querySelector("optgroup");
+TS.InputModes.forEach((inputMode) => {
+  inputModeOptgroup.appendChild(new Option(inputMode));
+});
+device.addEventListener("isConnected", () => {
+  inputModeSelect.disabled = !device.isConnected;
+  if (!device.isConnected) {
+    inputModeSelect.value = TS.InputModes[0];
+  }
+});
+inputModeSelect.addEventListener("input", () => {
+  device.setInputMode(inputModeSelect.value);
+});
+
 // VIBRATION
 
-// FILL
+device.addEventListener("connected", () => {
+  device.vibrate([200, 100, 100, 20, 100, 20]);
+});
+
+/** @type {HTMLElement[]} */
+const vibrationSegmentContainers = [];
+
+const vibrationSegmentsContainer = document.getElementById("vibrationSegments");
+/** @type {HTMLTemplateElement} */
+const vibratonSegmentTemplate = document.getElementById("vibrationSegmentTemplate");
+
+function addVibrationSegment() {
+  if (vibrationSegmentContainers.length >= TS.MaxNumberOfVibrationSegments) {
+    return;
+  }
+
+  const vibrationSegmentContainer = vibratonSegmentTemplate.content.cloneNode(true).querySelector(".vibrationSegment");
+  vibrationSegmentContainers.push(vibrationSegmentContainer);
+
+  const vibrationDurationInput = vibrationSegmentContainer.querySelector(".vibrationDuration");
+  const vibrationDurationSpan = vibrationSegmentContainer.querySelector(".vibrationDurationSpan");
+  vibrationDurationInput.addEventListener("input", () => {
+    vibrationDurationSpan.innerText = vibrationDurationInput.value;
+  });
+  vibrationDurationInput.dispatchEvent(new Event("input"));
+  const pauseDurationInput = vibrationSegmentContainer.querySelector(".pauseDuration");
+  const pauseDurationSpan = vibrationSegmentContainer.querySelector(".pauseDurationSpan");
+  pauseDurationInput.addEventListener("input", () => {
+    pauseDurationSpan.innerText = pauseDurationInput.value;
+  });
+  pauseDurationInput.dispatchEvent(new Event("input"));
+
+  vibrationSegmentContainer.querySelector(".remove").addEventListener("click", () => {
+    vibrationSegmentContainers.splice(vibrationSegmentContainers.indexOf(vibrationSegmentContainer), 1);
+    vibrationSegmentContainer.remove();
+    updateAddVibrationSegmentButton();
+    updateVibrationButton();
+  });
+  vibrationSegmentsContainer.appendChild(vibrationSegmentContainer);
+
+  updateAddVibrationSegmentButton();
+  updateVibrationButton();
+}
+
+/** @type {HTMLButtonElement} */
+const addVibrationSegmentButton = document.getElementById("addVibrationSegment");
+addVibrationSegmentButton.addEventListener("click", () => addVibrationSegment());
+function updateAddVibrationSegmentButton() {
+  addVibrationSegmentButton.disabled = vibrationSegmentContainers.length >= TS.MaxNumberOfVibrationSegments;
+}
+
+/** @type {HTMLButtonElement} */
+const vibrateButton = document.getElementById("vibrate");
+function updateVibrationButton() {
+  vibrateButton.disabled = !device.isConnected || vibrationSegmentContainers.length == 0;
+}
+device.addEventListener("isConnected", () => updateVibrationButton());
+vibrateButton.addEventListener("click", () => {
+  const vibrationSegments = vibrationSegmentContainers
+    .map((vibrationSegmentContainer) => {
+      const vibrationDuration = Number(vibrationSegmentContainer.querySelector(".vibrationDuration").value);
+      const pauseDuration = Number(vibrationSegmentContainer.querySelector(".pauseDuration").value);
+      return [vibrationDuration, pauseDuration];
+    })
+    .flat();
+  console.log("vibrationSegments", vibrationSegments);
+  device.vibrate(vibrationSegments);
+});

@@ -19,3 +19,4 @@ export interface Euler {
     pitch: number;
     roll: number;
 }
+export declare function clamp(value: number, min?: number, max?: number): number;

@@ -51,19 +51,46 @@
 
     <div>
       <h2>device information</h2>
+      <label><b>battery level:</b> <span id="batteryLevel"></span></label>
+      <label><b>name:</b> <span id="name"></span></label>
       <pre id="deviceInformationPre"></pre>
     </div>
 
     <div>
-      <label><b>battery level:</b> <span id="batteryLevel"></span></label>
+      <h2>Input Mode</h2>
+      <label>
+        input mode
+        <select id="inputMode">
+          <optgroup label="input mode"></optgroup>
+        </select>
+      </label>
     </div>
 
     <div>
-      <label><b>name:</b> <span id="name"></span></label>
+      <h2>Raw Sensor Sensitivity</h2>
     </div>
 
     <div>
-      <h2>vibration</h2>
+      <h2>Vibration</h2>
+      <div id="vibrationSegments">
+        <button id="addVibrationSegment">add segment</button>
+        <button id="vibrate" disabled>vibrate</button>
+        <template id="vibrationSegmentTemplate">
+          <div class="vibrationSegment">
+            <label>
+              vibration
+              <input class="vibrationDuration" type="range" min="0" value="100" max="2550" step="10" />
+              (<span class="vibrationDurationSpan"></span>ms)
+            </label>
+            <label>
+              pause
+              <input class="pauseDuration" type="range" min="0" value="100" max="2550" step="10" />
+              (<span class="pauseDurationSpan"></span>ms)
+            </label>
+            <button class="remove">remove</button>
+          </div>
+        </template>
+      </div>
     </div>
   </body>
 </html>

@@ -9,7 +9,7 @@ import BaseConnectionManager, {
 } from "./connection/BaseConnectionManager.ts";
 import { isInBrowser, isInNode } from "./utils/environment.ts";
 import WebBluetoothConnectionManager from "./connection/bluetooth/WebBluetoothConnectionManager.ts";
-import VibrationManager, { SendVibrationMessageCallback } from "./vibration/VibrationManager.ts";
+import VibrationManager from "./VibrationManager.ts";
 import DeviceInformationManager, {
   DeviceInformationEventDispatcher,
   DeviceInformationEventTypes,
@@ -17,8 +17,9 @@ import DeviceInformationManager, {
   DeviceInformationMessageTypes,
   DeviceInformationEventMessages,
 } from "./DeviceInformationManager.ts";
-import { FileLike } from "./utils/ArrayBufferUtils.ts";
 import DeviceManager from "./DeviceManager.ts";
+import InputManager from "./InputManager.ts";
+import RawSensorManager from "./RawSensorManager.ts";
 
 const _console = createConsole("Device", { log: true });
 
@@ -34,13 +35,6 @@ export interface DeviceEventMessages extends ConnectionStatusEventMessages, Devi
   batteryLevel: { batteryLevel: number };
   connectionMessage: { messageType: ConnectionMessageType; dataView: DataView };
 }
-
-export type SendMessageCallback<MessageType extends string> = (
-  messages?: { type: MessageType; data?: ArrayBuffer }[],
-  sendImmediately?: boolean
-) => Promise<void>;
-
-export type SendSmpMessageCallback = (data: ArrayBuffer) => Promise<void>;
 
 export type DeviceEventDispatcher = EventDispatcher<Device, DeviceEventType, DeviceEventMessages>;
 export type DeviceEvent = Event<Device, DeviceEventType, DeviceEventMessages>;
@@ -58,9 +52,22 @@ class Device {
 
   constructor() {
     this.#deviceInformationManager.eventDispatcher = this.#eventDispatcher as DeviceInformationEventDispatcher;
+    //this.#rawSensorManager.eventDispatcher = this.#eventDispatcher as RawSensorEventDispatcher;
 
-    // FIX
-    //this.#vibrationManager.sendMessage = this.sendTxMessages as SendVibrationMessageCallback;
+    this.#vibrationManager.sendUICommandsData = this.sendUICommandsData;
+    this.#inputManager.sendRxData = this.sendRxData;
+
+    this.addEventListener("hardwareRevision", () => {
+      // FILL - check feature support
+    });
+
+    this.addEventListener("isConnected", () => {
+      if (this.isConnected) {
+        this.#inputManager.start();
+      } else {
+        this.#inputManager.stop();
+      }
+    });
 
     DeviceManager.onDevice(this);
     if (isInBrowser) {
@@ -130,6 +137,16 @@ class Device {
     this.#connectionManager = newConnectionManager;
     _console.log("assigned new connectionManager", this.#connectionManager);
   }
+
+  async #sendUICommandsData(data: ArrayBuffer) {
+    await this.#connectionManager?.sendUICommandsData(data);
+  }
+  private sendUICommandsData = this.#sendUICommandsData.bind(this);
+
+  async #sendRxData(data: ArrayBuffer) {
+    await this.#connectionManager?.sendRxData(data);
+  }
+  private sendRxData = this.#sendRxData.bind(this);
 
   async connect() {
     if (!this.connectionManager) {
@@ -358,10 +375,20 @@ class Device {
     this.#dispatchEvent("batteryLevel", { batteryLevel: this.#batteryLevel });
   }
 
+  // INPUT MODE
+  #inputManager = new InputManager();
+  get setInputMode() {
+    return this.#inputManager.setMode;
+  }
+
+  // RAW SENSOR
+  #rawSensorManager = new RawSensorManager();
+
   // VIBRATION
   #vibrationManager = new VibrationManager();
-  async triggerVibration(vibrationConfiguration: number[]) {
-    this.#vibrationManager.triggerVibration(vibrationConfiguration);
+  /** [hapticsMs, pauseMs, hapticsMs, pauseMs...] */
+  get vibrate() {
+    return this.#vibrationManager.vibrate;
   }
 
   // SERVER SIDE

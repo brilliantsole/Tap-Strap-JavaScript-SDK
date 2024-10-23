@@ -1,4 +1,4 @@
-import { SendDataCallback } from "../connection/BaseConnectionManager.ts";
+import { SendDataCallback } from "./connection/BaseConnectionManager.ts";
 export declare const MaxNumberOfVibrationSegments = 18;
 declare class VibrationManager {
     #private;

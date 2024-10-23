@@ -1,10 +1,7 @@
 import { createConsole } from "../utils/Console.ts";
 import Timer from "../utils/Timer.ts";
 
-import { concatenateArrayBuffers } from "../utils/ArrayBufferUtils.ts";
-import { parseMessage } from "../utils/ParseUtils.ts";
 import { DeviceInformationMessageTypes } from "../DeviceInformationManager.ts";
-import { VibrationMessageTypes } from "../vibration/VibrationManager.ts";
 
 const _console = createConsole("BaseConnectionManager", { log: true });
 
@@ -35,6 +32,8 @@ export type ConnectionMessageType = (typeof ConnectionMessageTypes)[number];
 export type ConnectionStatusCallback = (status: ConnectionStatus) => void;
 export type MessageReceivedCallback = (messageType: ConnectionMessageType, dataView: DataView) => void;
 export type MessagesReceivedCallback = () => void;
+
+export type SendDataCallback = (data: ArrayBuffer) => Promise<void>;
 
 abstract class BaseConnectionManager {
   abstract get bluetoothId(): string;
@@ -136,9 +135,13 @@ abstract class BaseConnectionManager {
     _console.log("disconnecting from device...");
   }
 
-  // async sendTxData(data: ArrayBuffer) {
-  //   _console.log("sendTxData", data);
-  // }
+  async sendUICommandsData(data: ArrayBuffer) {
+    _console.log("sendUICommandsData", data);
+  }
+
+  async sendRxData(data: ArrayBuffer) {
+    _console.log("sendRxData", data);
+  }
 
   #timer = new Timer(this.#checkConnection.bind(this), 5000);
   #checkConnection() {

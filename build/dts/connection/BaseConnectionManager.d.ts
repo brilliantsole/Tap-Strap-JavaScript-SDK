@@ -23,6 +23,7 @@ export type ConnectionMessageType = (typeof ConnectionMessageTypes)[number];
 export type ConnectionStatusCallback = (status: ConnectionStatus) => void;
 export type MessageReceivedCallback = (messageType: ConnectionMessageType, dataView: DataView) => void;
 export type MessagesReceivedCallback = () => void;
+export type SendDataCallback = (data: ArrayBuffer) => Promise<void>;
 declare abstract class BaseConnectionManager {
     #private;
     abstract get bluetoothId(): string;
@@ -43,5 +44,7 @@ declare abstract class BaseConnectionManager {
     get canReconnect(): boolean;
     reconnect(): Promise<void>;
     disconnect(): Promise<void>;
+    sendUICommandsData(data: ArrayBuffer): Promise<void>;
+    sendRxData(data: ArrayBuffer): Promise<void>;
 }
 export default BaseConnectionManager;

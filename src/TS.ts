@@ -17,12 +17,19 @@ export {
 } from "./DeviceManager.ts";
 
 export { DeviceInformation } from "./DeviceInformationManager.ts";
+export { MaxNumberOfVibrationSegments } from "./VibrationManager.ts";
+export { InputModes, type InputMode } from "./InputManager.ts";
 
-export { MaxNumberOfVibrationSegments } from "./vibration/VibrationManager.ts";
+export { default as RangeHelper } from "./utils/RangeHelper.ts";
+
+export {
+  type RawSensorType,
+  RawSensorTypes,
+  type RawSensorSensitivity,
+  RawSensorSensitivityFactors,
+} from "./utils/RawSensorUtils.ts";
 
 export { DiscoveredDevice } from "./scanner/BaseScanner.ts";
 /** NODE_START */
 export { default as Scanner } from "./scanner/Scanner.ts";
 /** NODE_END */
-
-export { default as RangeHelper } from "./utils/RangeHelper.ts";

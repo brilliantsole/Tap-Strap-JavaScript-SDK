@@ -39,10 +39,10 @@ if (isInBrowser) {
 
 class WebBluetoothConnectionManager extends BluetoothConnectionManager {
   get bluetoothId() {
-    return this.device!.id;
+    return this.device?.id || "";
   }
   get name() {
-    return this.device!.name!;
+    return this.device?.name || "";
   }
 
   #boundBluetoothCharacteristicEventListeners: { [eventType: string]: EventListener } = {
@@ -120,8 +120,9 @@ class WebBluetoothConnectionManager extends BluetoothConnectionManager {
 
     _console.log("getting services...");
     const services = await this.server!.getPrimaryServices();
-    _console.log("got services", services.length);
-    //const service = await this.server!.getPrimaryService("8d53dc1d-1db7-4cd3-868b-8a527460aa84");
+    _console.log("got services", services);
+    const service = await this.server!.getPrimaryService("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+    _console.log("got nus service", service);
 
     _console.log("getting characteristics...");
     for (const serviceIndex in services) {
