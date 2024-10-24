@@ -42,7 +42,7 @@ export function assertValidRawSensorSensitivity(sensitivity: RawSensorSensitivit
 }
 
 // https://github.com/TapWithUs/tap-ios-sdk/blob/master/TAPKit-iOS/Helpers/RawSensorData/RawSensorData.swift#L60C5-L66C43
-export const RawSensorImuTypes = ["gyro", "accelerometer"] as const;
+export const RawSensorImuTypes = ["gyroscope", "accelerometer"] as const;
 export type RawSensorImuType = (typeof RawSensorImuTypes)[number];
 
 export const RawSensorFingers = ["thumb", "index", "middle", "ring", "pinky"] as const;

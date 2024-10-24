@@ -14,6 +14,7 @@ export const AirGestures = [
   "xrAirGestureThumbMiddle",
 ] as const;
 export type AirGesture = (typeof AirGestures)[number];
+
 export const AirGestureEnum: { [airGesture in AirGesture]: number } = {
   oneFingerUp: 2,
   twoFingersUp: 3,
@@ -29,6 +30,12 @@ export const AirGestureEnum: { [airGesture in AirGesture]: number } = {
   xrAirGestureThumbIndex: 101,
   xrAirGestureThumbMiddle: 102,
 };
+// @ts-ignore
+export const AirGestureEnumLookup: { [key: number]: AirGesture } = {};
+Object.keys(AirGestureEnum).forEach((airGesture) => {
+  // @ts-ignore
+  AirGestureEnumLookup[airGesture] = AirGestureEnum[airGesture];
+});
 
 export const XRGestureStates = ["none", "thumbIndex", "thumbMiddle"] as const;
 export type XRGestureState = (typeof XRGestureStates)[number];
@@ -57,3 +64,9 @@ export const XRAirGestureEnum: { [xrAirGesture in XRAirGesture]: number } = {
   potentialDragOrClickIndex: 6,
   potentialDragOrClickMiddle: 7,
 };
+// @ts-ignore
+export const XRAirGestureEnumLookup: { [key: number]: XRAirGesture } = {};
+Object.keys(XRAirGestureEnum).forEach((xrAirGesture) => {
+  // @ts-ignore
+  XRAirGestureEnumLookup[xrAirGesture] = XRAirGestureEnum[xrAirGesture];
+});

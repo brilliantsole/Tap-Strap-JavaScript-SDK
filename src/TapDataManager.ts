@@ -25,16 +25,23 @@ class TapDataManager {
     autoBind(this);
   }
 
+  isInAirGestureState = false;
+
   parseMessage(messageType: TapDataMessageType, dataView: DataView) {
     _console.log({ messageType });
 
     switch (messageType) {
       case "tapData":
-        // FILL
+        this.#parse(dataView);
         break;
       default:
         throw Error(`uncaught messageType ${messageType}`);
     }
+  }
+
+  #parse(dataView: DataView) {
+    _console.log("parsing tap data", dataView);
+    // FILL
   }
 }
 

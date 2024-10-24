@@ -14,7 +14,7 @@ export declare const RawSensorDataLength: {
 };
 export declare function assertValidRawSensorSensitivityForType(rawSensorType: RawSensorType, index: number): void;
 export declare function assertValidRawSensorSensitivity(sensitivity: RawSensorSensitivity): void;
-export declare const RawSensorImuTypes: readonly ["gyro", "accelerometer"];
+export declare const RawSensorImuTypes: readonly ["gyroscope", "accelerometer"];
 export type RawSensorImuType = (typeof RawSensorImuTypes)[number];
 export declare const RawSensorFingers: readonly ["thumb", "index", "middle", "ring", "pinky"];
 export type RawSensorFinger = (typeof RawSensorFingers)[number];

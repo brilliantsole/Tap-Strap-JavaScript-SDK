@@ -107,6 +107,9 @@ class Device {
     this.addEventListener("hardwareRevision", () => {
       // FILL - check feature support
     });
+    this.addEventListener("isInAirGestureState", (event) => {
+      this.#tapDataManager.isInAirGestureState = event.message.isInAirGestureState;
+    });
 
     this.addEventListener("isConnected", () => {
       if (this.isConnected) {

@@ -11,6 +11,7 @@ declare class TapDataManager {
     #private;
     eventDispatcher: TapDataEventDispatcher;
     constructor();
+    isInAirGestureState: boolean;
     parseMessage(messageType: TapDataMessageType, dataView: DataView): void;
 }
 export default TapDataManager;

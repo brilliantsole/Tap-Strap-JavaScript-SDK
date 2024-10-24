@@ -30,11 +30,16 @@ class MouseDataManager {
 
     switch (messageType) {
       case "mouseData":
-        // FILL
+        this.#parseMouseData(dataView);
         break;
       default:
         throw Error(`uncaught messageType ${messageType}`);
     }
+  }
+
+  #parseMouseData(dataView: DataView) {
+    _console.log("parsing mouse data", dataView);
+    // FILL
   }
 }
 

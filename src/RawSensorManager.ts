@@ -6,6 +6,9 @@ import {
   RawSensorDataLength,
   RawSensorDataType,
   RawSensorDataTypes,
+  RawSensorFinger,
+  RawSensorFingers,
+  RawSensorImuTypes,
   RawSensorSensitivity,
   RawSensorSensitivityFactors,
   RawSensorType,
@@ -21,15 +24,24 @@ export type RawSensorMessageType = (typeof RawSensorMessageTypes)[number];
 export const RawSensorEventTypes = [...RawSensorMessageTypes, ...RawSensorDataTypes] as const;
 export type RawSensorEventType = (typeof RawSensorEventTypes)[number];
 
-export type RawSensorEventMessage = {
+interface BaseRawSensorEventMessage {
   timestamp: number;
   sensorDataType: RawSensorDataType;
-  points: Vector3[];
-};
+}
+interface ImuSensorEventMessage extends BaseRawSensorEventMessage {
+  accelerometer: Vector3;
+  gyroscope: Vector3;
+  sensorDataType: "imu";
+}
+interface DeviceSensorEventMessage extends BaseRawSensorEventMessage {
+  fingers: { [finger in RawSensorFinger]: Vector3 };
+  sensorDataType: "device";
+}
+type RawSensorEventMessage = ImuSensorEventMessage | DeviceSensorEventMessage;
 export interface RawSensorEventMessages {
   rawSensor: RawSensorEventMessage;
-  imu: RawSensorEventMessage;
-  device: RawSensorEventMessage;
+  imu: ImuSensorEventMessage;
+  device: DeviceSensorEventMessage;
 }
 
 export type RawSensorEventDispatcher = EventDispatcher<Device, RawSensorEventType, RawSensorEventMessages>;
@@ -99,7 +111,7 @@ class RawSensorManager {
     _console.log(`parsing ${sensorDataType} ${timestamp}ms`, sensorData);
     let rawSensorType: RawSensorType = sensorDataType == "device" ? "deviceAccelerometer" : "imuGyroscope";
 
-    const points: Vector3[] = [];
+    const vectors: Vector3[] = [];
     for (let offset = 0; offset < sensorData.byteLength; offset += 6) {
       const sensitivityFactorIndex = this.sensitivity[rawSensorType];
       const sensitivityFactor = RawSensorSensitivityFactors[rawSensorType][sensitivityFactorIndex];
@@ -109,33 +121,49 @@ class RawSensorManager {
         sensorData.getInt16(offset + 4, true),
       ].map((value) => value * sensitivityFactor);
       _console.log({ x, y, z });
-      const point: Vector3 = { x, y, z };
-      _console.log("point", point);
-      points.push(point);
+      const vector: Vector3 = { x, y, z };
+      _console.log("vector", vector);
+      vectors.push(vector);
       if (sensorDataType == "imu") {
         rawSensorType = "imuAccelerometer";
       }
     }
 
-    let validNumberOfPoints = 0;
+    let validNumberOfVectors = 0;
     switch (sensorDataType) {
       case "imu":
-        validNumberOfPoints = 2;
+        validNumberOfVectors = 2;
         break;
       case "device":
-        validNumberOfPoints = 5;
+        validNumberOfVectors = 5;
         break;
     }
 
-    if (points.length != validNumberOfPoints) {
+    if (vectors.length != validNumberOfVectors) {
       _console.log(
-        `invalid number of ${sensorDataType} points (expected ${validNumberOfPoints}, get ${points.length})`
+        `invalid number of ${sensorDataType} vectors (expected ${validNumberOfVectors}, get ${vectors.length})`
       );
       return;
     }
 
-    this.#dispatchEvent(sensorDataType, { sensorDataType, points, timestamp });
-    this.#dispatchEvent("rawSensor", { sensorDataType, points, timestamp });
+    // @ts-ignore
+    const message: RawSensorEventMessage = { sensorDataType, timestamp };
+    switch (message.sensorDataType) {
+      case "imu":
+        message.accelerometer = vectors[RawSensorImuTypes.indexOf("accelerometer")];
+        message.gyroscope = vectors[RawSensorImuTypes.indexOf("gyroscope")];
+        break;
+      case "device":
+        // @ts-ignore
+        message.fingers = {};
+        RawSensorFingers.forEach((finger, index) => {
+          message.fingers[finger] = vectors[index];
+        });
+        break;
+    }
+
+    this.#dispatchEvent(sensorDataType, message);
+    this.#dispatchEvent("rawSensor", message);
   }
 }
 

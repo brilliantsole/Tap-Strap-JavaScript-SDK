@@ -3,6 +3,9 @@ export type AirGesture = (typeof AirGestures)[number];
 export declare const AirGestureEnum: {
     [airGesture in AirGesture]: number;
 };
+export declare const AirGestureEnumLookup: {
+    [key: number]: AirGesture;
+};
 export declare const XRGestureStates: readonly ["none", "thumbIndex", "thumbMiddle"];
 export type XRGestureState = (typeof XRGestureStates)[number];
 export declare const XRGestureStateEnum: {
@@ -12,4 +15,7 @@ export declare const XRAirGestures: readonly ["clickIndex", "clickMiddle", "drag
 export type XRAirGesture = (typeof XRAirGestures)[number];
 export declare const XRAirGestureEnum: {
     [xrAirGesture in XRAirGesture]: number;
+};
+export declare const XRAirGestureEnumLookup: {
+    [key: number]: XRAirGesture;
 };
