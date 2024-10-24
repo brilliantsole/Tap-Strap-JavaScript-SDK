@@ -111,8 +111,10 @@ class Device {
     this.addEventListener("isConnected", () => {
       if (this.isConnected) {
         this.#inputManager.start();
+        this.#xrStateManager.start();
       } else {
         this.#inputManager.stop();
+        this.#xrStateManager.stop();
       }
     });
 
@@ -432,6 +434,9 @@ class Device {
 
   // INPUT MODE
   #inputManager = new InputManager();
+  get inputMode() {
+    return this.#inputManager.mode;
+  }
   get setInputMode() {
     return this.#inputManager.setMode;
   }
@@ -441,6 +446,9 @@ class Device {
 
   // XR STATE
   #xrStateManager = new XRStateManager();
+  get xrState() {
+    return this.#xrStateManager.state;
+  }
   get setXRState() {
     return this.#xrStateManager.setState;
   }

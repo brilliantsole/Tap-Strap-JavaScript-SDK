@@ -154,6 +154,18 @@ TS.RawSensorTypes.forEach((rawSensorType) => {
   rawSensorSensitivityTemplate.parentElement.appendChild(rawSensorSensitivityContainer);
 });
 
+// XR STATE
+
+/** @type {HTMLSelectElement} */
+const xrStateSelect = document.getElementById("xrState");
+const xrStateOptgroup = xrStateSelect.querySelector("optgroup");
+TS.XRStates.forEach((xrState) => {
+  xrStateOptgroup.appendChild(new Option(xrState));
+});
+xrStateSelect.addEventListener("input", () => {
+  device.setXRState(xrStateSelect.value);
+});
+
 // RAW SENSOR
 
 /** @type {HTMLPreElement} */

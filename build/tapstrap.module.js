@@ -18,8 +18,9 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-const isInProduction = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__PROD__";
-const isInDev = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__DEV__";
+const __BRILLIANTSOLE__ENVIRONMENT__ = "__BRILLIANTSOLE__DEV__";
+const isInProduction = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__PROD__";
+const isInDev = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__DEV__";
 const isInBrowser = typeof window !== "undefined" && typeof window?.document !== "undefined";
 const isInNode = typeof process !== "undefined" && process?.versions?.node != null;
 const userAgent = (isInBrowser && navigator.userAgent) || "";
@@ -118,6 +119,9 @@ class Console {
     }
     static create(type, levelFlags) {
         const console = __classPrivateFieldGet(this, _a$1, "f", _Console_consoles)[type] || new _a$1(type);
+        if (levelFlags) {
+            console.setLevelFlags(levelFlags);
+        }
         return console;
     }
     get log() {
@@ -1770,9 +1774,11 @@ class Device {
         this.addEventListener("isConnected", () => {
             if (this.isConnected) {
                 __classPrivateFieldGet(this, _Device_inputManager, "f").start();
+                __classPrivateFieldGet(this, _Device_xrStateManager, "f").start();
             }
             else {
                 __classPrivateFieldGet(this, _Device_inputManager, "f").stop();
+                __classPrivateFieldGet(this, _Device_xrStateManager, "f").stop();
             }
         });
         DeviceManager$1.onDevice(this);
@@ -1905,11 +1911,17 @@ class Device {
     get batteryLevel() {
         return __classPrivateFieldGet(this, _Device_batteryLevel, "f");
     }
+    get inputMode() {
+        return __classPrivateFieldGet(this, _Device_inputManager, "f").mode;
+    }
     get setInputMode() {
         return __classPrivateFieldGet(this, _Device_inputManager, "f").setMode;
     }
     get setSensitivityForType() {
         return __classPrivateFieldGet(this, _Device_inputManager, "f").setSensitivityForType;
+    }
+    get xrState() {
+        return __classPrivateFieldGet(this, _Device_xrStateManager, "f").state;
     }
     get setXRState() {
         return __classPrivateFieldGet(this, _Device_xrStateManager, "f").setState;
@@ -2079,5 +2091,5 @@ _RangeHelper_range = new WeakMap(), _RangeHelper_instances = new WeakSet(), _Ran
     __classPrivateFieldGet(this, _RangeHelper_range, "f").span = __classPrivateFieldGet(this, _RangeHelper_range, "f").max - __classPrivateFieldGet(this, _RangeHelper_range, "f").min;
 };
 
-export { Device, DeviceManager$1 as DeviceManager, environment as Environment, InputModes, MaxNumberOfVibrationSegments, MaxNumberOfVibrations, RangeHelper, RawSensorSensitivityFactors, RawSensorTypes, setAllConsoleLevelFlags, setConsoleLevelFlagsForType };
+export { Device, DeviceManager$1 as DeviceManager, environment as Environment, InputModes, MaxNumberOfVibrationSegments, MaxNumberOfVibrations, RangeHelper, RawSensorSensitivityFactors, RawSensorTypes, XRStates, setAllConsoleLevelFlags, setConsoleLevelFlagsForType };
 //# sourceMappingURL=tapstrap.module.js.map
