@@ -19,8 +19,12 @@ export const DefaultRawSensorSensitivity: RawSensorSensitivity = {
 };
 
 //https://github.com/TapWithUs/tap-ios-sdk/blob/master/TAPKit-iOS/Helpers/RawSensorData/RawSensorData.swift#L50
-export const RawSensorDataTypes = ["none", "imu", "device"] as const;
-export type RawSensorDataTypes = (typeof RawSensorDataTypes)[number];
+export const RawSensorDataTypes = ["imu", "device"] as const;
+export type RawSensorDataType = (typeof RawSensorDataTypes)[number];
+export const RawSensorDataLength: { [rawSensorDataType in RawSensorDataType]: number } = {
+  imu: 12,
+  device: 30,
+};
 
 export function assertValidRawSensorSensitivityForType(rawSensorType: RawSensorType, index: number) {
   const value = RawSensorSensitivityFactors[rawSensorType][index];
@@ -36,3 +40,10 @@ export function assertValidRawSensorSensitivity(sensitivity: RawSensorSensitivit
     assertValidRawSensorSensitivityForType(rawSensorType, index);
   });
 }
+
+// https://github.com/TapWithUs/tap-ios-sdk/blob/master/TAPKit-iOS/Helpers/RawSensorData/RawSensorData.swift#L60C5-L66C43
+export const RawSensorImuTypes = ["gyro", "accelerometer"] as const;
+export type RawSensorImuType = (typeof RawSensorImuTypes)[number];
+
+export const RawSensorFingers = ["thumb", "index", "middle", "ring", "pinky"] as const;
+export type RawSensorFinger = (typeof RawSensorFingers)[number];

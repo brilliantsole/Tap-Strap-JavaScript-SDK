@@ -2,6 +2,10 @@ import { createConsole } from "../utils/Console.ts";
 import Timer from "../utils/Timer.ts";
 
 import { DeviceInformationMessageTypes } from "../DeviceInformationManager.ts";
+import { TapDataMessageTypes } from "../TapDataManager.ts";
+import { MouseDataMessageTypes } from "../MouseDataManager.ts";
+import { AirGestureMessageTypes } from "../AirGestureManager.ts";
+import { TxMessageTypes } from "../TxManager.ts";
 
 const _console = createConsole("BaseConnectionManager", { log: true });
 
@@ -26,7 +30,14 @@ export interface ConnectionStatusEventMessages {
 export const BatteryLevelMessageTypes = ["batteryLevel"] as const;
 export type BatteryLevelMessageType = (typeof BatteryLevelMessageTypes)[number];
 
-export const ConnectionMessageTypes = [...BatteryLevelMessageTypes, ...DeviceInformationMessageTypes] as const;
+export const ConnectionMessageTypes = [
+  ...BatteryLevelMessageTypes,
+  ...DeviceInformationMessageTypes,
+  ...TapDataMessageTypes,
+  ...MouseDataMessageTypes,
+  ...AirGestureMessageTypes,
+  ...TxMessageTypes,
+] as const;
 export type ConnectionMessageType = (typeof ConnectionMessageTypes)[number];
 
 export type ConnectionStatusCallback = (status: ConnectionStatus) => void;

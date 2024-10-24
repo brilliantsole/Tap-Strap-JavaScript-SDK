@@ -19,6 +19,11 @@ abstract class BluetoothConnectionManager extends BaseConnectionManager {
       case "pnpId":
       case "serialNumber":
       case "softwareRevision":
+
+      case "tapData":
+      case "mouseData":
+      case "airGesture":
+      case "tx":
         this.onMessageReceived?.(characteristicName, dataView);
         break;
       default:

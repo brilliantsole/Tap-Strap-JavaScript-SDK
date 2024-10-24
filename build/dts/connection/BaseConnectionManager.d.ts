@@ -18,7 +18,7 @@ export interface ConnectionStatusEventMessages {
 }
 export declare const BatteryLevelMessageTypes: readonly ["batteryLevel"];
 export type BatteryLevelMessageType = (typeof BatteryLevelMessageTypes)[number];
-export declare const ConnectionMessageTypes: readonly ["batteryLevel", "manufacturerName", "modelNumber", "softwareRevision", "hardwareRevision", "firmwareRevision", "pnpId", "serialNumber"];
+export declare const ConnectionMessageTypes: readonly ["batteryLevel", "manufacturerName", "modelNumber", "softwareRevision", "hardwareRevision", "firmwareRevision", "pnpId", "serialNumber", "tapData", "mouseData", "airGesture", "tx", "rawSensor"];
 export type ConnectionMessageType = (typeof ConnectionMessageTypes)[number];
 export type ConnectionStatusCallback = (status: ConnectionStatus) => void;
 export type MessageReceivedCallback = (messageType: ConnectionMessageType, dataView: DataView) => void;

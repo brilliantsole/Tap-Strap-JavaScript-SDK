@@ -9,8 +9,8 @@ declare class InputManager {
     get sensitivity(): RawSensorSensitivity;
     set sensitivity(newSensitivity: RawSensorSensitivity);
     setSensitivityForType(rawSensorType: RawSensorType, index: number): void;
-    get mode(): "controller" | "text" | "rawSensor" | "controllerWithMouse" | "controllerWithMouseAndKeyboard";
-    set mode(newMode: "controller" | "text" | "rawSensor" | "controllerWithMouse" | "controllerWithMouseAndKeyboard");
+    get mode(): "rawSensor" | "controller" | "text" | "controllerWithMouse" | "controllerWithMouseAndKeyboard";
+    set mode(newMode: "rawSensor" | "controller" | "text" | "controllerWithMouse" | "controllerWithMouseAndKeyboard");
     setMode(newMode: InputMode): void;
     start(): void;
     stop(): void;

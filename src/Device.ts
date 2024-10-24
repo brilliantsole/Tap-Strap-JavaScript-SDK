@@ -20,6 +20,35 @@ import DeviceInformationManager, {
 import DeviceManager from "./DeviceManager.ts";
 import InputManager from "./InputManager.ts";
 import RawSensorManager from "./RawSensorManager.ts";
+import TapDataManager, {
+  TapDataEventDispatcher,
+  TapDataEventMessages,
+  TapDataEventTypes,
+  TapDataMessageType,
+  TapDataMessageTypes,
+} from "./TapDataManager.ts";
+import MouseDataManager, {
+  MouseDataEventDispatcher,
+  MouseDataEventMessages,
+  MouseDataEventTypes,
+  MouseDataMessageType,
+  MouseDataMessageTypes,
+} from "./MouseDataManager.ts";
+import AirGestureManager, {
+  AirGestureEventDispatcher,
+  AirGestureEventMessages,
+  AirGestureEventTypes,
+  AirGestureMessageType,
+  AirGestureMessageTypes,
+} from "./AirGestureManager.ts";
+import TxManager, {
+  TxEventDispatcher,
+  TxEventMessages,
+  TxEventTypes,
+  TxMessageType,
+  TxMessageTypes,
+} from "./TxManager.ts";
+import XRStateManager from "./XRStateManager.ts";
 
 const _console = createConsole("Device", { log: true });
 
@@ -28,10 +57,20 @@ export const DeviceEventTypes = [
   ...ConnectionEventTypes,
   ...BatteryLevelMessageTypes,
   ...DeviceInformationEventTypes,
+  ...TapDataEventTypes,
+  ...MouseDataEventTypes,
+  ...AirGestureEventTypes,
+  ...TxEventTypes,
 ] as const;
 export type DeviceEventType = (typeof DeviceEventTypes)[number];
 
-export interface DeviceEventMessages extends ConnectionStatusEventMessages, DeviceInformationEventMessages {
+export interface DeviceEventMessages
+  extends ConnectionStatusEventMessages,
+    DeviceInformationEventMessages,
+    TapDataEventMessages,
+    MouseDataEventMessages,
+    AirGestureEventMessages,
+    TxEventMessages {
   batteryLevel: { batteryLevel: number };
   connectionMessage: { messageType: ConnectionMessageType; dataView: DataView };
 }
@@ -52,10 +91,18 @@ class Device {
 
   constructor() {
     this.#deviceInformationManager.eventDispatcher = this.#eventDispatcher as DeviceInformationEventDispatcher;
-    //this.#rawSensorManager.eventDispatcher = this.#eventDispatcher as RawSensorEventDispatcher;
+
+    this.#inputManager.sendRxData = this.sendRxData;
+    this.#xrStateManager.sendRxData = this.sendRxData;
+
+    this.#tapDataManager.eventDispatcher = this.#eventDispatcher as TapDataEventDispatcher;
+    this.#mouseDataManager.eventDispatcher = this.#eventDispatcher as MouseDataEventDispatcher;
+    this.#airGestureManager.eventDispatcher = this.#eventDispatcher as AirGestureEventDispatcher;
+    this.#txManager.eventDispatcher = this.#eventDispatcher as TxEventDispatcher;
 
     this.#vibrationManager.sendUICommandsData = this.sendUICommandsData;
-    this.#inputManager.sendRxData = this.sendRxData;
+
+    this.#txManager.rawSensorSensitivity = this.#inputManager.sensitivity;
 
     this.addEventListener("hardwareRevision", () => {
       // FILL - check feature support
@@ -318,8 +365,16 @@ class Device {
       default:
         if (DeviceInformationMessageTypes.includes(messageType as DeviceInformationMessageType)) {
           this.#deviceInformationManager.parseMessage(messageType as DeviceInformationMessageType, dataView);
+        } else if (TapDataMessageTypes.includes(messageType as TapDataMessageType)) {
+          this.#tapDataManager.parseMessage(messageType as TapDataMessageType, dataView);
+        } else if (MouseDataMessageTypes.includes(messageType as MouseDataMessageType)) {
+          this.#mouseDataManager.parseMessage(messageType as MouseDataMessageType, dataView);
+        } else if (AirGestureMessageTypes.includes(messageType as AirGestureMessageType)) {
+          this.#airGestureManager.parseMessage(messageType as AirGestureMessageType, dataView);
+        } else if (TxMessageTypes.includes(messageType as TxMessageType)) {
+          this.#txManager.parseMessage(messageType as TxMessageType, dataView);
         } else {
-          throw Error(`uncaught messageType ${messageType}`);
+          throw Error(`uncaught messageType "${messageType}"`);
         }
       /*
         if (FileTransferMessageTypes.includes(messageType as FileTransferMessageType)) {
@@ -384,8 +439,23 @@ class Device {
     return this.#inputManager.setSensitivityForType;
   }
 
-  // RAW SENSOR
-  #rawSensorManager = new RawSensorManager();
+  // XR STATE
+  #xrStateManager = new XRStateManager();
+  get setXRState() {
+    return this.#xrStateManager.setState;
+  }
+
+  // TAP DATA
+  #tapDataManager = new TapDataManager();
+
+  // MOUSE DATA
+  #mouseDataManager = new MouseDataManager();
+
+  // AIR GESTURE
+  #airGestureManager = new AirGestureManager();
+
+  // TX
+  #txManager = new TxManager();
 
   // VIBRATION
   #vibrationManager = new VibrationManager();

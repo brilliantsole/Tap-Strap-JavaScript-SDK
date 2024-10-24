@@ -1,7 +1,7 @@
 import { isInBrowser, isInNode } from "../../utils/environment.ts";
 import { createConsole } from "../../utils/Console.ts";
 
-const _console = createConsole("bluetoothUUIDs", { log: true });
+const _console = createConsole("bluetoothUUIDs", { log: false });
 
 /** NODE_START */
 import * as webbluetooth from "webbluetooth";
@@ -41,7 +41,7 @@ export type BluetoothCharacteristicName =
   | "batteryLevel"
   | "tapData"
   | "mouseData"
-  | "airGestures"
+  | "airGesture"
   | "uiCommands"
   | "settings"
   | "unknown3"
@@ -106,7 +106,7 @@ const bluetoothUUIDs: BluetoothServicesInformation = Object.freeze({
       characteristics: {
         tapData: { uuid: generateTapBluetoothUUID("5") },
         mouseData: { uuid: generateTapBluetoothUUID("6") },
-        airGestures: { uuid: generateTapBluetoothUUID("A") },
+        airGesture: { uuid: generateTapBluetoothUUID("A") },
         uiCommands: { uuid: generateTapBluetoothUUID("9") },
         settings: { uuid: generateTapBluetoothUUID("2") },
         unknown3: { uuid: generateTapBluetoothUUID("3") },
@@ -230,7 +230,7 @@ export function getCharacteristicProperties(
     case "batteryLevel":
     case "tapData":
     case "mouseData":
-    case "airGestures":
+    case "airGesture":
     case "unknown8":
     case "unknownB":
     case "unknownC":
@@ -242,7 +242,7 @@ export function getCharacteristicProperties(
 
   // write without response
   switch (characteristicName) {
-    case "airGestures":
+    case "airGesture":
     case "uiCommands":
     case "unknown7":
     case "unknownB":

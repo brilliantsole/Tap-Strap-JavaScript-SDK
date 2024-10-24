@@ -2,8 +2,8 @@
  * @copyright Zack Qattan 2024
  * @license MIT
  */
-import * as webbluetooth from 'webbluetooth';
 import autoBind from 'auto-bind';
+import * as webbluetooth from 'webbluetooth';
 import noble from '@abandonware/noble';
 
 function __classPrivateFieldGet(receiver, state, kind, f) {
@@ -22,9 +22,8 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-const __BRILLIANTSOLE__ENVIRONMENT__ = "__BRILLIANTSOLE__DEV__";
-const isInProduction = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__PROD__";
-const isInDev = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__DEV__";
+const isInProduction = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__PROD__";
+const isInDev = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__DEV__";
 const isInBrowser = typeof window !== "undefined" && typeof window?.document !== "undefined";
 const isInNode = typeof process !== "undefined" && process?.versions?.node != null;
 const userAgent = (isInBrowser && navigator.userAgent) || "";
@@ -123,9 +122,6 @@ class Console {
     }
     static create(type, levelFlags) {
         const console = __classPrivateFieldGet(this, _a$2, "f", _Console_consoles)[type] || new _a$2(type);
-        if (levelFlags) {
-            console.setLevelFlags(levelFlags);
-        }
         return console;
     }
     get log() {
@@ -167,7 +163,7 @@ function setAllConsoleLevelFlags(levelFlags) {
     Console.setAllLevelFlags(levelFlags);
 }
 
-const _console$g = createConsole("EventDispatcher", { log: false });
+const _console$n = createConsole("EventDispatcher", { log: false });
 class EventDispatcher {
     constructor(target, validEventTypes) {
         this.target = target;
@@ -188,7 +184,7 @@ class EventDispatcher {
             return;
         this.listeners[type] = this.listeners[type].filter((listenerObj) => {
             if (listenerObj.shouldRemove) {
-                _console$g.log(`removing "${type}" eventListener`, listenerObj);
+                _console$n.log(`removing "${type}" eventListener`, listenerObj);
             }
             return !listenerObj.shouldRemove;
         });
@@ -199,18 +195,18 @@ class EventDispatcher {
         }
         if (!this.listeners[type]) {
             this.listeners[type] = [];
-            _console$g.log(`creating "${type}" listeners array`, this.listeners[type]);
+            _console$n.log(`creating "${type}" listeners array`, this.listeners[type]);
         }
         const alreadyAdded = this.listeners[type].find((listenerObject) => {
             return listenerObject.listener == listener && listenerObject.once == options.once;
         });
         if (alreadyAdded) {
-            _console$g.log("already added listener");
+            _console$n.log("already added listener");
             return;
         }
-        _console$g.log(`adding "${type}" listener`, listener, options);
+        _console$n.log(`adding "${type}" listener`, listener, options);
         this.listeners[type].push({ listener, once: options.once });
-        _console$g.log(`currently have ${this.listeners[type].length} "${type}" listeners`);
+        _console$n.log(`currently have ${this.listeners[type].length} "${type}" listeners`);
     }
     removeEventListener(type, listener) {
         if (!this.isValidEventType(type)) {
@@ -218,11 +214,11 @@ class EventDispatcher {
         }
         if (!this.listeners[type])
             return;
-        _console$g.log(`removing "${type}" listener...`, listener);
+        _console$n.log(`removing "${type}" listener...`, listener);
         this.listeners[type].forEach((listenerObj) => {
             const isListenerToRemove = listenerObj.listener === listener;
             if (isListenerToRemove) {
-                _console$g.log(`flagging "${type}" listener`, listener);
+                _console$n.log(`flagging "${type}" listener`, listener);
                 listenerObj.shouldRemove = true;
             }
         });
@@ -234,11 +230,11 @@ class EventDispatcher {
         }
         if (!this.listeners[type])
             return;
-        _console$g.log(`removing "${type}" listeners...`);
+        _console$n.log(`removing "${type}" listeners...`);
         this.listeners[type] = [];
     }
     removeAllEventListeners() {
-        _console$g.log(`removing listeners...`);
+        _console$n.log(`removing listeners...`);
         this.listeners = {};
     }
     dispatchEvent(type, message) {
@@ -251,10 +247,10 @@ class EventDispatcher {
             if (listenerObj.shouldRemove) {
                 return;
             }
-            _console$g.log(`dispatching "${type}" listener`, listenerObj);
+            _console$n.log(`dispatching "${type}" listener`, listenerObj);
             listenerObj.listener({ type, target: this.target, message });
             if (listenerObj.once) {
-                _console$g.log(`flagging "${type}" listener`, listenerObj);
+                _console$n.log(`flagging "${type}" listener`, listenerObj);
                 listenerObj.shouldRemove = true;
             }
         });
@@ -271,14 +267,14 @@ class EventDispatcher {
 }
 
 var _Timer_callback, _Timer_interval, _Timer_intervalId;
-const _console$f = createConsole("Timer", { log: false });
+const _console$m = createConsole("Timer", { log: false });
 class Timer {
     get callback() {
         return __classPrivateFieldGet(this, _Timer_callback, "f");
     }
     set callback(newCallback) {
-        _console$f.assertTypeWithError(newCallback, "function");
-        _console$f.log({ newCallback });
+        _console$m.assertTypeWithError(newCallback, "function");
+        _console$m.log({ newCallback });
         __classPrivateFieldSet(this, _Timer_callback, newCallback, "f");
         if (this.isRunning) {
             this.restart();
@@ -288,9 +284,9 @@ class Timer {
         return __classPrivateFieldGet(this, _Timer_interval, "f");
     }
     set interval(newInterval) {
-        _console$f.assertTypeWithError(newInterval, "number");
-        _console$f.assertWithError(newInterval > 0, "interval must be above 0");
-        _console$f.log({ newInterval });
+        _console$m.assertTypeWithError(newInterval, "number");
+        _console$m.assertWithError(newInterval > 0, "interval must be above 0");
+        _console$m.log({ newInterval });
         __classPrivateFieldSet(this, _Timer_interval, newInterval, "f");
         if (this.isRunning) {
             this.restart();
@@ -308,10 +304,10 @@ class Timer {
     }
     start(immediately = false) {
         if (this.isRunning) {
-            _console$f.log("interval already running");
+            _console$m.log("interval already running");
             return;
         }
-        _console$f.log("starting interval");
+        _console$m.log("starting interval");
         __classPrivateFieldSet(this, _Timer_intervalId, setInterval(__classPrivateFieldGet(this, _Timer_callback, "f"), __classPrivateFieldGet(this, _Timer_interval, "f")), "f");
         if (immediately) {
             __classPrivateFieldGet(this, _Timer_callback, "f").call(this);
@@ -319,10 +315,10 @@ class Timer {
     }
     stop() {
         if (!this.isRunning) {
-            _console$f.log("interval already not running");
+            _console$m.log("interval already not running");
             return;
         }
-        _console$f.log("stopping interval");
+        _console$m.log("stopping interval");
         clearInterval(__classPrivateFieldGet(this, _Timer_intervalId, "f"));
         __classPrivateFieldSet(this, _Timer_intervalId, undefined, "f");
     }
@@ -365,7 +361,7 @@ const textEncoder = new _TextEncoder();
 const textDecoder = new _TextDecoder();
 
 var _DeviceInformationManager_instances, _DeviceInformationManager_dispatchEvent_get, _DeviceInformationManager_information, _DeviceInformationManager_isComplete_get, _DeviceInformationManager_update;
-const _console$e = createConsole("DeviceInformationManager", { log: true });
+const _console$l = createConsole("DeviceInformationManager", { log: true });
 const DeviceInformationMessageTypes = [
     "manufacturerName",
     "modelNumber",
@@ -388,31 +384,31 @@ class DeviceInformationManager {
         __classPrivateFieldSet(this, _DeviceInformationManager_information, {}, "f");
     }
     parseMessage(messageType, dataView) {
-        _console$e.log({ messageType });
+        _console$l.log({ messageType });
         switch (messageType) {
             case "manufacturerName":
                 const manufacturerName = textDecoder.decode(dataView.buffer);
-                _console$e.log({ manufacturerName });
+                _console$l.log({ manufacturerName });
                 __classPrivateFieldGet(this, _DeviceInformationManager_instances, "m", _DeviceInformationManager_update).call(this, { manufacturerName });
                 break;
             case "modelNumber":
                 const modelNumber = textDecoder.decode(dataView.buffer);
-                _console$e.log({ modelNumber });
+                _console$l.log({ modelNumber });
                 __classPrivateFieldGet(this, _DeviceInformationManager_instances, "m", _DeviceInformationManager_update).call(this, { modelNumber });
                 break;
             case "softwareRevision":
                 const softwareRevision = textDecoder.decode(dataView.buffer);
-                _console$e.log({ softwareRevision });
+                _console$l.log({ softwareRevision });
                 __classPrivateFieldGet(this, _DeviceInformationManager_instances, "m", _DeviceInformationManager_update).call(this, { softwareRevision });
                 break;
             case "hardwareRevision":
                 const hardwareRevision = textDecoder.decode(dataView.buffer);
-                _console$e.log({ hardwareRevision });
+                _console$l.log({ hardwareRevision });
                 __classPrivateFieldGet(this, _DeviceInformationManager_instances, "m", _DeviceInformationManager_update).call(this, { hardwareRevision });
                 break;
             case "firmwareRevision":
                 const firmwareRevision = textDecoder.decode(dataView.buffer);
-                _console$e.log({ firmwareRevision });
+                _console$l.log({ firmwareRevision });
                 __classPrivateFieldGet(this, _DeviceInformationManager_instances, "m", _DeviceInformationManager_update).call(this, { firmwareRevision });
                 break;
             case "pnpId":
@@ -425,12 +421,12 @@ class DeviceInformationManager {
                 if (pnpId.source == "Bluetooth") {
                     pnpId.vendorId = dataView.getUint16(1, true);
                 }
-                _console$e.log({ pnpId });
+                _console$l.log({ pnpId });
                 __classPrivateFieldGet(this, _DeviceInformationManager_instances, "m", _DeviceInformationManager_update).call(this, { pnpId });
                 break;
             case "serialNumber":
                 const serialNumber = textDecoder.decode(dataView.buffer);
-                _console$e.log({ serialNumber });
+                _console$l.log({ serialNumber });
                 break;
             default:
                 throw Error(`uncaught messageType ${messageType}`);
@@ -450,7 +446,7 @@ _DeviceInformationManager_information = new WeakMap(), _DeviceInformationManager
         }
     });
 }, _DeviceInformationManager_update = function _DeviceInformationManager_update(partialDeviceInformation) {
-    _console$e.log({ partialDeviceInformation });
+    _console$l.log({ partialDeviceInformation });
     const deviceInformationNames = Object.keys(partialDeviceInformation);
     deviceInformationNames.forEach((deviceInformationName) => {
         __classPrivateFieldGet(this, _DeviceInformationManager_instances, "a", _DeviceInformationManager_dispatchEvent_get).call(this, deviceInformationName, {
@@ -458,12 +454,290 @@ _DeviceInformationManager_information = new WeakMap(), _DeviceInformationManager
         });
     });
     Object.assign(__classPrivateFieldGet(this, _DeviceInformationManager_information, "f"), partialDeviceInformation);
-    _console$e.log({ deviceInformation: __classPrivateFieldGet(this, _DeviceInformationManager_information, "f") });
+    _console$l.log({ deviceInformation: __classPrivateFieldGet(this, _DeviceInformationManager_information, "f") });
     if (__classPrivateFieldGet(this, _DeviceInformationManager_instances, "a", _DeviceInformationManager_isComplete_get)) {
-        _console$e.log("completed deviceInformation");
+        _console$l.log("completed deviceInformation");
         __classPrivateFieldGet(this, _DeviceInformationManager_instances, "a", _DeviceInformationManager_dispatchEvent_get).call(this, "deviceInformation", { deviceInformation: this.information });
     }
 };
+
+var _TapDataManager_instances;
+const _console$k = createConsole("TapDataManager");
+const TapDataMessageTypes = ["tapData"];
+const TapDataEventTypes = [...TapDataMessageTypes];
+class TapDataManager {
+    constructor() {
+        _TapDataManager_instances.add(this);
+        autoBind(this);
+    }
+    parseMessage(messageType, dataView) {
+        _console$k.log({ messageType });
+        switch (messageType) {
+            case "tapData":
+                break;
+            default:
+                throw Error(`uncaught messageType ${messageType}`);
+        }
+    }
+}
+_TapDataManager_instances = new WeakSet();
+
+var _MouseDataManager_instances;
+const _console$j = createConsole("MouseDataManager");
+const MouseDataMessageTypes = ["mouseData"];
+const MouseDataEventTypes = [...MouseDataMessageTypes];
+class MouseDataManager {
+    constructor() {
+        _MouseDataManager_instances.add(this);
+        autoBind(this);
+    }
+    parseMessage(messageType, dataView) {
+        _console$j.log({ messageType });
+        switch (messageType) {
+            case "mouseData":
+                break;
+            default:
+                throw Error(`uncaught messageType ${messageType}`);
+        }
+    }
+}
+_MouseDataManager_instances = new WeakSet();
+
+var _AirGestureManager_instances;
+const _console$i = createConsole("AirGestureManager");
+const AirGestureMessageTypes = ["airGesture"];
+const AirGestureEventTypes = [...AirGestureMessageTypes];
+class AirGestureManager {
+    constructor() {
+        _AirGestureManager_instances.add(this);
+        autoBind(this);
+    }
+    parseMessage(messageType, dataView) {
+        _console$i.log({ messageType });
+        switch (messageType) {
+            case "airGesture":
+                break;
+            default:
+                throw Error(`uncaught messageType ${messageType}`);
+        }
+    }
+}
+_AirGestureManager_instances = new WeakSet();
+
+const _console$h = createConsole("RawSensorUtils");
+const RawSensorTypes = ["deviceAccelerometer", "imuGyroscope", "imuAccelerometer"];
+const RawSensorSensitivityFactors = {
+    deviceAccelerometer: [31.25, 3.90625, 7.8125, 15.625, 31.25],
+    imuGyroscope: [17.5, 4.375, 8.75, 17.5, 35, 70],
+    imuAccelerometer: [0.122, 0.061, 0.122, 0.244, 0.488],
+};
+const DefaultRawSensorSensitivity = {
+    deviceAccelerometer: 0,
+    imuGyroscope: 0,
+    imuAccelerometer: 0,
+};
+const RawSensorDataTypes = ["imu", "device"];
+const RawSensorDataLength = {
+    imu: 12,
+    device: 30,
+};
+function assertValidRawSensorSensitivityForType(rawSensorType, index) {
+    const value = RawSensorSensitivityFactors[rawSensorType][index];
+    _console$h.assertWithError(value != undefined, `invalid RawSensorSensitivity index ${index} for sensor "${rawSensorType}" (got value ${value})`);
+}
+function assertValidRawSensorSensitivity(sensitivity) {
+    RawSensorTypes.forEach((rawSensorType) => {
+        const index = sensitivity[rawSensorType];
+        assertValidRawSensorSensitivityForType(rawSensorType, index);
+    });
+}
+
+const _console$g = createConsole("ArrayBufferUtils", { log: false });
+function concatenateArrayBuffers(...arrayBuffers) {
+    arrayBuffers = arrayBuffers.filter((arrayBuffer) => arrayBuffer != undefined || arrayBuffer != null);
+    arrayBuffers = arrayBuffers.map((arrayBuffer) => {
+        if (typeof arrayBuffer == "number") {
+            const number = arrayBuffer;
+            return Uint8Array.from([Math.floor(number)]);
+        }
+        else if (typeof arrayBuffer == "boolean") {
+            const boolean = arrayBuffer;
+            return Uint8Array.from([boolean ? 1 : 0]);
+        }
+        else if (typeof arrayBuffer == "string") {
+            const string = arrayBuffer;
+            return stringToArrayBuffer(string);
+        }
+        else if (arrayBuffer instanceof Array) {
+            const array = arrayBuffer;
+            return concatenateArrayBuffers(...array);
+        }
+        else if (arrayBuffer instanceof ArrayBuffer) {
+            return arrayBuffer;
+        }
+        else if ("buffer" in arrayBuffer && arrayBuffer.buffer instanceof ArrayBuffer) {
+            const bufferContainer = arrayBuffer;
+            return bufferContainer.buffer;
+        }
+        else if (arrayBuffer instanceof DataView) {
+            const dataView = arrayBuffer;
+            return dataView.buffer;
+        }
+        else if (typeof arrayBuffer == "object") {
+            const object = arrayBuffer;
+            return objectToArrayBuffer(object);
+        }
+        else {
+            return arrayBuffer;
+        }
+    });
+    arrayBuffers = arrayBuffers.filter((arrayBuffer) => arrayBuffer && "byteLength" in arrayBuffer);
+    const length = arrayBuffers.reduce((length, arrayBuffer) => length + arrayBuffer.byteLength, 0);
+    const uint8Array = new Uint8Array(length);
+    let byteOffset = 0;
+    arrayBuffers.forEach((arrayBuffer) => {
+        uint8Array.set(new Uint8Array(arrayBuffer), byteOffset);
+        byteOffset += arrayBuffer.byteLength;
+    });
+    return uint8Array.buffer;
+}
+function dataToArrayBuffer(data) {
+    return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+}
+function stringToArrayBuffer(string) {
+    const encoding = textEncoder.encode(string);
+    return concatenateArrayBuffers(encoding.byteLength, encoding);
+}
+function objectToArrayBuffer(object) {
+    return stringToArrayBuffer(JSON.stringify(object));
+}
+function sliceDataView(dataView, begin, length) {
+    let end;
+    if (length != undefined) {
+        end = dataView.byteOffset + begin + length;
+    }
+    _console$g.log({ dataView, begin, end, length });
+    return new DataView(dataView.buffer.slice(dataView.byteOffset + begin, end));
+}
+
+var _RawSensorManager_instances, _RawSensorManager_dispatchEvent_get, _RawSensorManager_parseWhole, _RawSensorManager_parseSingle;
+const _console$f = createConsole("RawSensorManager");
+const RawSensorMessageTypes = ["rawSensor"];
+const RawSensorEventTypes = [...RawSensorMessageTypes, ...RawSensorDataTypes];
+class RawSensorManager {
+    constructor() {
+        _RawSensorManager_instances.add(this);
+        autoBind(this);
+    }
+    parseMessage(messageType, dataView) {
+        _console$f.log({ messageType });
+        switch (messageType) {
+            case "rawSensor":
+                __classPrivateFieldGet(this, _RawSensorManager_instances, "m", _RawSensorManager_parseWhole).call(this, dataView);
+                break;
+            default:
+                throw Error(`uncaught messageType ${messageType}`);
+        }
+    }
+}
+_RawSensorManager_instances = new WeakSet(), _RawSensorManager_dispatchEvent_get = function _RawSensorManager_dispatchEvent_get() {
+    return this.eventDispatcher.dispatchEvent;
+}, _RawSensorManager_parseWhole = function _RawSensorManager_parseWhole(dataView) {
+    _console$f.log("parsing whole", dataView);
+    let offset = 0;
+    while (offset + 4 < dataView.byteLength) {
+        const rawValue = dataView.getUint32(0, true);
+        offset += 4;
+        _console$f.log({ rawValue });
+        const firstBit = (rawValue & 0x80000000) >> 31;
+        const timestamp = rawValue & 0x7fffffff;
+        _console$f.log({ firstBit, timestamp });
+        if (timestamp == 0) {
+            break;
+        }
+        const sensorDataType = firstBit == 0 ? "imu" : "device";
+        _console$f.log({ sensorDataType });
+        const sensorDataLength = RawSensorDataLength[sensorDataType];
+        _console$f.log({ sensorDataLength });
+        if (sensorDataLength == 0) {
+            break;
+        }
+        const sensorData = sliceDataView(dataView, offset, sensorDataLength);
+        if (sensorData.byteLength == sensorDataLength) {
+            __classPrivateFieldGet(this, _RawSensorManager_instances, "m", _RawSensorManager_parseSingle).call(this, sensorDataType, timestamp, sensorData);
+        }
+        offset += sensorDataLength;
+    }
+}, _RawSensorManager_parseSingle = function _RawSensorManager_parseSingle(sensorDataType, timestamp, sensorData) {
+    _console$f.log(`parsing ${sensorDataType} ${timestamp}ms`, sensorData);
+    let rawSensorType = sensorDataType == "device" ? "deviceAccelerometer" : "imuGyroscope";
+    const points = [];
+    for (let offset = 0; offset < sensorData.byteLength; offset += 6) {
+        const sensitivityFactorIndex = this.sensitivity[rawSensorType];
+        const sensitivityFactor = RawSensorSensitivityFactors[rawSensorType][sensitivityFactorIndex];
+        const [x, y, z] = [
+            sensorData.getInt16(offset + 0, true),
+            sensorData.getInt16(offset + 2, true),
+            sensorData.getInt16(offset + 4, true),
+        ].map((value) => value * sensitivityFactor);
+        _console$f.log({ x, y, z });
+        const point = { x, y, z };
+        _console$f.log("point", point);
+        points.push(point);
+        if (sensorDataType == "imu") {
+            rawSensorType = "imuAccelerometer";
+        }
+    }
+    let validNumberOfPoints = 0;
+    switch (sensorDataType) {
+        case "imu":
+            validNumberOfPoints = 2;
+            break;
+        case "device":
+            validNumberOfPoints = 5;
+            break;
+    }
+    if (points.length != validNumberOfPoints) {
+        _console$f.log(`invalid number of ${sensorDataType} points (expected ${validNumberOfPoints}, get ${points.length})`);
+        return;
+    }
+    __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, sensorDataType, { sensorDataType, points, timestamp });
+    __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, "rawSensor", { sensorDataType, points, timestamp });
+};
+
+var _TxManager_instances, _TxManager_eventDispatcher, _TxManager_rawSensorManager;
+const _console$e = createConsole("TxManager");
+const TxMessageTypes = ["tx", ...RawSensorMessageTypes];
+const TxEventTypes = [...RawSensorEventTypes];
+class TxManager {
+    get eventDispatcher() {
+        return __classPrivateFieldGet(this, _TxManager_eventDispatcher, "f");
+    }
+    set eventDispatcher(newEventDispatcher) {
+        __classPrivateFieldSet(this, _TxManager_eventDispatcher, newEventDispatcher, "f");
+        __classPrivateFieldGet(this, _TxManager_rawSensorManager, "f").eventDispatcher = newEventDispatcher;
+    }
+    set rawSensorSensitivity(sensitivity) {
+        __classPrivateFieldGet(this, _TxManager_rawSensorManager, "f").sensitivity = sensitivity;
+    }
+    constructor() {
+        _TxManager_instances.add(this);
+        _TxManager_eventDispatcher.set(this, void 0);
+        _TxManager_rawSensorManager.set(this, new RawSensorManager());
+        autoBind(this);
+    }
+    parseMessage(messageType, dataView) {
+        _console$e.log({ messageType });
+        switch (messageType) {
+            case "tx":
+                __classPrivateFieldGet(this, _TxManager_rawSensorManager, "f").parseMessage("rawSensor", dataView);
+                break;
+            default:
+                throw Error(`uncaught messageType ${messageType}`);
+        }
+    }
+}
+_TxManager_eventDispatcher = new WeakMap(), _TxManager_rawSensorManager = new WeakMap(), _TxManager_instances = new WeakSet();
 
 var _BaseConnectionManager_instances, _BaseConnectionManager_assertIsSupported, _BaseConnectionManager_status, _BaseConnectionManager_assertIsNotConnected, _BaseConnectionManager_assertIsNotConnecting, _BaseConnectionManager_assertIsConnected, _BaseConnectionManager_assertIsNotDisconnecting, _BaseConnectionManager_timer, _BaseConnectionManager_checkConnection;
 const _console$d = createConsole("BaseConnectionManager", { log: true });
@@ -572,7 +846,7 @@ function removeEventListeners(target, boundEventListeners) {
     });
 }
 
-const _console$b = createConsole("bluetoothUUIDs", { log: true });
+const _console$b = createConsole("bluetoothUUIDs", { log: false });
 var BluetoothUUID = webbluetooth.BluetoothUUID;
 function generateTapBluetoothUUID(value) {
     _console$b.assertTypeWithError(value, "string");
@@ -631,7 +905,7 @@ const bluetoothUUIDs = Object.freeze({
             characteristics: {
                 tapData: { uuid: generateTapBluetoothUUID("5") },
                 mouseData: { uuid: generateTapBluetoothUUID("6") },
-                airGestures: { uuid: generateTapBluetoothUUID("A") },
+                airGesture: { uuid: generateTapBluetoothUUID("A") },
                 uiCommands: { uuid: generateTapBluetoothUUID("9") },
                 settings: { uuid: generateTapBluetoothUUID("2") },
                 unknown3: { uuid: generateTapBluetoothUUID("3") },
@@ -737,7 +1011,7 @@ function getCharacteristicProperties(characteristicName) {
         case "batteryLevel":
         case "tapData":
         case "mouseData":
-        case "airGestures":
+        case "airGesture":
         case "unknown8":
         case "unknownB":
         case "unknownC":
@@ -747,7 +1021,7 @@ function getCharacteristicProperties(characteristicName) {
             break;
     }
     switch (characteristicName) {
-        case "airGestures":
+        case "airGesture":
         case "uiCommands":
         case "unknown7":
         case "unknownB":
@@ -781,6 +1055,10 @@ class BluetoothConnectionManager extends BaseConnectionManager {
             case "pnpId":
             case "serialNumber":
             case "softwareRevision":
+            case "tapData":
+            case "mouseData":
+            case "airGesture":
+            case "tx":
                 this.onMessageReceived?.(characteristicName, dataView);
                 break;
         }
@@ -1280,91 +1558,8 @@ _DeviceManager_boundDeviceEventListeners = new WeakMap(), _DeviceManager_Connect
 DeviceManager.shared = new DeviceManager();
 var DeviceManager$1 = DeviceManager.shared;
 
-createConsole("ArrayBufferUtils", { log: false });
-function concatenateArrayBuffers(...arrayBuffers) {
-    arrayBuffers = arrayBuffers.filter((arrayBuffer) => arrayBuffer != undefined || arrayBuffer != null);
-    arrayBuffers = arrayBuffers.map((arrayBuffer) => {
-        if (typeof arrayBuffer == "number") {
-            const number = arrayBuffer;
-            return Uint8Array.from([Math.floor(number)]);
-        }
-        else if (typeof arrayBuffer == "boolean") {
-            const boolean = arrayBuffer;
-            return Uint8Array.from([boolean ? 1 : 0]);
-        }
-        else if (typeof arrayBuffer == "string") {
-            const string = arrayBuffer;
-            return stringToArrayBuffer(string);
-        }
-        else if (arrayBuffer instanceof Array) {
-            const array = arrayBuffer;
-            return concatenateArrayBuffers(...array);
-        }
-        else if (arrayBuffer instanceof ArrayBuffer) {
-            return arrayBuffer;
-        }
-        else if ("buffer" in arrayBuffer && arrayBuffer.buffer instanceof ArrayBuffer) {
-            const bufferContainer = arrayBuffer;
-            return bufferContainer.buffer;
-        }
-        else if (arrayBuffer instanceof DataView) {
-            const dataView = arrayBuffer;
-            return dataView.buffer;
-        }
-        else if (typeof arrayBuffer == "object") {
-            const object = arrayBuffer;
-            return objectToArrayBuffer(object);
-        }
-        else {
-            return arrayBuffer;
-        }
-    });
-    arrayBuffers = arrayBuffers.filter((arrayBuffer) => arrayBuffer && "byteLength" in arrayBuffer);
-    const length = arrayBuffers.reduce((length, arrayBuffer) => length + arrayBuffer.byteLength, 0);
-    const uint8Array = new Uint8Array(length);
-    let byteOffset = 0;
-    arrayBuffers.forEach((arrayBuffer) => {
-        uint8Array.set(new Uint8Array(arrayBuffer), byteOffset);
-        byteOffset += arrayBuffer.byteLength;
-    });
-    return uint8Array.buffer;
-}
-function dataToArrayBuffer(data) {
-    return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-}
-function stringToArrayBuffer(string) {
-    const encoding = textEncoder.encode(string);
-    return concatenateArrayBuffers(encoding.byteLength, encoding);
-}
-function objectToArrayBuffer(object) {
-    return stringToArrayBuffer(JSON.stringify(object));
-}
-
-const _console$6 = createConsole("RawSensorUtils");
-const RawSensorTypes = ["deviceAccelerometer", "imuGyroscope", "imuAccelerometer"];
-const RawSensorSensitivityFactors = {
-    deviceAccelerometer: [31.25, 3.90625, 7.8125, 15.625, 31.25],
-    imuGyroscope: [17.5, 4.375, 8.75, 17.5, 35, 70],
-    imuAccelerometer: [0.122, 0.061, 0.122, 0.244, 0.488],
-};
-const DefaultRawSensorSensitivity = {
-    deviceAccelerometer: 0,
-    imuGyroscope: 0,
-    imuAccelerometer: 0,
-};
-function assertValidRawSensorSensitivityForType(rawSensorType, index) {
-    const value = RawSensorSensitivityFactors[rawSensorType][index];
-    _console$6.assertWithError(value != undefined, `invalid RawSensorSensitivity index ${index} for sensor "${rawSensorType}" (got value ${value})`);
-}
-function assertValidRawSensorSensitivity(sensitivity) {
-    RawSensorTypes.forEach((rawSensorType) => {
-        const index = sensitivity[rawSensorType];
-        assertValidRawSensorSensitivityForType(rawSensorType, index);
-    });
-}
-
 var _InputManager_instances, _InputManager_sensitivity, _InputManager_mode, _InputManager_assertValidMode, _InputManager_createData, _InputManager_timer, _InputManager_sendModeData;
-const _console$5 = createConsole("InputManager");
+const _console$6 = createConsole("InputManager");
 const InputModes = [
     "controller",
     "text",
@@ -1391,11 +1586,11 @@ class InputManager {
         return __classPrivateFieldGet(this, _InputManager_sensitivity, "f");
     }
     set sensitivity(newSensitivity) {
-        __classPrivateFieldSet(this, _InputManager_sensitivity, newSensitivity, "f");
+        Object.assign(__classPrivateFieldGet(this, _InputManager_sensitivity, "f"), newSensitivity);
     }
     setSensitivityForType(rawSensorType, index) {
         assertValidRawSensorSensitivityForType(rawSensorType, index);
-        _console$5.log(`setting ${rawSensorType} sensitivity index to ${index}`);
+        _console$6.log(`setting ${rawSensorType} sensitivity index to ${index}`);
         __classPrivateFieldGet(this, _InputManager_sensitivity, "f")[rawSensorType] = index;
     }
     get mode() {
@@ -1404,7 +1599,7 @@ class InputManager {
     set mode(newMode) {
         __classPrivateFieldGet(this, _InputManager_instances, "m", _InputManager_assertValidMode).call(this, newMode);
         if (this.mode == newMode) {
-            _console$5.log(`redundant mode assignment "${newMode}"`);
+            _console$6.log(`redundant mode assignment "${newMode}"`);
             return;
         }
         __classPrivateFieldSet(this, _InputManager_mode, newMode, "f");
@@ -1423,12 +1618,12 @@ class InputManager {
     }
 }
 _InputManager_sensitivity = new WeakMap(), _InputManager_mode = new WeakMap(), _InputManager_timer = new WeakMap(), _InputManager_instances = new WeakSet(), _InputManager_assertValidMode = function _InputManager_assertValidMode(mode) {
-    _console$5.assertEnumWithError(mode, InputModes);
+    _console$6.assertEnumWithError(mode, InputModes);
 }, _InputManager_createData = function _InputManager_createData() {
     const modeByte = InputModeBytes[this.mode];
     let sensitivityFactorIndices = [];
     if (this.mode == "rawSensor") {
-        _console$5.assertWithError(this.sensitivity, "no sensitivity defined for rawSensor input mode");
+        _console$6.assertWithError(this.sensitivity, "no sensitivity defined for rawSensor input mode");
         assertValidRawSensorSensitivity(this.sensitivity);
         RawSensorTypes.forEach((rawSensorType) => {
             sensitivityFactorIndices.push(this.sensitivity[rawSensorType]);
@@ -1437,25 +1632,77 @@ _InputManager_sensitivity = new WeakMap(), _InputManager_mode = new WeakMap(), _
     const data = concatenateArrayBuffers(0x3, 0xc, 0x0, modeByte, sensitivityFactorIndices);
     return data;
 }, _InputManager_sendModeData = function _InputManager_sendModeData() {
-    _console$5.log("sending mode data...");
+    _console$6.log("sending mode data...");
     const data = __classPrivateFieldGet(this, _InputManager_instances, "m", _InputManager_createData).call(this);
     this.sendRxData(data);
 };
 
-createConsole("RawSensorManager");
-class RawSensorManager {
+var _XRStateManager_instances, _XRStateManager_state, _XRStateManager_assertValidState, _XRStateManager_createData, _XRStateManager_timer, _XRStateManager_sendStateData;
+const _console$5 = createConsole("XRStateManager");
+const XRStates = ["user", "airMouse", "tapping", "dontSend"];
+const XRStateBytes = {
+    user: 0x3,
+    airMouse: 0x1,
+    tapping: 0x2,
+};
+class XRStateManager {
     constructor() {
+        _XRStateManager_instances.add(this);
+        _XRStateManager_state.set(this, "user");
+        _XRStateManager_timer.set(this, new Timer(__classPrivateFieldGet(this, _XRStateManager_instances, "m", _XRStateManager_sendStateData).bind(this), 10 * 1000));
         autoBind(this);
     }
+    get state() {
+        return __classPrivateFieldGet(this, _XRStateManager_state, "f");
+    }
+    set state(newState) {
+        __classPrivateFieldGet(this, _XRStateManager_instances, "m", _XRStateManager_assertValidState).call(this, newState);
+        if (this.state == newState) {
+            _console$5.log(`redundant state assignment "${newState}"`);
+            return;
+        }
+        __classPrivateFieldSet(this, _XRStateManager_state, newState, "f");
+        if (__classPrivateFieldGet(this, _XRStateManager_timer, "f").isRunning) {
+            __classPrivateFieldGet(this, _XRStateManager_timer, "f").restart(true);
+        }
+    }
+    setState(newState) {
+        this.state = newState;
+    }
+    start() {
+        __classPrivateFieldGet(this, _XRStateManager_timer, "f").start(true);
+    }
+    stop() {
+        __classPrivateFieldGet(this, _XRStateManager_timer, "f").stop();
+    }
 }
+_XRStateManager_state = new WeakMap(), _XRStateManager_timer = new WeakMap(), _XRStateManager_instances = new WeakSet(), _XRStateManager_assertValidState = function _XRStateManager_assertValidState(state) {
+    _console$5.assertEnumWithError(state, XRStates);
+}, _XRStateManager_createData = function _XRStateManager_createData() {
+    const stateByte = XRStateBytes[this.state];
+    _console$5.assert(stateByte != undefined, `no stateByte found for state "${this.state}"`);
+    const data = concatenateArrayBuffers(0x3, 0xd, 0x0, stateByte);
+    return data;
+}, _XRStateManager_sendStateData = function _XRStateManager_sendStateData() {
+    if (this.state == "dontSend") {
+        return;
+    }
+    _console$5.log("sending state data...");
+    const data = __classPrivateFieldGet(this, _XRStateManager_instances, "m", _XRStateManager_createData).call(this);
+    this.sendRxData(data);
+};
 
-var _Device_instances, _a$1, _Device_DefaultConnectionManager, _Device_eventDispatcher, _Device_dispatchEvent_get, _Device_connectionManager, _Device_sendUICommandsData, _Device_sendRxData, _Device_isConnected, _Device_assertIsConnected, _Device_assertCanReconnect, _Device_ReconnectOnDisconnection, _Device_reconnectOnDisconnection, _Device_reconnectIntervalId, _Device_onConnectionStatusUpdated, _Device_dispatchConnectionEvents, _Device_checkConnection, _Device_clear, _Device_onConnectionMessageReceived, _Device_onConnectionMessagesReceived, _Device_deviceInformationManager, _Device_batteryLevel, _Device_updateBatteryLevel, _Device_inputManager, _Device_rawSensorManager, _Device_vibrationManager, _Device_isServerSide;
+var _Device_instances, _a$1, _Device_DefaultConnectionManager, _Device_eventDispatcher, _Device_dispatchEvent_get, _Device_connectionManager, _Device_sendUICommandsData, _Device_sendRxData, _Device_isConnected, _Device_assertIsConnected, _Device_assertCanReconnect, _Device_ReconnectOnDisconnection, _Device_reconnectOnDisconnection, _Device_reconnectIntervalId, _Device_onConnectionStatusUpdated, _Device_dispatchConnectionEvents, _Device_checkConnection, _Device_clear, _Device_onConnectionMessageReceived, _Device_onConnectionMessagesReceived, _Device_deviceInformationManager, _Device_batteryLevel, _Device_updateBatteryLevel, _Device_inputManager, _Device_xrStateManager, _Device_tapDataManager, _Device_mouseDataManager, _Device_airGestureManager, _Device_txManager, _Device_vibrationManager, _Device_isServerSide;
 const _console$4 = createConsole("Device", { log: true });
 const DeviceEventTypes = [
     "connectionMessage",
     ...ConnectionEventTypes,
     ...BatteryLevelMessageTypes,
     ...DeviceInformationEventTypes,
+    ...TapDataEventTypes,
+    ...MouseDataEventTypes,
+    ...AirGestureEventTypes,
+    ...TxEventTypes,
 ];
 class Device {
     get bluetoothId() {
@@ -1477,12 +1724,22 @@ class Device {
         _Device_deviceInformationManager.set(this, new DeviceInformationManager());
         _Device_batteryLevel.set(this, 0);
         _Device_inputManager.set(this, new InputManager());
-        _Device_rawSensorManager.set(this, new RawSensorManager());
+        _Device_xrStateManager.set(this, new XRStateManager());
+        _Device_tapDataManager.set(this, new TapDataManager());
+        _Device_mouseDataManager.set(this, new MouseDataManager());
+        _Device_airGestureManager.set(this, new AirGestureManager());
+        _Device_txManager.set(this, new TxManager());
         _Device_vibrationManager.set(this, new VibrationManager());
         _Device_isServerSide.set(this, false);
         __classPrivateFieldGet(this, _Device_deviceInformationManager, "f").eventDispatcher = __classPrivateFieldGet(this, _Device_eventDispatcher, "f");
-        __classPrivateFieldGet(this, _Device_vibrationManager, "f").sendUICommandsData = this.sendUICommandsData;
         __classPrivateFieldGet(this, _Device_inputManager, "f").sendRxData = this.sendRxData;
+        __classPrivateFieldGet(this, _Device_xrStateManager, "f").sendRxData = this.sendRxData;
+        __classPrivateFieldGet(this, _Device_tapDataManager, "f").eventDispatcher = __classPrivateFieldGet(this, _Device_eventDispatcher, "f");
+        __classPrivateFieldGet(this, _Device_mouseDataManager, "f").eventDispatcher = __classPrivateFieldGet(this, _Device_eventDispatcher, "f");
+        __classPrivateFieldGet(this, _Device_airGestureManager, "f").eventDispatcher = __classPrivateFieldGet(this, _Device_eventDispatcher, "f");
+        __classPrivateFieldGet(this, _Device_txManager, "f").eventDispatcher = __classPrivateFieldGet(this, _Device_eventDispatcher, "f");
+        __classPrivateFieldGet(this, _Device_vibrationManager, "f").sendUICommandsData = this.sendUICommandsData;
+        __classPrivateFieldGet(this, _Device_txManager, "f").rawSensorSensitivity = __classPrivateFieldGet(this, _Device_inputManager, "f").sensitivity;
         this.addEventListener("hardwareRevision", () => {
         });
         this.addEventListener("isConnected", () => {
@@ -1629,6 +1886,9 @@ class Device {
     get setSensitivityForType() {
         return __classPrivateFieldGet(this, _Device_inputManager, "f").setSensitivityForType;
     }
+    get setXRState() {
+        return __classPrivateFieldGet(this, _Device_xrStateManager, "f").setState;
+    }
     get vibrate() {
         return __classPrivateFieldGet(this, _Device_vibrationManager, "f").vibrate;
     }
@@ -1644,7 +1904,7 @@ class Device {
         __classPrivateFieldSet(this, _Device_isServerSide, newIsServerSide, "f");
     }
 }
-_a$1 = Device, _Device_eventDispatcher = new WeakMap(), _Device_connectionManager = new WeakMap(), _Device_isConnected = new WeakMap(), _Device_reconnectOnDisconnection = new WeakMap(), _Device_reconnectIntervalId = new WeakMap(), _Device_deviceInformationManager = new WeakMap(), _Device_batteryLevel = new WeakMap(), _Device_inputManager = new WeakMap(), _Device_rawSensorManager = new WeakMap(), _Device_vibrationManager = new WeakMap(), _Device_isServerSide = new WeakMap(), _Device_instances = new WeakSet(), _Device_DefaultConnectionManager = function _Device_DefaultConnectionManager() {
+_a$1 = Device, _Device_eventDispatcher = new WeakMap(), _Device_connectionManager = new WeakMap(), _Device_isConnected = new WeakMap(), _Device_reconnectOnDisconnection = new WeakMap(), _Device_reconnectIntervalId = new WeakMap(), _Device_deviceInformationManager = new WeakMap(), _Device_batteryLevel = new WeakMap(), _Device_inputManager = new WeakMap(), _Device_xrStateManager = new WeakMap(), _Device_tapDataManager = new WeakMap(), _Device_mouseDataManager = new WeakMap(), _Device_airGestureManager = new WeakMap(), _Device_txManager = new WeakMap(), _Device_vibrationManager = new WeakMap(), _Device_isServerSide = new WeakMap(), _Device_instances = new WeakSet(), _Device_DefaultConnectionManager = function _Device_DefaultConnectionManager() {
     return new WebBluetoothConnectionManager();
 }, _Device_dispatchEvent_get = function _Device_dispatchEvent_get() {
     return __classPrivateFieldGet(this, _Device_eventDispatcher, "f").dispatchEvent;
@@ -1713,8 +1973,20 @@ _a$1 = Device, _Device_eventDispatcher = new WeakMap(), _Device_connectionManage
             if (DeviceInformationMessageTypes.includes(messageType)) {
                 __classPrivateFieldGet(this, _Device_deviceInformationManager, "f").parseMessage(messageType, dataView);
             }
+            else if (TapDataMessageTypes.includes(messageType)) {
+                __classPrivateFieldGet(this, _Device_tapDataManager, "f").parseMessage(messageType, dataView);
+            }
+            else if (MouseDataMessageTypes.includes(messageType)) {
+                __classPrivateFieldGet(this, _Device_mouseDataManager, "f").parseMessage(messageType, dataView);
+            }
+            else if (AirGestureMessageTypes.includes(messageType)) {
+                __classPrivateFieldGet(this, _Device_airGestureManager, "f").parseMessage(messageType, dataView);
+            }
+            else if (TxMessageTypes.includes(messageType)) {
+                __classPrivateFieldGet(this, _Device_txManager, "f").parseMessage(messageType, dataView);
+            }
             else {
-                throw Error(`uncaught messageType ${messageType}`);
+                throw Error(`uncaught messageType "${messageType}"`);
             }
     }
     this.latestConnectionMessage.set(messageType, dataView);

@@ -1,6 +1,6 @@
 export type BluetoothServiceName = "deviceInformation" | "battery" | "tap" | "nus";
 import { DeviceInformationMessageType } from "../../DeviceInformationManager.ts";
-export type BluetoothCharacteristicName = DeviceInformationMessageType | "batteryLevel" | "tapData" | "mouseData" | "airGestures" | "uiCommands" | "settings" | "unknown3" | "unknown2" | "unknown7" | "unknown8" | "unknownB" | "unknownC" | "unknownD" | "rx" | "tx";
+export type BluetoothCharacteristicName = DeviceInformationMessageType | "batteryLevel" | "tapData" | "mouseData" | "airGesture" | "uiCommands" | "settings" | "unknown3" | "unknown2" | "unknown7" | "unknown8" | "unknownB" | "unknownC" | "unknownD" | "rx" | "tx";
 export declare const serviceUUIDs: BluetoothServiceUUID[];
 export declare const optionalServiceUUIDs: BluetoothServiceUUID[];
 export declare const allServiceUUIDs: BluetoothServiceUUID[];

@@ -154,6 +154,14 @@ TS.RawSensorTypes.forEach((rawSensorType) => {
   rawSensorSensitivityTemplate.parentElement.appendChild(rawSensorSensitivityContainer);
 });
 
+// RAW SENSOR
+
+/** @type {HTMLPreElement} */
+const rawSensorDataPre = document.getElementById("rawSensorDataPre");
+device.addEventListener("rawSensor", (event) => {
+  rawSensorDataPre.textContent = JSON.stringify(event.message, null, 2);
+});
+
 // VIBRATION
 
 device.addEventListener("connected", () => {

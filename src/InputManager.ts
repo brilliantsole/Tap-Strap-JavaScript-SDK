@@ -43,7 +43,7 @@ class InputManager {
     return this.#sensitivity;
   }
   set sensitivity(newSensitivity) {
-    this.#sensitivity = newSensitivity;
+    Object.assign(this.#sensitivity, newSensitivity);
   }
 
   setSensitivityForType(rawSensorType: RawSensorType, index: number) {
