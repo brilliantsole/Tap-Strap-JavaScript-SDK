@@ -444,6 +444,9 @@ class Device {
   get inputMode() {
     return this.#inputManager.mode;
   }
+  set inputMode(newInputMode) {
+    this.setInputMode(newInputMode);
+  }
   get setInputMode() {
     return this.#inputManager.setMode;
   }
@@ -455,6 +458,9 @@ class Device {
   #xrStateManager = new XRStateManager();
   get xrState() {
     return this.#xrStateManager.state;
+  }
+  set xrState(newXrState) {
+    this.setXRState(newXrState);
   }
   get setXRState() {
     return this.#xrStateManager.setState;

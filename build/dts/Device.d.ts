@@ -67,9 +67,11 @@ declare class Device {
     get deviceInformation(): import("./DeviceInformationManager.ts").DeviceInformation;
     get batteryLevel(): number;
     get inputMode(): "rawSensor" | "controller" | "text" | "controllerWithMouse" | "controllerWithMouseAndKeyboard";
+    set inputMode(newInputMode: "rawSensor" | "controller" | "text" | "controllerWithMouse" | "controllerWithMouseAndKeyboard");
     get setInputMode(): (newMode: import("./InputManager.ts").InputMode) => void;
     get setSensitivityForType(): (rawSensorType: import("./TS.ts").RawSensorType, index: number) => void;
     get xrState(): "user" | "airMouse" | "tapping" | "dontSend";
+    set xrState(newXrState: "user" | "airMouse" | "tapping" | "dontSend");
     get setXRState(): (newState: import("./XRStateManager.ts").XRState) => void;
     /** [hapticsMs, pauseMs, hapticsMs, pauseMs...] */
     get vibrate(): (segments: number[]) => Promise<void>;

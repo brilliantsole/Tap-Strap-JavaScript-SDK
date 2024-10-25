@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <title>3d | Tap Strap JavaScript SDK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <script src="../../lib/aframe.js"></script>
+    <!-- required to get aframe-orbit-controls-component to work -->
+    <script>
+      THREE.Quaternion.prototype.inverse = THREE.Quaternion.prototype.invert;
+      THREE.Math = THREE.MathUtils;
+    </script>
+    <!-- https://github.com/tizzle/aframe-orbit-controls-component -->
+    <script src="https://cdn.rawgit.com/tizzle/aframe-orbit-controls-component/v0.1.14/dist/aframe-orbit-controls-component.min.js"></script>
+    <script type="module" src="./script.js"></script>
+  </head>
+  <style>
+    div {
+      margin-top: 1rem;
+    }
+    ul,
+    ol {
+      margin-top: 0;
+      list-style: none;
+      padding: 0;
+    }
+    .hidden {
+      display: none;
+    }
+    a-scene {
+      width: 500px;
+      height: 500px;
+      overflow: hidden;
+      border-radius: 100px;
+    }
+  </style>
+  <body>
+    <nav>
+      <a href="../../">home</a>
+    </nav>
+
+    <h1>3d | Tap Strap JavaScript SDK</h1>
+
+    <div>
+      <h2>Available Devices</h2>
+      <div id="availableDevices">
+        <template id="availableDeviceTemplate">
+          <div class="availableDevice">
+            <ul>
+              <li><b>bluetooth id: </b> <span class="bluetoothId"></span></li>
+              <li><button class="toggleConnection">connect</button></li>
+            </ul>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <div>
+      <h2>Connection</h2>
+      <button id="toggleConnection">connect</button>
+    </div>
+
+    <ul>
+      <li>
+        <label><b>battery level:</b> <span id="batteryLevel"></span></label>
+      </li>
+      <li><button disabled id="toggleMirrorMode">enable mirror mode</button></li>
+    </ul>
+
+    <a-scene embedded xr-mode-ui="enabled: false;" device-orientation-permission-ui="enabled: false">
+      <a-assets>
+        <a-asset-item id="model" src="../../assets/3d/model.glb"></a-asset-item>
+      </a-assets>
+      <a-light type="directional" position="2 2 -2" target=".target"></a-light>
+      <a-light type="directional" position="-2 2 2" target=".target"></a-light>
+      <a-light type="directional" position="2 -2 2" target=".target"></a-light>
+
+      <a-camera
+        class="camera"
+        camera="fov: 50; zoom: 1;"
+        position="0 0 5"
+        orbit-controls="
+          enableZoom: true;
+          autoRotate: false;
+          target: .target;
+          enableDamping: true;
+          dampingFactor: 0.125;
+          rotateSpeed:0.25;
+          minDistance:0.75;
+          maxDistance:5;
+        "
+      ></a-camera>
+
+      <a-entity class="target">
+        <a-entity class="position">
+          <a-entity class="rotation">
+            <a-entity gltf-model="#model" visible="true" scale="1 1 1" position="0 -1 0"></a-entity>
+          </a-entity>
+        </a-entity>
+      </a-entity>
+      <a-sky color="black"></a-sky>
+    </a-scene>
+  </body>
+</html>

@@ -115,8 +115,8 @@ class RawSensorManager {
     for (let offset = 0; offset < sensorData.byteLength; offset += 6) {
       const sensitivityFactorIndex = this.sensitivity[rawSensorType];
       const sensitivityFactor = RawSensorSensitivityFactors[rawSensorType][sensitivityFactorIndex];
-      const [x, y, z] = [
-        sensorData.getInt16(offset + 0, true),
+      const [z, y, x] = [
+        -sensorData.getInt16(offset + 0, true),
         sensorData.getInt16(offset + 2, true),
         sensorData.getInt16(offset + 4, true),
       ].map((value) => value * sensitivityFactor);

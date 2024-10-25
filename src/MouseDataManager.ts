@@ -50,7 +50,7 @@ class MouseDataManager {
 
     const velocity: Vector2 = {
       x: dataView.getInt16(1, true),
-      y: dataView.getInt16(3, true),
+      y: -dataView.getInt16(3, true),
     };
     const isMouse = dataView.getUint8(9) == 1;
     this.#dispatchEvent("mouseData", { velocity, isMouse });

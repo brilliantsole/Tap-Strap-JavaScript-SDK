@@ -490,7 +490,7 @@ const AirGestureEnum = {
 };
 const AirGestureEnumLookup = {};
 Object.keys(AirGestureEnum).forEach((airGesture) => {
-    AirGestureEnumLookup[airGesture] = AirGestureEnum[airGesture];
+    AirGestureEnumLookup[AirGestureEnum[airGesture]] = airGesture;
 });
 const XRAirGestureEnum = {
     clickIndex: 1,
@@ -503,7 +503,7 @@ const XRAirGestureEnum = {
 };
 const XRAirGestureEnumLookup = {};
 Object.keys(XRAirGestureEnum).forEach((xrAirGesture) => {
-    XRAirGestureEnumLookup[xrAirGesture] = XRAirGestureEnum[xrAirGesture];
+    XRAirGestureEnumLookup[XRAirGestureEnum[xrAirGesture]] = xrAirGesture;
 });
 
 var _TapDataManager_instances, _TapDataManager_dispatchEvent_get, _TapDataManager_parse;
@@ -590,7 +590,7 @@ _MouseDataManager_instances = new WeakSet(), _MouseDataManager_dispatchEvent_get
     }
     const velocity = {
         x: dataView.getInt16(1, true),
-        y: dataView.getInt16(3, true),
+        y: -dataView.getInt16(3, true),
     };
     const isMouse = dataView.getUint8(9) == 1;
     __classPrivateFieldGet(this, _MouseDataManager_instances, "a", _MouseDataManager_dispatchEvent_get).call(this, "mouseData", { velocity, isMouse });
@@ -802,8 +802,8 @@ _RawSensorManager_instances = new WeakSet(), _RawSensorManager_dispatchEvent_get
     for (let offset = 0; offset < sensorData.byteLength; offset += 6) {
         const sensitivityFactorIndex = this.sensitivity[rawSensorType];
         const sensitivityFactor = RawSensorSensitivityFactors[rawSensorType][sensitivityFactorIndex];
-        const [x, y, z] = [
-            sensorData.getInt16(offset + 0, true),
+        const [z, y, x] = [
+            -sensorData.getInt16(offset + 0, true),
             sensorData.getInt16(offset + 2, true),
             sensorData.getInt16(offset + 4, true),
         ].map((value) => value * sensitivityFactor);
@@ -2031,6 +2031,9 @@ class Device {
     get inputMode() {
         return __classPrivateFieldGet(this, _Device_inputManager, "f").mode;
     }
+    set inputMode(newInputMode) {
+        this.setInputMode(newInputMode);
+    }
     get setInputMode() {
         return __classPrivateFieldGet(this, _Device_inputManager, "f").setMode;
     }
@@ -2039,6 +2042,9 @@ class Device {
     }
     get xrState() {
         return __classPrivateFieldGet(this, _Device_xrStateManager, "f").state;
+    }
+    set xrState(newXrState) {
+        this.setXRState(newXrState);
     }
     get setXRState() {
         return __classPrivateFieldGet(this, _Device_xrStateManager, "f").setState;

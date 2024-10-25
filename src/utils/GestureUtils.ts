@@ -42,7 +42,7 @@ export const AirGestureEnum: { [airGesture in AirGesture]: number } = {
 export const AirGestureEnumLookup: { [key: number]: AirGesture } = {};
 Object.keys(AirGestureEnum).forEach((airGesture) => {
   // @ts-ignore
-  AirGestureEnumLookup[airGesture] = AirGestureEnum[airGesture];
+  AirGestureEnumLookup[AirGestureEnum[airGesture]] = airGesture;
 });
 
 export const XRGestureStates = ["none", "thumbIndex", "thumbMiddle"] as const;
@@ -76,5 +76,5 @@ export const XRAirGestureEnum: { [xrAirGesture in XRAirGesture]: number } = {
 export const XRAirGestureEnumLookup: { [key: number]: XRAirGesture } = {};
 Object.keys(XRAirGestureEnum).forEach((xrAirGesture) => {
   // @ts-ignore
-  XRAirGestureEnumLookup[xrAirGesture] = XRAirGestureEnum[xrAirGesture];
+  XRAirGestureEnumLookup[XRAirGestureEnum[xrAirGesture]] = xrAirGesture;
 });
