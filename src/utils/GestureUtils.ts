@@ -14,6 +14,14 @@ export const AirGestures = [
   "xrAirGestureThumbMiddle",
 ] as const;
 export type AirGesture = (typeof AirGestures)[number];
+export function tapByteToAirGesture(tapByte: number): AirGesture | undefined {
+  switch (tapByte) {
+    case 2:
+      return "indexToThumbTouch";
+    case 4:
+      return "middleToThumbTouch";
+  }
+}
 
 export const AirGestureEnum: { [airGesture in AirGesture]: number } = {
   oneFingerUp: 2,

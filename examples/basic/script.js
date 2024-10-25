@@ -166,6 +166,42 @@ xrStateSelect.addEventListener("input", () => {
   device.setXRState(xrStateSelect.value);
 });
 
+// TAP DATA
+
+/** @type {HTMLPreElement} */
+const tapDataPre = document.getElementById("tapDataPre");
+device.addEventListener("tapData", (event) => {
+  tapDataPre.textContent = JSON.stringify(event.message, null, 2);
+});
+
+/** @type {HTMLPreElement} */
+const tapAirGesturePre = document.getElementById("tapAirGesturePre");
+device.addEventListener("tapAirGesture", (event) => {
+  tapAirGesturePre.textContent = JSON.stringify(event.message, null, 2);
+});
+
+// AIR GESTURE
+
+/** @type {HTMLPreElement} */
+const airGesturePre = document.getElementById("airGesturePre");
+device.addEventListener("airGesture", (event) => {
+  airGesturePre.textContent = JSON.stringify(event.message, null, 2);
+});
+
+/** @type {HTMLPreElement} */
+const xrAirGesturePre = document.getElementById("xrAirGesturePre");
+device.addEventListener("xrAirGesture", (event) => {
+  xrAirGesturePre.textContent = JSON.stringify(event.message, null, 2);
+});
+
+// MOUSE DATA
+
+/** @type {HTMLPreElement} */
+const mouseDataPre = document.getElementById("mouseDataPre");
+device.addEventListener("mouseData", (event) => {
+  mouseDataPre.textContent = JSON.stringify(event.message, null, 2);
+});
+
 // RAW SENSOR
 
 /** @type {HTMLPreElement} */

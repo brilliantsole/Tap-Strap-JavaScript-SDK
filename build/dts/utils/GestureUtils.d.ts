@@ -1,5 +1,6 @@
 export declare const AirGestures: readonly ["oneFingerUp", "twoFingersUp", "oneFingerDown", "twoFingersDown", "oneFingerLeft", "twoFingersLeft", "oneFingerRight", "twoFingersRight", "indexToThumbTouch", "middleToThumbTouch", "xrAirGestureNone", "xrAirGestureThumbIndex", "xrAirGestureThumbMiddle"];
 export type AirGesture = (typeof AirGestures)[number];
+export declare function tapByteToAirGesture(tapByte: number): AirGesture | undefined;
 export declare const AirGestureEnum: {
     [airGesture in AirGesture]: number;
 };

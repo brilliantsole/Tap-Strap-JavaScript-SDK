@@ -495,28 +495,102 @@
 		return self;
 	}
 
-	var _TapDataManager_instances;
+	function tapByteToAirGesture(tapByte) {
+	    switch (tapByte) {
+	        case 2:
+	            return "indexToThumbTouch";
+	        case 4:
+	            return "middleToThumbTouch";
+	    }
+	}
+	const AirGestureEnum = {
+	    oneFingerUp: 2,
+	    twoFingersUp: 3,
+	    oneFingerDown: 4,
+	    twoFingersDown: 5,
+	    oneFingerLeft: 6,
+	    twoFingersLeft: 7,
+	    oneFingerRight: 8,
+	    twoFingersRight: 9,
+	    indexToThumbTouch: 10,
+	    middleToThumbTouch: 11,
+	    xrAirGestureNone: 100,
+	    xrAirGestureThumbIndex: 101,
+	    xrAirGestureThumbMiddle: 102,
+	};
+	const AirGestureEnumLookup = {};
+	Object.keys(AirGestureEnum).forEach((airGesture) => {
+	    AirGestureEnumLookup[airGesture] = AirGestureEnum[airGesture];
+	});
+	const XRAirGestureEnum = {
+	    clickIndex: 1,
+	    clickMiddle: 2,
+	    dragIndex: 3,
+	    dragMiddle: 4,
+	    drop: 5,
+	    potentialDragOrClickIndex: 6,
+	    potentialDragOrClickMiddle: 7,
+	};
+	const XRAirGestureEnumLookup = {};
+	Object.keys(XRAirGestureEnum).forEach((xrAirGesture) => {
+	    XRAirGestureEnumLookup[xrAirGesture] = XRAirGestureEnum[xrAirGesture];
+	});
+
+	var _TapDataManager_instances, _TapDataManager_dispatchEvent_get, _TapDataManager_parse;
 	const _console$g = createConsole("TapDataManager");
 	const TapDataMessageTypes = ["tapData"];
-	const TapDataEventTypes = [...TapDataMessageTypes];
+	const TapDataEventTypes = [...TapDataMessageTypes, "tapAirGesture"];
+	const TapFingers = ["thumb", "index", "middle", "ring", "pinky"];
 	class TapDataManager {
 	    constructor() {
 	        _TapDataManager_instances.add(this);
+	        this.isInAirGestureState = false;
 	        autoBind(this);
 	    }
 	    parseMessage(messageType, dataView) {
 	        _console$g.log({ messageType });
 	        switch (messageType) {
 	            case "tapData":
+	                __classPrivateFieldGet(this, _TapDataManager_instances, "m", _TapDataManager_parse).call(this, dataView);
 	                break;
 	            default:
 	                throw Error(`uncaught messageType ${messageType}`);
 	        }
 	    }
 	}
-	_TapDataManager_instances = new WeakSet();
+	_TapDataManager_instances = new WeakSet(), _TapDataManager_dispatchEvent_get = function _TapDataManager_dispatchEvent_get() {
+	    return this.eventDispatcher.dispatchEvent;
+	}, _TapDataManager_parse = function _TapDataManager_parse(dataView) {
+	    _console$g.log("parsing tap data", dataView);
+	    const first = dataView.getUint8(0);
+	    if (this.isInAirGestureState) {
+	        const tapAirGesture = tapByteToAirGesture(first);
+	        _console$g.log({ tapAirGesture });
+	        if (tapAirGesture) {
+	            __classPrivateFieldGet(this, _TapDataManager_instances, "a", _TapDataManager_dispatchEvent_get).call(this, "tapAirGesture", { tapAirGesture });
+	        }
+	    }
+	    else {
+	        let keyboardState;
+	        if (dataView.byteLength >= 4) {
+	            const keyboardStateByte = dataView.getUint8(3);
+	            keyboardState = {
+	                shiftState: keyboardStateByte & 0b00000011,
+	                switchState: (keyboardStateByte >> 2) & 0b00000011,
+	                multitap: Math.min(((keyboardStateByte >> 4) & 0b00000011) + 1, 3),
+	            };
+	        }
+	        const fingers = {};
+	        _console$g.log("fingerBits", first.toString(2));
+	        TapFingers.forEach((finger, index) => {
+	            fingers[finger] = (first & (1 << index)) != 0;
+	        });
+	        _console$g.log("fingers", fingers);
+	        __classPrivateFieldGet(this, _TapDataManager_instances, "a", _TapDataManager_dispatchEvent_get).call(this, "tapData", { fingers, keyboardState });
+	    }
+	};
 
-	var _MouseDataManager_instances;
+	var _MouseDataManager_instances, _MouseDataManager_dispatchEvent_get, _MouseDataManager_parseMouseData;
 	const _console$f = createConsole("MouseDataManager");
 	const MouseDataMessageTypes = ["mouseData"];
 	const MouseDataEventTypes = [...MouseDataMessageTypes];
@@ -529,34 +603,80 @@
 	        _console$f.log({ messageType });
 	        switch (messageType) {
 	            case "mouseData":
+	                __classPrivateFieldGet(this, _MouseDataManager_instances, "m", _MouseDataManager_parseMouseData).call(this, dataView);
 	                break;
 	            default:
 	                throw Error(`uncaught messageType ${messageType}`);
 	        }
 	    }
 	}
-	_MouseDataManager_instances = new WeakSet();
+	_MouseDataManager_instances = new WeakSet(), _MouseDataManager_dispatchEvent_get = function _MouseDataManager_dispatchEvent_get() {
+	    return this.eventDispatcher.dispatchEvent;
+	}, _MouseDataManager_parseMouseData = function _MouseDataManager_parseMouseData(dataView) {
+	    _console$f.log("parsing mouse data", dataView);
+	    const first = dataView.getUint8(0);
+	    if (first != 0) {
+	        return;
+	    }
+	    const velocity = {
+	        x: dataView.getInt16(1, true),
+	        y: dataView.getInt16(3, true),
+	    };
+	    const isMouse = dataView.getUint8(9) == 1;
+	    __classPrivateFieldGet(this, _MouseDataManager_instances, "a", _MouseDataManager_dispatchEvent_get).call(this, "mouseData", { velocity, isMouse });
+	};
 
-	var _AirGestureManager_instances;
+	var _AirGestureManager_instances, _AirGestureManager_dispatchEvent_get, _AirGestureManager_isInState, _AirGestureManager_updateIsInState, _AirGestureManager_parseAirGesture;
 	const _console$e = createConsole("AirGestureManager");
 	const AirGestureMessageTypes = ["airGesture"];
-	const AirGestureEventTypes = [...AirGestureMessageTypes];
+	const AirGestureEventTypes = [...AirGestureMessageTypes, "isInAirGestureState", "xrAirGesture"];
 	class AirGestureManager {
 	    constructor() {
 	        _AirGestureManager_instances.add(this);
+	        _AirGestureManager_isInState.set(this, false);
 	        autoBind(this);
+	    }
+	    get isInState() {
+	        return __classPrivateFieldGet(this, _AirGestureManager_isInState, "f");
 	    }
 	    parseMessage(messageType, dataView) {
 	        _console$e.log({ messageType });
 	        switch (messageType) {
 	            case "airGesture":
+	                __classPrivateFieldGet(this, _AirGestureManager_instances, "m", _AirGestureManager_parseAirGesture).call(this, dataView);
 	                break;
 	            default:
 	                throw Error(`uncaught messageType ${messageType}`);
 	        }
 	    }
 	}
-	_AirGestureManager_instances = new WeakSet();
+	_AirGestureManager_isInState = new WeakMap(), _AirGestureManager_instances = new WeakSet(), _AirGestureManager_dispatchEvent_get = function _AirGestureManager_dispatchEvent_get() {
+	    return this.eventDispatcher.dispatchEvent;
+	}, _AirGestureManager_updateIsInState = function _AirGestureManager_updateIsInState(newIsInState) {
+	    __classPrivateFieldSet(this, _AirGestureManager_isInState, newIsInState, "f");
+	    __classPrivateFieldGet(this, _AirGestureManager_instances, "a", _AirGestureManager_dispatchEvent_get).call(this, "isInAirGestureState", { isInAirGestureState: __classPrivateFieldGet(this, _AirGestureManager_isInState, "f") });
+	}, _AirGestureManager_parseAirGesture = function _AirGestureManager_parseAirGesture(dataView) {
+	    _console$e.log("parsing air gesture", dataView);
+	    const first = dataView.getUint8(0);
+	    if (first == 20) {
+	        const second = dataView.getUint8(1);
+	        __classPrivateFieldGet(this, _AirGestureManager_instances, "m", _AirGestureManager_updateIsInState).call(this, second == 1);
+	    }
+	    else {
+	        let airGesture = AirGestureEnumLookup[first];
+	        _console$e.log({ airGesture });
+	        if (airGesture) {
+	            __classPrivateFieldGet(this, _AirGestureManager_instances, "a", _AirGestureManager_dispatchEvent_get).call(this, "airGesture", { airGesture });
+	        }
+	        else {
+	            const xrAirGesture = XRAirGestureEnumLookup[first];
+	            _console$e.log({ xrAirGesture });
+	            if (xrAirGesture) {
+	                __classPrivateFieldGet(this, _AirGestureManager_instances, "a", _AirGestureManager_dispatchEvent_get).call(this, "xrAirGesture", { xrAirGesture });
+	            }
+	        }
+	    }
+	};
 
 	const _console$d = createConsole("RawSensorUtils");
 	const RawSensorTypes = ["deviceAccelerometer", "imuGyroscope", "imuAccelerometer"];
@@ -585,6 +705,8 @@
 	        assertValidRawSensorSensitivityForType(rawSensorType, index);
 	    });
 	}
+	const RawSensorImuTypes = ["gyroscope", "accelerometer"];
+	const RawSensorFingers = ["thumb", "index", "middle", "ring", "pinky"];
 
 	const _console$c = createConsole("ArrayBufferUtils", { log: false });
 	function concatenateArrayBuffers(...arrayBuffers) {
@@ -702,7 +824,7 @@
 	}, _RawSensorManager_parseSingle = function _RawSensorManager_parseSingle(sensorDataType, timestamp, sensorData) {
 	    _console$b.log(`parsing ${sensorDataType} ${timestamp}ms`, sensorData);
 	    let rawSensorType = sensorDataType == "device" ? "deviceAccelerometer" : "imuGyroscope";
-	    const points = [];
+	    const vectors = [];
 	    for (let offset = 0; offset < sensorData.byteLength; offset += 6) {
 	        const sensitivityFactorIndex = this.sensitivity[rawSensorType];
 	        const sensitivityFactor = RawSensorSensitivityFactors[rawSensorType][sensitivityFactorIndex];
@@ -712,28 +834,41 @@
 	            sensorData.getInt16(offset + 4, true),
 	        ].map((value) => value * sensitivityFactor);
 	        _console$b.log({ x, y, z });
-	        const point = { x, y, z };
-	        _console$b.log("point", point);
-	        points.push(point);
+	        const vector = { x, y, z };
+	        _console$b.log("vector", vector);
+	        vectors.push(vector);
 	        if (sensorDataType == "imu") {
 	            rawSensorType = "imuAccelerometer";
 	        }
 	    }
-	    let validNumberOfPoints = 0;
+	    let validNumberOfVectors = 0;
 	    switch (sensorDataType) {
 	        case "imu":
-	            validNumberOfPoints = 2;
+	            validNumberOfVectors = 2;
 	            break;
 	        case "device":
-	            validNumberOfPoints = 5;
+	            validNumberOfVectors = 5;
 	            break;
 	    }
-	    if (points.length != validNumberOfPoints) {
-	        _console$b.log(`invalid number of ${sensorDataType} points (expected ${validNumberOfPoints}, get ${points.length})`);
+	    if (vectors.length != validNumberOfVectors) {
+	        _console$b.log(`invalid number of ${sensorDataType} vectors (expected ${validNumberOfVectors}, get ${vectors.length})`);
 	        return;
 	    }
-	    __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, sensorDataType, { sensorDataType, points, timestamp });
-	    __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, "rawSensor", { sensorDataType, points, timestamp });
+	    const message = { sensorDataType, timestamp };
+	    switch (message.sensorDataType) {
+	        case "imu":
+	            message.accelerometer = vectors[RawSensorImuTypes.indexOf("accelerometer")];
+	            message.gyroscope = vectors[RawSensorImuTypes.indexOf("gyroscope")];
+	            break;
+	        case "device":
+	            message.fingers = {};
+	            RawSensorFingers.forEach((finger, index) => {
+	                message.fingers[finger] = vectors[index];
+	            });
+	            break;
+	    }
+	    __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, sensorDataType, message);
+	    __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, "rawSensor", message);
 	};
 
 	var _TxManager_instances, _TxManager_eventDispatcher, _TxManager_rawSensorManager;
@@ -1773,12 +1908,22 @@
 	        __classPrivateFieldGet(this, _Device_txManager, "f").rawSensorSensitivity = __classPrivateFieldGet(this, _Device_inputManager, "f").sensitivity;
 	        this.addEventListener("hardwareRevision", () => {
 	        });
+	        this.addEventListener("isInAirGestureState", (event) => {
+	            __classPrivateFieldGet(this, _Device_tapDataManager, "f").isInAirGestureState = event.message.isInAirGestureState;
+	        });
 	        this.addEventListener("isConnected", () => {
 	            if (this.isConnected) {
 	                __classPrivateFieldGet(this, _Device_inputManager, "f").start();
+	                setTimeout(() => {
+	                    __classPrivateFieldGet(this, _Device_inputManager, "f").start();
+	                }, 100);
+	                setTimeout(() => {
+	                    __classPrivateFieldGet(this, _Device_xrStateManager, "f").start();
+	                }, 0);
 	            }
 	            else {
 	                __classPrivateFieldGet(this, _Device_inputManager, "f").stop();
+	                __classPrivateFieldGet(this, _Device_xrStateManager, "f").stop();
 	            }
 	        });
 	        DeviceManager$1.onDevice(this);
@@ -1911,11 +2056,17 @@
 	    get batteryLevel() {
 	        return __classPrivateFieldGet(this, _Device_batteryLevel, "f");
 	    }
+	    get inputMode() {
+	        return __classPrivateFieldGet(this, _Device_inputManager, "f").mode;
+	    }
 	    get setInputMode() {
 	        return __classPrivateFieldGet(this, _Device_inputManager, "f").setMode;
 	    }
 	    get setSensitivityForType() {
 	        return __classPrivateFieldGet(this, _Device_inputManager, "f").setSensitivityForType;
+	    }
+	    get xrState() {
+	        return __classPrivateFieldGet(this, _Device_xrStateManager, "f").state;
 	    }
 	    get setXRState() {
 	        return __classPrivateFieldGet(this, _Device_xrStateManager, "f").setState;
@@ -2094,6 +2245,7 @@
 	exports.RangeHelper = RangeHelper;
 	exports.RawSensorSensitivityFactors = RawSensorSensitivityFactors;
 	exports.RawSensorTypes = RawSensorTypes;
+	exports.XRStates = XRStates;
 	exports.setAllConsoleLevelFlags = setAllConsoleLevelFlags;
 	exports.setConsoleLevelFlagsForType = setConsoleLevelFlagsForType;
 

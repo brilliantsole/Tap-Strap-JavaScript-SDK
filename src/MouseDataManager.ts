@@ -2,6 +2,7 @@ import { createConsole } from "./utils/Console.ts";
 import autoBind from "auto-bind";
 import EventDispatcher from "./utils/EventDispatcher.ts";
 import Device from "./Device.ts";
+import { Vector2 } from "./utils/MathUtils.ts";
 
 const _console = createConsole("MouseDataManager");
 
@@ -11,7 +12,9 @@ export type MouseDataMessageType = (typeof MouseDataMessageTypes)[number];
 export const MouseDataEventTypes = [...MouseDataMessageTypes] as const;
 export type MouseDataEventType = (typeof MouseDataEventTypes)[number];
 
-export interface MouseDataEventMessages {}
+export interface MouseDataEventMessages {
+  mouseData: { velocity: Vector2; isMouse: boolean };
+}
 
 export type MouseDataEventDispatcher = EventDispatcher<Device, MouseDataEventType, MouseDataEventMessages>;
 
@@ -39,7 +42,18 @@ class MouseDataManager {
 
   #parseMouseData(dataView: DataView) {
     _console.log("parsing mouse data", dataView);
-    // FILL
+
+    const first = dataView.getUint8(0);
+    if (first != 0) {
+      return;
+    }
+
+    const velocity: Vector2 = {
+      x: dataView.getInt16(1, true),
+      y: dataView.getInt16(3, true),
+    };
+    const isMouse = dataView.getUint8(9) == 1;
+    this.#dispatchEvent("mouseData", { velocity, isMouse });
   }
 }
 

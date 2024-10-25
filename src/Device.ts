@@ -114,7 +114,12 @@ class Device {
     this.addEventListener("isConnected", () => {
       if (this.isConnected) {
         this.#inputManager.start();
-        this.#xrStateManager.start();
+        setTimeout(() => {
+          this.#inputManager.start();
+        }, 100);
+        setTimeout(() => {
+          this.#xrStateManager.start();
+        }, 0);
       } else {
         this.#inputManager.stop();
         this.#xrStateManager.stop();

@@ -18,9 +18,8 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-const __BRILLIANTSOLE__ENVIRONMENT__ = "__BRILLIANTSOLE__DEV__";
-const isInProduction = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__PROD__";
-const isInDev = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__DEV__";
+const isInProduction = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__PROD__";
+const isInDev = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__DEV__";
 const isInBrowser = typeof window !== "undefined" && typeof window?.document !== "undefined";
 const isInNode = typeof process !== "undefined" && process?.versions?.node != null;
 const userAgent = (isInBrowser && navigator.userAgent) || "";
@@ -119,9 +118,6 @@ class Console {
     }
     static create(type, levelFlags) {
         const console = __classPrivateFieldGet(this, _a$1, "f", _Console_consoles)[type] || new _a$1(type);
-        if (levelFlags) {
-            console.setLevelFlags(levelFlags);
-        }
         return console;
     }
     get log() {
@@ -493,55 +489,14 @@ function autoBind(self, {include, exclude} = {}) {
 	return self;
 }
 
-var _TapDataManager_instances, _TapDataManager_parse;
-const _console$g = createConsole("TapDataManager");
-const TapDataMessageTypes = ["tapData"];
-const TapDataEventTypes = [...TapDataMessageTypes];
-class TapDataManager {
-    constructor() {
-        _TapDataManager_instances.add(this);
-        this.isInAirGestureState = false;
-        autoBind(this);
-    }
-    parseMessage(messageType, dataView) {
-        _console$g.log({ messageType });
-        switch (messageType) {
-            case "tapData":
-                __classPrivateFieldGet(this, _TapDataManager_instances, "m", _TapDataManager_parse).call(this, dataView);
-                break;
-            default:
-                throw Error(`uncaught messageType ${messageType}`);
-        }
+function tapByteToAirGesture(tapByte) {
+    switch (tapByte) {
+        case 2:
+            return "indexToThumbTouch";
+        case 4:
+            return "middleToThumbTouch";
     }
 }
-_TapDataManager_instances = new WeakSet(), _TapDataManager_parse = function _TapDataManager_parse(dataView) {
-    _console$g.log("parsing tap data", dataView);
-};
-
-var _MouseDataManager_instances, _MouseDataManager_parseMouseData;
-const _console$f = createConsole("MouseDataManager");
-const MouseDataMessageTypes = ["mouseData"];
-const MouseDataEventTypes = [...MouseDataMessageTypes];
-class MouseDataManager {
-    constructor() {
-        _MouseDataManager_instances.add(this);
-        autoBind(this);
-    }
-    parseMessage(messageType, dataView) {
-        _console$f.log({ messageType });
-        switch (messageType) {
-            case "mouseData":
-                __classPrivateFieldGet(this, _MouseDataManager_instances, "m", _MouseDataManager_parseMouseData).call(this, dataView);
-                break;
-            default:
-                throw Error(`uncaught messageType ${messageType}`);
-        }
-    }
-}
-_MouseDataManager_instances = new WeakSet(), _MouseDataManager_parseMouseData = function _MouseDataManager_parseMouseData(dataView) {
-    _console$f.log("parsing mouse data", dataView);
-};
-
 const AirGestureEnum = {
     oneFingerUp: 2,
     twoFingersUp: 3,
@@ -574,6 +529,96 @@ const XRAirGestureEnumLookup = {};
 Object.keys(XRAirGestureEnum).forEach((xrAirGesture) => {
     XRAirGestureEnumLookup[xrAirGesture] = XRAirGestureEnum[xrAirGesture];
 });
+
+var _TapDataManager_instances, _TapDataManager_dispatchEvent_get, _TapDataManager_parse;
+const _console$g = createConsole("TapDataManager");
+const TapDataMessageTypes = ["tapData"];
+const TapDataEventTypes = [...TapDataMessageTypes, "tapAirGesture"];
+const TapFingers = ["thumb", "index", "middle", "ring", "pinky"];
+class TapDataManager {
+    constructor() {
+        _TapDataManager_instances.add(this);
+        this.isInAirGestureState = false;
+        autoBind(this);
+    }
+    parseMessage(messageType, dataView) {
+        _console$g.log({ messageType });
+        switch (messageType) {
+            case "tapData":
+                __classPrivateFieldGet(this, _TapDataManager_instances, "m", _TapDataManager_parse).call(this, dataView);
+                break;
+            default:
+                throw Error(`uncaught messageType ${messageType}`);
+        }
+    }
+}
+_TapDataManager_instances = new WeakSet(), _TapDataManager_dispatchEvent_get = function _TapDataManager_dispatchEvent_get() {
+    return this.eventDispatcher.dispatchEvent;
+}, _TapDataManager_parse = function _TapDataManager_parse(dataView) {
+    _console$g.log("parsing tap data", dataView);
+    const first = dataView.getUint8(0);
+    if (this.isInAirGestureState) {
+        const tapAirGesture = tapByteToAirGesture(first);
+        _console$g.log({ tapAirGesture });
+        if (tapAirGesture) {
+            __classPrivateFieldGet(this, _TapDataManager_instances, "a", _TapDataManager_dispatchEvent_get).call(this, "tapAirGesture", { tapAirGesture });
+        }
+    }
+    else {
+        let keyboardState;
+        if (dataView.byteLength >= 4) {
+            const keyboardStateByte = dataView.getUint8(3);
+            keyboardState = {
+                shiftState: keyboardStateByte & 0b00000011,
+                switchState: (keyboardStateByte >> 2) & 0b00000011,
+                multitap: Math.min(((keyboardStateByte >> 4) & 0b00000011) + 1, 3),
+            };
+        }
+        const fingers = {};
+        _console$g.log("fingerBits", first.toString(2));
+        TapFingers.forEach((finger, index) => {
+            fingers[finger] = (first & (1 << index)) != 0;
+        });
+        _console$g.log("fingers", fingers);
+        __classPrivateFieldGet(this, _TapDataManager_instances, "a", _TapDataManager_dispatchEvent_get).call(this, "tapData", { fingers, keyboardState });
+    }
+};
+
+var _MouseDataManager_instances, _MouseDataManager_dispatchEvent_get, _MouseDataManager_parseMouseData;
+const _console$f = createConsole("MouseDataManager");
+const MouseDataMessageTypes = ["mouseData"];
+const MouseDataEventTypes = [...MouseDataMessageTypes];
+class MouseDataManager {
+    constructor() {
+        _MouseDataManager_instances.add(this);
+        autoBind(this);
+    }
+    parseMessage(messageType, dataView) {
+        _console$f.log({ messageType });
+        switch (messageType) {
+            case "mouseData":
+                __classPrivateFieldGet(this, _MouseDataManager_instances, "m", _MouseDataManager_parseMouseData).call(this, dataView);
+                break;
+            default:
+                throw Error(`uncaught messageType ${messageType}`);
+        }
+    }
+}
+_MouseDataManager_instances = new WeakSet(), _MouseDataManager_dispatchEvent_get = function _MouseDataManager_dispatchEvent_get() {
+    return this.eventDispatcher.dispatchEvent;
+}, _MouseDataManager_parseMouseData = function _MouseDataManager_parseMouseData(dataView) {
+    _console$f.log("parsing mouse data", dataView);
+    const first = dataView.getUint8(0);
+    if (first != 0) {
+        return;
+    }
+    const velocity = {
+        x: dataView.getInt16(1, true),
+        y: dataView.getInt16(3, true),
+    };
+    const isMouse = dataView.getUint8(9) == 1;
+    __classPrivateFieldGet(this, _MouseDataManager_instances, "a", _MouseDataManager_dispatchEvent_get).call(this, "mouseData", { velocity, isMouse });
+};
 
 var _AirGestureManager_instances, _AirGestureManager_dispatchEvent_get, _AirGestureManager_isInState, _AirGestureManager_updateIsInState, _AirGestureManager_parseAirGesture;
 const _console$e = createConsole("AirGestureManager");
@@ -1863,7 +1908,12 @@ class Device {
         this.addEventListener("isConnected", () => {
             if (this.isConnected) {
                 __classPrivateFieldGet(this, _Device_inputManager, "f").start();
-                __classPrivateFieldGet(this, _Device_xrStateManager, "f").start();
+                setTimeout(() => {
+                    __classPrivateFieldGet(this, _Device_inputManager, "f").start();
+                }, 100);
+                setTimeout(() => {
+                    __classPrivateFieldGet(this, _Device_xrStateManager, "f").start();
+                }, 0);
             }
             else {
                 __classPrivateFieldGet(this, _Device_inputManager, "f").stop();
