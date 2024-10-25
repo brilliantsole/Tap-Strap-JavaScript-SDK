@@ -18,8 +18,9 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-const isInProduction = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__PROD__";
-const isInDev = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__DEV__";
+const __BRILLIANTSOLE__ENVIRONMENT__ = "__BRILLIANTSOLE__DEV__";
+const isInProduction = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__PROD__";
+const isInDev = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__DEV__";
 const isInBrowser = typeof window !== "undefined" && typeof window?.document !== "undefined";
 const isInNode = typeof process !== "undefined" && process?.versions?.node != null;
 const userAgent = (isInBrowser && navigator.userAgent) || "";
@@ -118,6 +119,9 @@ class Console {
     }
     static create(type, levelFlags) {
         const console = __classPrivateFieldGet(this, _a$1, "f", _Console_consoles)[type] || new _a$1(type);
+        if (levelFlags) {
+            console.setLevelFlags(levelFlags);
+        }
         return console;
     }
     get log() {
@@ -648,6 +652,7 @@ _AirGestureManager_isInState = new WeakMap(), _AirGestureManager_instances = new
     return this.eventDispatcher.dispatchEvent;
 }, _AirGestureManager_updateIsInState = function _AirGestureManager_updateIsInState(newIsInState) {
     __classPrivateFieldSet(this, _AirGestureManager_isInState, newIsInState, "f");
+    _console$e.log("isInAirGestureState", __classPrivateFieldGet(this, _AirGestureManager_isInState, "f"));
     __classPrivateFieldGet(this, _AirGestureManager_instances, "a", _AirGestureManager_dispatchEvent_get).call(this, "isInAirGestureState", { isInAirGestureState: __classPrivateFieldGet(this, _AirGestureManager_isInState, "f") });
 }, _AirGestureManager_parseAirGesture = function _AirGestureManager_parseAirGesture(dataView) {
     _console$e.log("parsing air gesture", dataView);
@@ -1789,7 +1794,7 @@ _InputManager_sensitivity = new WeakMap(), _InputManager_mode = new WeakMap(), _
             sensitivityFactorIndices.push(this.sensitivity[rawSensorType]);
         });
     }
-    const data = concatenateArrayBuffers(0x3, 0xc, 0x0, modeByte, sensitivityFactorIndices);
+    const data = concatenateArrayBuffers(0x3, 0xc, 0x0, modeByte, ...sensitivityFactorIndices);
     return data;
 }, _InputManager_sendModeData = function _InputManager_sendModeData() {
     _console$2.log("sending mode data...");
@@ -1907,13 +1912,11 @@ class Device {
         });
         this.addEventListener("isConnected", () => {
             if (this.isConnected) {
-                __classPrivateFieldGet(this, _Device_inputManager, "f").start();
                 setTimeout(() => {
                     __classPrivateFieldGet(this, _Device_inputManager, "f").start();
-                }, 100);
-                setTimeout(() => {
-                    __classPrivateFieldGet(this, _Device_xrStateManager, "f").start();
                 }, 0);
+                setTimeout(() => {
+                }, 20);
             }
             else {
                 __classPrivateFieldGet(this, _Device_inputManager, "f").stop();

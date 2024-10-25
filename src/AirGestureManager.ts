@@ -36,6 +36,7 @@ class AirGestureManager {
   }
   #updateIsInState(newIsInState: boolean) {
     this.#isInState = newIsInState;
+    _console.log("isInAirGestureState", this.#isInState);
     this.#dispatchEvent("isInAirGestureState", { isInAirGestureState: this.#isInState });
   }
 

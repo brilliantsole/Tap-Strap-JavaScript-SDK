@@ -87,7 +87,7 @@ class InputManager {
         sensitivityFactorIndices.push(this.sensitivity![rawSensorType]);
       });
     }
-    const data = concatenateArrayBuffers(0x3, 0xc, 0x0, modeByte, sensitivityFactorIndices);
+    const data = concatenateArrayBuffers(0x3, 0xc, 0x0, modeByte, ...sensitivityFactorIndices);
     return data;
   }
 
