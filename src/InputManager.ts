@@ -50,6 +50,7 @@ class InputManager {
     assertValidRawSensorSensitivityForType(rawSensorType, index);
     _console.log(`setting ${rawSensorType} sensitivity index to ${index}`);
     this.#sensitivity[rawSensorType] = index;
+    this.#timer.restart(true);
   }
 
   #mode: InputMode = "controller";
