@@ -4,7 +4,7 @@ import { RawSensorEventMessages } from "./RawSensorManager.ts";
 import { RawSensorSensitivity } from "./TS.ts";
 export declare const TxMessageTypes: readonly ["tx", "rawSensor"];
 export type TxMessageType = (typeof TxMessageTypes)[number];
-export declare const TxEventTypes: readonly ["rawSensor", "imu", "device"];
+export declare const TxEventTypes: readonly ["rawSensor", "imu", "device", "orientation"];
 export type TxEventType = (typeof TxEventTypes)[number];
 export interface TxEventMessages extends RawSensorEventMessages {
 }
@@ -16,5 +16,6 @@ declare class TxManager {
     set rawSensorSensitivity(sensitivity: RawSensorSensitivity);
     constructor();
     parseMessage(messageType: TxMessageType, dataView: DataView): void;
+    clear(): void;
 }
 export default TxManager;

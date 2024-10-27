@@ -56,6 +56,10 @@ class TxManager {
   }
 
   #rawSensorManager = new RawSensorManager();
+
+  clear() {
+    this.#rawSensorManager.clear();
+  }
 }
 
 export default TxManager;

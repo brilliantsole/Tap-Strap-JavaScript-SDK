@@ -6,7 +6,7 @@ const device = new TS.Device();
 console.log({ device });
 window.device = device;
 
-//TS.setAllConsoleLevelFlags({ log: false });
+TS.setAllConsoleLevelFlags({ log: false });
 
 // GET DEVICES
 /** @type {HTMLTemplateElement} */
@@ -208,6 +208,14 @@ device.addEventListener("mouseData", (event) => {
 const rawSensorDataPre = document.getElementById("rawSensorDataPre");
 device.addEventListener("rawSensor", (event) => {
   rawSensorDataPre.textContent = JSON.stringify(event.message, null, 2);
+});
+
+// ORIENTATION
+
+/** @type {HTMLPreElement} */
+const orientationPre = document.getElementById("orientationPre");
+device.addEventListener("orientation", (event) => {
+  orientationPre.textContent = JSON.stringify(event.message, null, 2);
 });
 
 // VIBRATION

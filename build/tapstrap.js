@@ -520,7 +520,7 @@
 	};
 	const AirGestureEnumLookup = {};
 	Object.keys(AirGestureEnum).forEach((airGesture) => {
-	    AirGestureEnumLookup[airGesture] = AirGestureEnum[airGesture];
+	    AirGestureEnumLookup[AirGestureEnum[airGesture]] = airGesture;
 	});
 	const XRAirGestureEnum = {
 	    clickIndex: 1,
@@ -533,7 +533,7 @@
 	};
 	const XRAirGestureEnumLookup = {};
 	Object.keys(XRAirGestureEnum).forEach((xrAirGesture) => {
-	    XRAirGestureEnumLookup[xrAirGesture] = XRAirGestureEnum[xrAirGesture];
+	    XRAirGestureEnumLookup[XRAirGestureEnum[xrAirGesture]] = xrAirGesture;
 	});
 
 	var _TapDataManager_instances, _TapDataManager_dispatchEvent_get, _TapDataManager_parse;
@@ -620,7 +620,7 @@
 	    }
 	    const velocity = {
 	        x: dataView.getInt16(1, true),
-	        y: dataView.getInt16(3, true),
+	        y: -dataView.getInt16(3, true),
 	    };
 	    const isMouse = dataView.getUint8(9) == 1;
 	    __classPrivateFieldGet(this, _MouseDataManager_instances, "a", _MouseDataManager_dispatchEvent_get).call(this, "mouseData", { velocity, isMouse });
@@ -654,6 +654,7 @@
 	    return this.eventDispatcher.dispatchEvent;
 	}, _AirGestureManager_updateIsInState = function _AirGestureManager_updateIsInState(newIsInState) {
 	    __classPrivateFieldSet(this, _AirGestureManager_isInState, newIsInState, "f");
+	    _console$e.log("isInAirGestureState", __classPrivateFieldGet(this, _AirGestureManager_isInState, "f"));
 	    __classPrivateFieldGet(this, _AirGestureManager_instances, "a", _AirGestureManager_dispatchEvent_get).call(this, "isInAirGestureState", { isInAirGestureState: __classPrivateFieldGet(this, _AirGestureManager_isInState, "f") });
 	}, _AirGestureManager_parseAirGesture = function _AirGestureManager_parseAirGesture(dataView) {
 	    _console$e.log("parsing air gesture", dataView);
@@ -773,13 +774,515 @@
 	    return new DataView(dataView.buffer.slice(dataView.byteOffset + begin, end));
 	}
 
-	var _RawSensorManager_instances, _RawSensorManager_dispatchEvent_get, _RawSensorManager_parseWhole, _RawSensorManager_parseSingle;
+	function getDefaultExportFromCjs (x) {
+		return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+	}
+
+	var Mahony;
+	var hasRequiredMahony;
+	function requireMahony () {
+		if (hasRequiredMahony) return Mahony;
+		hasRequiredMahony = 1;
+		Mahony = function Mahony(sampleInterval, options) {
+		  options = options || {};
+		  const kp = options.kp || 1.0;
+		  const ki = options.ki || 0.0;
+		  const sampleFreq = 1000 / sampleInterval;
+		  let recipSampleFreq = 1 / sampleFreq;
+		  let initalised = options.doInitialisation === true ? false : true;
+		  let twoKp = 2.0 * kp;
+		  const twoKi = 2.0 * ki;
+		  let q0 = 1.0,
+		    q1 = 0.0,
+		    q2 = 0.0,
+		    q3 = 0.0;
+		  let integralFBx = 0.0,
+		    integralFBy = 0.0,
+		    integralFBz = 0.0;
+		  function mahonyAHRSUpdateIMU(gx, gy, gz, ax, ay, az) {
+		    let recipNorm;
+		    let halfvx, halfvy, halfvz;
+		    let halfex, halfey, halfez;
+		    if (ax !== 0 && ay !== 0 && az !== 0) {
+		      recipNorm = (ax * ax + ay * ay + az * az) ** -0.5;
+		      ax *= recipNorm;
+		      ay *= recipNorm;
+		      az *= recipNorm;
+		      halfvx = q1 * q3 - q0 * q2;
+		      halfvy = q0 * q1 + q2 * q3;
+		      halfvz = q0 * q0 - 0.5 + q3 * q3;
+		      halfex = ay * halfvz - az * halfvy;
+		      halfey = az * halfvx - ax * halfvz;
+		      halfez = ax * halfvy - ay * halfvx;
+		      if (twoKi > 0.0) {
+		        integralFBx += twoKi * halfex * recipSampleFreq;
+		        integralFBy += twoKi * halfey * recipSampleFreq;
+		        integralFBz += twoKi * halfez * recipSampleFreq;
+		        gx += integralFBx;
+		        gy += integralFBy;
+		        gz += integralFBz;
+		      } else {
+		        integralFBx = 0.0;
+		        integralFBy = 0.0;
+		        integralFBz = 0.0;
+		      }
+		      gx += twoKp * halfex;
+		      gy += twoKp * halfey;
+		      gz += twoKp * halfez;
+		    }
+		    gx *= 0.5 * recipSampleFreq;
+		    gy *= 0.5 * recipSampleFreq;
+		    gz *= 0.5 * recipSampleFreq;
+		    const qa = q0;
+		    const qb = q1;
+		    const qc = q2;
+		    q0 += -qb * gx - qc * gy - q3 * gz;
+		    q1 += qa * gx + qc * gz - q3 * gy;
+		    q2 += qa * gy - qb * gz + q3 * gx;
+		    q3 += qa * gz + qb * gy - qc * gx;
+		    recipNorm = (q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3) ** -0.5;
+		    q0 *= recipNorm;
+		    q1 *= recipNorm;
+		    q2 *= recipNorm;
+		    q3 *= recipNorm;
+		  }
+		  function cross_product(ax, ay, az, bx, by, bz) {
+		    return {
+		      x: ay * bz - az * by,
+		      y: az * bx - ax * bz,
+		      z: ax * by - ay * bx,
+		    };
+		  }
+		  function eulerAnglesFromImuRad(ax, ay, az, mx, my, mz) {
+		    const pitch = -Math.atan2(ax, Math.sqrt(ay * ay + az * az));
+		    const tmp1 = cross_product(ax, ay, az, 1.0, 0.0, 0.0);
+		    const tmp2 = cross_product(1.0, 0.0, 0.0, tmp1.x, tmp1.y, tmp1.z);
+		    const roll = Math.atan2(tmp2.y, tmp2.z);
+		    const cr = Math.cos(roll);
+		    const sp = Math.sin(pitch);
+		    const sr = Math.sin(roll);
+		    const yh = my * cr - mz * sr;
+		    const xh = mx * Math.cos(pitch) + my * sr * sp + mz * cr * sp;
+		    const heading = -Math.atan2(yh, xh);
+		    return {
+		      heading,
+		      pitch,
+		      roll,
+		    };
+		  }
+		  function toQuaternion(eulerAngles) {
+		    const cy = Math.cos(eulerAngles.heading * 0.5);
+		    const sy = Math.sin(eulerAngles.heading * 0.5);
+		    const cp = Math.cos(eulerAngles.pitch * 0.5);
+		    const sp = Math.sin(eulerAngles.pitch * 0.5);
+		    const cr = Math.cos(eulerAngles.roll * 0.5);
+		    const sr = Math.sin(eulerAngles.roll * 0.5);
+		    return {
+		      w: cr * cp * cy + sr * sp * sy,
+		      x: sr * cp * cy - cr * sp * sy,
+		      y: cr * sp * cy + sr * cp * sy,
+		      z: cr * cp * sy - sr * sp * cy,
+		    };
+		  }
+		  function init(ax, ay, az, mx, my, mz) {
+		    const ea = eulerAnglesFromImuRad(ax, ay, az, mx, my, mz);
+		    const iq = toQuaternion(ea);
+		    const recipNorm = (iq.w * iq.w + iq.x * iq.x + iq.y * iq.y + iq.z * iq.z) ** -0.5;
+		    q0 = iq.w * recipNorm;
+		    q1 = iq.x * recipNorm;
+		    q2 = iq.y * recipNorm;
+		    q3 = iq.z * recipNorm;
+		    initalised = true;
+		  }
+		  function mahonyAHRSUpdate(gx, gy, gz, ax, ay, az, mx, my, mz, deltaTimeSec) {
+		    recipSampleFreq = deltaTimeSec || recipSampleFreq;
+		    if (!initalised) {
+		      init(ax, ay, az, mx, my, mz);
+		    }
+		    let recipNorm;
+		    let q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
+		    let hx, hy, bx, bz;
+		    let halfvx, halfvy, halfvz, halfwx, halfwy, halfwz;
+		    let halfex, halfey, halfez;
+		    if (mx === undefined || my === undefined || mz === undefined || (mx === 0 && my === 0 && mz === 0)) {
+		      mahonyAHRSUpdateIMU(gx, gy, gz, ax, ay, az);
+		      return;
+		    }
+		    if (ax !== 0 && ay !== 0 && az !== 0) {
+		      recipNorm = (ax * ax + ay * ay + az * az) ** -0.5;
+		      ax *= recipNorm;
+		      ay *= recipNorm;
+		      az *= recipNorm;
+		      recipNorm = (mx * mx + my * my + mz * mz) ** -0.5;
+		      mx *= recipNorm;
+		      my *= recipNorm;
+		      mz *= recipNorm;
+		      q0q0 = q0 * q0;
+		      q0q1 = q0 * q1;
+		      q0q2 = q0 * q2;
+		      q0q3 = q0 * q3;
+		      q1q1 = q1 * q1;
+		      q1q2 = q1 * q2;
+		      q1q3 = q1 * q3;
+		      q2q2 = q2 * q2;
+		      q2q3 = q2 * q3;
+		      q3q3 = q3 * q3;
+		      hx = 2.0 * (mx * (0.5 - q2q2 - q3q3) + my * (q1q2 - q0q3) + mz * (q1q3 + q0q2));
+		      hy = 2.0 * (mx * (q1q2 + q0q3) + my * (0.5 - q1q1 - q3q3) + mz * (q2q3 - q0q1));
+		      bx = Math.sqrt(hx * hx + hy * hy);
+		      bz = 2.0 * (mx * (q1q3 - q0q2) + my * (q2q3 + q0q1) + mz * (0.5 - q1q1 - q2q2));
+		      halfvx = q1q3 - q0q2;
+		      halfvy = q0q1 + q2q3;
+		      halfvz = q0q0 - 0.5 + q3q3;
+		      halfwx = bx * (0.5 - q2q2 - q3q3) + bz * (q1q3 - q0q2);
+		      halfwy = bx * (q1q2 - q0q3) + bz * (q0q1 + q2q3);
+		      halfwz = bx * (q0q2 + q1q3) + bz * (0.5 - q1q1 - q2q2);
+		      halfex = ay * halfvz - az * halfvy + (my * halfwz - mz * halfwy);
+		      halfey = az * halfvx - ax * halfvz + (mz * halfwx - mx * halfwz);
+		      halfez = ax * halfvy - ay * halfvx + (mx * halfwy - my * halfwx);
+		      if (twoKi > 0.0) {
+		        integralFBx += twoKi * halfex * recipSampleFreq;
+		        integralFBy += twoKi * halfey * recipSampleFreq;
+		        integralFBz += twoKi * halfez * recipSampleFreq;
+		        gx += integralFBx;
+		        gy += integralFBy;
+		        gz += integralFBz;
+		      } else {
+		        integralFBx = 0.0;
+		        integralFBy = 0.0;
+		        integralFBz = 0.0;
+		      }
+		      gx += twoKp * halfex;
+		      gy += twoKp * halfey;
+		      gz += twoKp * halfez;
+		    }
+		    gx *= 0.5 * recipSampleFreq;
+		    gy *= 0.5 * recipSampleFreq;
+		    gz *= 0.5 * recipSampleFreq;
+		    const qa = q0;
+		    const qb = q1;
+		    const qc = q2;
+		    q0 += -qb * gx - qc * gy - q3 * gz;
+		    q1 += qa * gx + qc * gz - q3 * gy;
+		    q2 += qa * gy - qb * gz + q3 * gx;
+		    q3 += qa * gz + qb * gy - qc * gx;
+		    recipNorm = (q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3) ** -0.5;
+		    q0 *= recipNorm;
+		    q1 *= recipNorm;
+		    q2 *= recipNorm;
+		    q3 *= recipNorm;
+		  }
+		  return {
+		    update: mahonyAHRSUpdate,
+		    init,
+		    getQuaternion() {
+		      return {
+		        w: q0,
+		        x: q1,
+		        y: q2,
+		        z: q3,
+		      };
+		    },
+		  };
+		};
+		return Mahony;
+	}
+
+	var Madgwick;
+	var hasRequiredMadgwick;
+	function requireMadgwick () {
+		if (hasRequiredMadgwick) return Madgwick;
+		hasRequiredMadgwick = 1;
+		Madgwick = function Madgwick(sampleInterval, options) {
+		  options = options || {};
+		  const sampleFreq = 1000 / sampleInterval;
+		  let beta = options.beta || 0.4;
+		  let initalised = options.doInitialisation === true ? false : true;
+		  let q0 = 1.0,
+		    q1 = 0.0,
+		    q2 = 0.0,
+		    q3 = 0.0;
+		  let recipSampleFreq = 1.0 / sampleFreq;
+		  function madgwickAHRSUpdateIMU(gx, gy, gz, ax, ay, az) {
+		    let recipNorm;
+		    let s0, s1, s2, s3;
+		    let qDot1, qDot2, qDot3, qDot4;
+		    let v2q0, v2q1, v2q2, v2q3, v4q0, v4q1, v4q2, v8q1, v8q2, q0q0, q1q1, q2q2, q3q3;
+		    qDot1 = 0.5 * (-q1 * gx - q2 * gy - q3 * gz);
+		    qDot2 = 0.5 * (q0 * gx + q2 * gz - q3 * gy);
+		    qDot3 = 0.5 * (q0 * gy - q1 * gz + q3 * gx);
+		    qDot4 = 0.5 * (q0 * gz + q1 * gy - q2 * gx);
+		    if (!(ax === 0.0 && ay === 0.0 && az === 0.0)) {
+		      recipNorm = (ax * ax + ay * ay + az * az) ** -0.5;
+		      ax *= recipNorm;
+		      ay *= recipNorm;
+		      az *= recipNorm;
+		      v2q0 = 2.0 * q0;
+		      v2q1 = 2.0 * q1;
+		      v2q2 = 2.0 * q2;
+		      v2q3 = 2.0 * q3;
+		      v4q0 = 4.0 * q0;
+		      v4q1 = 4.0 * q1;
+		      v4q2 = 4.0 * q2;
+		      v8q1 = 8.0 * q1;
+		      v8q2 = 8.0 * q2;
+		      q0q0 = q0 * q0;
+		      q1q1 = q1 * q1;
+		      q2q2 = q2 * q2;
+		      q3q3 = q3 * q3;
+		      s0 = v4q0 * q2q2 + v2q2 * ax + v4q0 * q1q1 - v2q1 * ay;
+		      s1 = v4q1 * q3q3 - v2q3 * ax + 4.0 * q0q0 * q1 - v2q0 * ay - v4q1 + v8q1 * q1q1 + v8q1 * q2q2 + v4q1 * az;
+		      s2 = 4.0 * q0q0 * q2 + v2q0 * ax + v4q2 * q3q3 - v2q3 * ay - v4q2 + v8q2 * q1q1 + v8q2 * q2q2 + v4q2 * az;
+		      s3 = 4.0 * q1q1 * q3 - v2q1 * ax + 4.0 * q2q2 * q3 - v2q2 * ay;
+		      recipNorm = (s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3) ** -0.5;
+		      s0 *= recipNorm;
+		      s1 *= recipNorm;
+		      s2 *= recipNorm;
+		      s3 *= recipNorm;
+		      qDot1 -= beta * s0;
+		      qDot2 -= beta * s1;
+		      qDot3 -= beta * s2;
+		      qDot4 -= beta * s3;
+		    }
+		    q0 += qDot1 * recipSampleFreq;
+		    q1 += qDot2 * recipSampleFreq;
+		    q2 += qDot3 * recipSampleFreq;
+		    q3 += qDot4 * recipSampleFreq;
+		    recipNorm = (q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3) ** -0.5;
+		    q0 *= recipNorm;
+		    q1 *= recipNorm;
+		    q2 *= recipNorm;
+		    q3 *= recipNorm;
+		  }
+		  function cross_product(ax, ay, az, bx, by, bz) {
+		    return {
+		      x: ay * bz - az * by,
+		      y: az * bx - ax * bz,
+		      z: ax * by - ay * bx,
+		    };
+		  }
+		  function eulerAnglesFromImuRad(ax, ay, az, mx, my, mz) {
+		    const pitch = -Math.atan2(ax, Math.sqrt(ay * ay + az * az));
+		    const tmp1 = cross_product(ax, ay, az, 1.0, 0.0, 0.0);
+		    const tmp2 = cross_product(1.0, 0.0, 0.0, tmp1.x, tmp1.y, tmp1.z);
+		    const roll = Math.atan2(tmp2.y, tmp2.z);
+		    const cr = Math.cos(roll);
+		    const sp = Math.sin(pitch);
+		    const sr = Math.sin(roll);
+		    const yh = my * cr - mz * sr;
+		    const xh = mx * Math.cos(pitch) + my * sr * sp + mz * cr * sp;
+		    const heading = -Math.atan2(yh, xh);
+		    return {
+		      heading,
+		      pitch,
+		      roll,
+		    };
+		  }
+		  function toQuaternion(eulerAngles) {
+		    const cy = Math.cos(eulerAngles.heading * 0.5);
+		    const sy = Math.sin(eulerAngles.heading * 0.5);
+		    const cp = Math.cos(eulerAngles.pitch * 0.5);
+		    const sp = Math.sin(eulerAngles.pitch * 0.5);
+		    const cr = Math.cos(eulerAngles.roll * 0.5);
+		    const sr = Math.sin(eulerAngles.roll * 0.5);
+		    return {
+		      w: cr * cp * cy + sr * sp * sy,
+		      x: sr * cp * cy - cr * sp * sy,
+		      y: cr * sp * cy + sr * cp * sy,
+		      z: cr * cp * sy - sr * sp * cy,
+		    };
+		  }
+		  function init(ax, ay, az, mx, my, mz) {
+		    const ea = eulerAnglesFromImuRad(ax, ay, az, mx, my, mz);
+		    const iq = toQuaternion(ea);
+		    const recipNorm = (iq.w * iq.w + iq.x * iq.x + iq.y * iq.y + iq.z * iq.z) ** -0.5;
+		    q0 = iq.w * recipNorm;
+		    q1 = iq.x * recipNorm;
+		    q2 = iq.y * recipNorm;
+		    q3 = iq.z * recipNorm;
+		    initalised = true;
+		  }
+		  function madgwickAHRSUpdate(gx, gy, gz, ax, ay, az, mx, my, mz, deltaTimeSec) {
+		    recipSampleFreq = deltaTimeSec || recipSampleFreq;
+		    if (!initalised) {
+		      init(ax, ay, az, mx, my, mz);
+		    }
+		    let recipNorm;
+		    let s0, s1, s2, s3;
+		    let qDot1, qDot2, qDot3, qDot4;
+		    let hx, hy;
+		    let v2q0mx, v2q0my, v2q0mz, v2q1mx, v2bx, v2bz, v4bx, v4bz, v2q0, v2q1, v2q2, v2q3, v2q0q2, v2q2q3;
+		    let q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
+		    if (mx === undefined || my === undefined || mz === undefined || (mx === 0 && my === 0 && mz === 0)) {
+		      madgwickAHRSUpdateIMU(gx, gy, gz, ax, ay, az);
+		      return;
+		    }
+		    qDot1 = 0.5 * (-q1 * gx - q2 * gy - q3 * gz);
+		    qDot2 = 0.5 * (q0 * gx + q2 * gz - q3 * gy);
+		    qDot3 = 0.5 * (q0 * gy - q1 * gz + q3 * gx);
+		    qDot4 = 0.5 * (q0 * gz + q1 * gy - q2 * gx);
+		    if (!(ax === 0.0 && ay === 0.0 && az === 0.0)) {
+		      recipNorm = (ax * ax + ay * ay + az * az) ** -0.5;
+		      ax *= recipNorm;
+		      ay *= recipNorm;
+		      az *= recipNorm;
+		      recipNorm = (mx * mx + my * my + mz * mz) ** -0.5;
+		      mx *= recipNorm;
+		      my *= recipNorm;
+		      mz *= recipNorm;
+		      v2q0mx = 2.0 * q0 * mx;
+		      v2q0my = 2.0 * q0 * my;
+		      v2q0mz = 2.0 * q0 * mz;
+		      v2q1mx = 2.0 * q1 * mx;
+		      v2q0 = 2.0 * q0;
+		      v2q1 = 2.0 * q1;
+		      v2q2 = 2.0 * q2;
+		      v2q3 = 2.0 * q3;
+		      v2q0q2 = 2.0 * q0 * q2;
+		      v2q2q3 = 2.0 * q2 * q3;
+		      q0q0 = q0 * q0;
+		      q0q1 = q0 * q1;
+		      q0q2 = q0 * q2;
+		      q0q3 = q0 * q3;
+		      q1q1 = q1 * q1;
+		      q1q2 = q1 * q2;
+		      q1q3 = q1 * q3;
+		      q2q2 = q2 * q2;
+		      q2q3 = q2 * q3;
+		      q3q3 = q3 * q3;
+		      hx = mx * q0q0 - v2q0my * q3 + v2q0mz * q2 + mx * q1q1 + v2q1 * my * q2 + v2q1 * mz * q3 - mx * q2q2 - mx * q3q3;
+		      hy = v2q0mx * q3 + my * q0q0 - v2q0mz * q1 + v2q1mx * q2 - my * q1q1 + my * q2q2 + v2q2 * mz * q3 - my * q3q3;
+		      v2bx = Math.sqrt(hx * hx + hy * hy);
+		      v2bz = -v2q0mx * q2 + v2q0my * q1 + mz * q0q0 + v2q1mx * q3 - mz * q1q1 + v2q2 * my * q3 - mz * q2q2 + mz * q3q3;
+		      v4bx = 2.0 * v2bx;
+		      v4bz = 2.0 * v2bz;
+		      s0 =
+		        -v2q2 * (2.0 * q1q3 - v2q0q2 - ax) +
+		        v2q1 * (2.0 * q0q1 + v2q2q3 - ay) -
+		        v2bz * q2 * (v2bx * (0.5 - q2q2 - q3q3) + v2bz * (q1q3 - q0q2) - mx) +
+		        (-v2bx * q3 + v2bz * q1) * (v2bx * (q1q2 - q0q3) + v2bz * (q0q1 + q2q3) - my) +
+		        v2bx * q2 * (v2bx * (q0q2 + q1q3) + v2bz * (0.5 - q1q1 - q2q2) - mz);
+		      s1 =
+		        v2q3 * (2.0 * q1q3 - v2q0q2 - ax) +
+		        v2q0 * (2.0 * q0q1 + v2q2q3 - ay) -
+		        4.0 * q1 * (1 - 2.0 * q1q1 - 2.0 * q2q2 - az) +
+		        v2bz * q3 * (v2bx * (0.5 - q2q2 - q3q3) + v2bz * (q1q3 - q0q2) - mx) +
+		        (v2bx * q2 + v2bz * q0) * (v2bx * (q1q2 - q0q3) + v2bz * (q0q1 + q2q3) - my) +
+		        (v2bx * q3 - v4bz * q1) * (v2bx * (q0q2 + q1q3) + v2bz * (0.5 - q1q1 - q2q2) - mz);
+		      s2 =
+		        -v2q0 * (2.0 * q1q3 - v2q0q2 - ax) +
+		        v2q3 * (2.0 * q0q1 + v2q2q3 - ay) -
+		        4.0 * q2 * (1 - 2.0 * q1q1 - 2.0 * q2q2 - az) +
+		        (-v4bx * q2 - v2bz * q0) * (v2bx * (0.5 - q2q2 - q3q3) + v2bz * (q1q3 - q0q2) - mx) +
+		        (v2bx * q1 + v2bz * q3) * (v2bx * (q1q2 - q0q3) + v2bz * (q0q1 + q2q3) - my) +
+		        (v2bx * q0 - v4bz * q2) * (v2bx * (q0q2 + q1q3) + v2bz * (0.5 - q1q1 - q2q2) - mz);
+		      s3 =
+		        v2q1 * (2.0 * q1q3 - v2q0q2 - ax) +
+		        v2q2 * (2.0 * q0q1 + v2q2q3 - ay) +
+		        (-v4bx * q3 + v2bz * q1) * (v2bx * (0.5 - q2q2 - q3q3) + v2bz * (q1q3 - q0q2) - mx) +
+		        (-v2bx * q0 + v2bz * q2) * (v2bx * (q1q2 - q0q3) + v2bz * (q0q1 + q2q3) - my) +
+		        v2bx * q1 * (v2bx * (q0q2 + q1q3) + v2bz * (0.5 - q1q1 - q2q2) - mz);
+		      recipNorm = (s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3) ** -0.5;
+		      s0 *= recipNorm;
+		      s1 *= recipNorm;
+		      s2 *= recipNorm;
+		      s3 *= recipNorm;
+		      qDot1 -= beta * s0;
+		      qDot2 -= beta * s1;
+		      qDot3 -= beta * s2;
+		      qDot4 -= beta * s3;
+		    }
+		    q0 += qDot1 * recipSampleFreq;
+		    q1 += qDot2 * recipSampleFreq;
+		    q2 += qDot3 * recipSampleFreq;
+		    q3 += qDot4 * recipSampleFreq;
+		    recipNorm = (q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3) ** -0.5;
+		    q0 *= recipNorm;
+		    q1 *= recipNorm;
+		    q2 *= recipNorm;
+		    q3 *= recipNorm;
+		  }
+		  return {
+		    update: madgwickAHRSUpdate,
+		    init,
+		    getQuaternion() {
+		      return {
+		        w: q0,
+		        x: q1,
+		        y: q2,
+		        z: q3,
+		      };
+		    },
+		  };
+		};
+		return Madgwick;
+	}
+
+	const rad2deg = 180.0 / Math.PI;
+	function AHRS(options) {
+	  options = options || {};
+	  const sampleInterval = options.sampleInterval || 20;
+	  const algorithmName = options.algorithm || 'Madgwick';
+	  let Req;
+	  if (algorithmName === 'Mahony') {
+	    Req = requireMahony();
+	  } else if (algorithmName === 'Madgwick') {
+	    Req = requireMadgwick();
+	  } else {
+	    throw new Error(`AHRS(): Algorithm not valid: ${algorithmName}`);
+	  }
+	  const algorithmFn = Req(sampleInterval, options);
+	  const self = this;
+	  Object.keys(algorithmFn).forEach(prop => self[prop] = algorithmFn[prop]);
+	}
+	AHRS.prototype.toVector = function toVector() {
+	  const q = this.getQuaternion();
+	  const angle = 2 * Math.acos(q.w);
+	  const sinAngle = Math.sin(angle / 2);
+	  return {
+	    angle,
+	    x: q.x / sinAngle,
+	    y: q.y / sinAngle,
+	    z: q.z / sinAngle,
+	  };
+	};
+	AHRS.prototype.getEulerAngles = function getEulerAngles() {
+	  const q = this.getQuaternion();
+	  const ww = q.w * q.w,
+	    xx = q.x * q.x,
+	    yy = q.y * q.y,
+	    zz = q.z * q.z;
+	  return {
+	    heading: Math.atan2(2 * (q.x * q.y + q.z * q.w), xx - yy - zz + ww),
+	    pitch: -Math.asin(2 * (q.x * q.z - q.y * q.w)),
+	    roll: Math.atan2(2 * (q.y * q.z + q.x * q.w), -xx - yy + zz + ww),
+	  };
+	};
+	AHRS.prototype.getEulerAnglesDegrees = function getEulerAnglesDegrees() {
+	  const getEulerAnglesRad = this.getEulerAngles();
+	  return {
+	    heading: getEulerAnglesRad.heading * rad2deg,
+	    pitch: getEulerAnglesRad.pitch * rad2deg,
+	    roll: getEulerAnglesRad.roll * rad2deg,
+	  };
+	};
+	var ahrs = AHRS;
+	var AHRS$1 = getDefaultExportFromCjs(ahrs);
+
+	const DEG2RAD = Math.PI / 180;
+	function degToRad( degrees ) {
+		return degrees * DEG2RAD;
+	}
+
+	var _RawSensorManager_instances, _RawSensorManager_dispatchEvent_get, _RawSensorManager_ahrs, _RawSensorManager_latestImuTimestamp, _RawSensorManager_parseWhole, _RawSensorManager_parseSingle, _RawSensorManager_updateAHRS;
 	const _console$b = createConsole("RawSensorManager");
 	const RawSensorMessageTypes = ["rawSensor"];
-	const RawSensorEventTypes = [...RawSensorMessageTypes, ...RawSensorDataTypes];
+	const RawSensorEventTypes = [...RawSensorMessageTypes, ...RawSensorDataTypes, "orientation"];
 	class RawSensorManager {
 	    constructor() {
 	        _RawSensorManager_instances.add(this);
+	        _RawSensorManager_ahrs.set(this, new AHRS$1({ sampleInterval: 18, algorithm: "Madgwick" }));
+	        _RawSensorManager_latestImuTimestamp.set(this, 0);
 	        autoBind(this);
 	    }
 	    parseMessage(messageType, dataView) {
@@ -792,8 +1295,11 @@
 	                throw Error(`uncaught messageType ${messageType}`);
 	        }
 	    }
+	    clear() {
+	        __classPrivateFieldSet(this, _RawSensorManager_latestImuTimestamp, 0, "f");
+	    }
 	}
-	_RawSensorManager_instances = new WeakSet(), _RawSensorManager_dispatchEvent_get = function _RawSensorManager_dispatchEvent_get() {
+	_RawSensorManager_ahrs = new WeakMap(), _RawSensorManager_latestImuTimestamp = new WeakMap(), _RawSensorManager_instances = new WeakSet(), _RawSensorManager_dispatchEvent_get = function _RawSensorManager_dispatchEvent_get() {
 	    return this.eventDispatcher.dispatchEvent;
 	}, _RawSensorManager_parseWhole = function _RawSensorManager_parseWhole(dataView) {
 	    _console$b.log("parsing whole", dataView);
@@ -828,11 +1334,11 @@
 	    for (let offset = 0; offset < sensorData.byteLength; offset += 6) {
 	        const sensitivityFactorIndex = this.sensitivity[rawSensorType];
 	        const sensitivityFactor = RawSensorSensitivityFactors[rawSensorType][sensitivityFactorIndex];
-	        const [x, y, z] = [
-	            sensorData.getInt16(offset + 0, true),
+	        const [z, y, x] = [
+	            -sensorData.getInt16(offset + 0, true),
 	            sensorData.getInt16(offset + 2, true),
 	            sensorData.getInt16(offset + 4, true),
-	        ].map((value) => value * sensitivityFactor);
+	        ].map((value) => value * sensitivityFactor * 0.001);
 	        _console$b.log({ x, y, z });
 	        const vector = { x, y, z };
 	        _console$b.log("vector", vector);
@@ -859,6 +1365,14 @@
 	        case "imu":
 	            message.accelerometer = vectors[RawSensorImuTypes.indexOf("accelerometer")];
 	            message.gyroscope = vectors[RawSensorImuTypes.indexOf("gyroscope")];
+	            if (__classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f") != timestamp) {
+	                __classPrivateFieldSet(this, _RawSensorManager_latestImuTimestamp, timestamp, "f");
+	                const timestampDelta = __classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f") == 0 ? 55 : timestamp - __classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f");
+	                __classPrivateFieldGet(this, _RawSensorManager_instances, "m", _RawSensorManager_updateAHRS).call(this, message.accelerometer, message.gyroscope, timestampDelta);
+	                const quaternion = __classPrivateFieldGet(this, _RawSensorManager_ahrs, "f").getQuaternion();
+	                const euler = __classPrivateFieldGet(this, _RawSensorManager_ahrs, "f").getEulerAngles();
+	                __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, "orientation", { quaternion, euler, timestamp });
+	            }
 	            break;
 	        case "device":
 	            message.fingers = {};
@@ -869,6 +1383,9 @@
 	    }
 	    __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, sensorDataType, message);
 	    __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, "rawSensor", message);
+	}, _RawSensorManager_updateAHRS = function _RawSensorManager_updateAHRS(accelerometer, gyroscope, timestampDelta) {
+	    _console$b.log("updating ahrs...");
+	    __classPrivateFieldGet(this, _RawSensorManager_ahrs, "f").update(degToRad(gyroscope.x), degToRad(gyroscope.y), degToRad(gyroscope.z), accelerometer.x, accelerometer.y, accelerometer.z, undefined, undefined, undefined, timestampDelta / 1000);
 	};
 
 	var _TxManager_instances, _TxManager_eventDispatcher, _TxManager_rawSensorManager;
@@ -901,6 +1418,9 @@
 	            default:
 	                throw Error(`uncaught messageType ${messageType}`);
 	        }
+	    }
+	    clear() {
+	        __classPrivateFieldGet(this, _TxManager_rawSensorManager, "f").clear();
 	    }
 	}
 	_TxManager_eventDispatcher = new WeakMap(), _TxManager_rawSensorManager = new WeakMap(), _TxManager_instances = new WeakSet();
@@ -1758,6 +2278,7 @@
 	        assertValidRawSensorSensitivityForType(rawSensorType, index);
 	        _console$2.log(`setting ${rawSensorType} sensitivity index to ${index}`);
 	        __classPrivateFieldGet(this, _InputManager_sensitivity, "f")[rawSensorType] = index;
+	        __classPrivateFieldGet(this, _InputManager_timer, "f").restart(true);
 	    }
 	    get mode() {
 	        return __classPrivateFieldGet(this, _InputManager_mode, "f");
@@ -1795,7 +2316,7 @@
 	            sensitivityFactorIndices.push(this.sensitivity[rawSensorType]);
 	        });
 	    }
-	    const data = concatenateArrayBuffers(0x3, 0xc, 0x0, modeByte, sensitivityFactorIndices);
+	    const data = concatenateArrayBuffers(0x3, 0xc, 0x0, modeByte, ...sensitivityFactorIndices);
 	    return data;
 	}, _InputManager_sendModeData = function _InputManager_sendModeData() {
 	    _console$2.log("sending mode data...");
@@ -1913,13 +2434,11 @@
 	        });
 	        this.addEventListener("isConnected", () => {
 	            if (this.isConnected) {
-	                __classPrivateFieldGet(this, _Device_inputManager, "f").start();
 	                setTimeout(() => {
 	                    __classPrivateFieldGet(this, _Device_inputManager, "f").start();
-	                }, 100);
-	                setTimeout(() => {
-	                    __classPrivateFieldGet(this, _Device_xrStateManager, "f").start();
 	                }, 0);
+	                setTimeout(() => {
+	                }, 20);
 	            }
 	            else {
 	                __classPrivateFieldGet(this, _Device_inputManager, "f").stop();
@@ -2059,6 +2578,9 @@
 	    get inputMode() {
 	        return __classPrivateFieldGet(this, _Device_inputManager, "f").mode;
 	    }
+	    set inputMode(newInputMode) {
+	        this.setInputMode(newInputMode);
+	    }
 	    get setInputMode() {
 	        return __classPrivateFieldGet(this, _Device_inputManager, "f").setMode;
 	    }
@@ -2067,6 +2589,9 @@
 	    }
 	    get xrState() {
 	        return __classPrivateFieldGet(this, _Device_xrStateManager, "f").state;
+	    }
+	    set xrState(newXrState) {
+	        this.setXRState(newXrState);
 	    }
 	    get setXRState() {
 	        return __classPrivateFieldGet(this, _Device_xrStateManager, "f").setState;
@@ -2143,6 +2668,7 @@
 	}, _Device_clear = function _Device_clear() {
 	    this.latestConnectionMessage.clear();
 	    __classPrivateFieldGet(this, _Device_deviceInformationManager, "f").clear();
+	    __classPrivateFieldGet(this, _Device_txManager, "f").clear();
 	}, _Device_onConnectionMessageReceived = function _Device_onConnectionMessageReceived(messageType, dataView) {
 	    _console.log({ messageType, dataView });
 	    switch (messageType) {

@@ -66,7 +66,16 @@ if (production) {
 
 const _browserPlugins = [resolve(), commonjs(), removeLines("browser")];
 const _nodePlugins = [removeLines("node")];
-const nodeExternal = ["webbluetooth", "debounce", "ws", "@abandonware/noble", "auto-bind", "dgram"];
+const nodeExternal = [
+  "webbluetooth",
+  "debounce",
+  "ws",
+  "@abandonware/noble",
+  "auto-bind",
+  "dgram",
+  "ahrs",
+  "three/src/math/MathUtils.js",
+];
 
 const lensStudioPlugins = [
   removeLines("ls"),

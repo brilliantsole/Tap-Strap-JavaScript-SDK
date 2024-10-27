@@ -360,6 +360,7 @@ class Device {
   #clear() {
     this.latestConnectionMessage.clear();
     this.#deviceInformationManager.clear();
+    this.#txManager.clear();
   }
 
   #onConnectionMessageReceived(messageType: ConnectionMessageType, dataView: DataView) {

@@ -14,14 +14,16 @@ import {
   RawSensorType,
 } from "./utils/RawSensorUtils.ts";
 import { sliceDataView } from "./utils/ArrayBufferUtils.ts";
-import { Vector3 } from "./utils/MathUtils.ts";
+import { Euler, Quaternion, Vector3 } from "./utils/MathUtils.ts";
+import AHRS from "ahrs";
+import { degToRad } from "three/src/math/MathUtils.js";
 
 const _console = createConsole("RawSensorManager");
 
 export const RawSensorMessageTypes = ["rawSensor"] as const;
 export type RawSensorMessageType = (typeof RawSensorMessageTypes)[number];
 
-export const RawSensorEventTypes = [...RawSensorMessageTypes, ...RawSensorDataTypes] as const;
+export const RawSensorEventTypes = [...RawSensorMessageTypes, ...RawSensorDataTypes, "orientation"] as const;
 export type RawSensorEventType = (typeof RawSensorEventTypes)[number];
 
 interface BaseRawSensorEventMessage {
@@ -42,6 +44,7 @@ export interface RawSensorEventMessages {
   rawSensor: RawSensorEventMessage;
   imu: ImuSensorEventMessage;
   device: DeviceSensorEventMessage;
+  orientation: { quaternion: Quaternion; euler: Euler; timestamp: number };
 }
 
 export type RawSensorEventDispatcher = EventDispatcher<Device, RawSensorEventType, RawSensorEventMessages>;
@@ -57,6 +60,9 @@ class RawSensorManager {
   constructor() {
     autoBind(this);
   }
+
+  #ahrs = new AHRS({ sampleInterval: 18, algorithm: "Madgwick" });
+  #latestImuTimestamp = 0;
 
   parseMessage(messageType: RawSensorMessageType, dataView: DataView) {
     _console.log({ messageType });
@@ -119,7 +125,7 @@ class RawSensorManager {
         -sensorData.getInt16(offset + 0, true),
         sensorData.getInt16(offset + 2, true),
         sensorData.getInt16(offset + 4, true),
-      ].map((value) => value * sensitivityFactor);
+      ].map((value) => value * sensitivityFactor * 0.001);
       _console.log({ x, y, z });
       const vector: Vector3 = { x, y, z };
       _console.log("vector", vector);
@@ -139,6 +145,8 @@ class RawSensorManager {
         break;
     }
 
+    // normalize to 1000
+
     if (vectors.length != validNumberOfVectors) {
       _console.log(
         `invalid number of ${sensorDataType} vectors (expected ${validNumberOfVectors}, get ${vectors.length})`
@@ -152,6 +160,16 @@ class RawSensorManager {
       case "imu":
         message.accelerometer = vectors[RawSensorImuTypes.indexOf("accelerometer")];
         message.gyroscope = vectors[RawSensorImuTypes.indexOf("gyroscope")];
+
+        if (this.#latestImuTimestamp != timestamp) {
+          this.#latestImuTimestamp = timestamp;
+          const timestampDelta = this.#latestImuTimestamp == 0 ? 55 : timestamp - this.#latestImuTimestamp;
+          this.#updateAHRS(message.accelerometer, message.gyroscope, timestampDelta);
+          const quaternion = this.#ahrs.getQuaternion();
+          const euler = this.#ahrs.getEulerAngles();
+          this.#dispatchEvent("orientation", { quaternion, euler, timestamp });
+        }
+
         break;
       case "device":
         // @ts-ignore
@@ -164,6 +182,27 @@ class RawSensorManager {
 
     this.#dispatchEvent(sensorDataType, message);
     this.#dispatchEvent("rawSensor", message);
+  }
+
+  #updateAHRS(accelerometer: Vector3, gyroscope: Vector3, timestampDelta: number) {
+    _console.log("updating ahrs...");
+
+    this.#ahrs.update(
+      degToRad(gyroscope.x),
+      degToRad(gyroscope.y),
+      degToRad(gyroscope.z),
+      accelerometer.x,
+      accelerometer.y,
+      accelerometer.z,
+      undefined,
+      undefined,
+      undefined,
+      timestampDelta / 1000
+    );
+  }
+
+  clear() {
+    this.#latestImuTimestamp = 0;
   }
 }
 

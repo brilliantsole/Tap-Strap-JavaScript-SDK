@@ -1,10 +1,10 @@
 import EventDispatcher from "./utils/EventDispatcher.ts";
 import Device from "./Device.ts";
 import { RawSensorDataType, RawSensorFinger, RawSensorSensitivity } from "./utils/RawSensorUtils.ts";
-import { Vector3 } from "./utils/MathUtils.ts";
+import { Euler, Quaternion, Vector3 } from "./utils/MathUtils.ts";
 export declare const RawSensorMessageTypes: readonly ["rawSensor"];
 export type RawSensorMessageType = (typeof RawSensorMessageTypes)[number];
-export declare const RawSensorEventTypes: readonly ["rawSensor", "imu", "device"];
+export declare const RawSensorEventTypes: readonly ["rawSensor", "imu", "device", "orientation"];
 export type RawSensorEventType = (typeof RawSensorEventTypes)[number];
 interface BaseRawSensorEventMessage {
     timestamp: number;
@@ -26,6 +26,11 @@ export interface RawSensorEventMessages {
     rawSensor: RawSensorEventMessage;
     imu: ImuSensorEventMessage;
     device: DeviceSensorEventMessage;
+    orientation: {
+        quaternion: Quaternion;
+        euler: Euler;
+        timestamp: number;
+    };
 }
 export type RawSensorEventDispatcher = EventDispatcher<Device, RawSensorEventType, RawSensorEventMessages>;
 declare class RawSensorManager {
@@ -34,5 +39,6 @@ declare class RawSensorManager {
     sensitivity: RawSensorSensitivity;
     constructor();
     parseMessage(messageType: RawSensorMessageType, dataView: DataView): void;
+    clear(): void;
 }
 export default RawSensorManager;

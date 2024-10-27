@@ -8,7 +8,7 @@ window.device = device;
 
 device.setInputMode("rawSensor");
 
-//TS.setAllConsoleLevelFlags({ log: false });
+TS.setAllConsoleLevelFlags({ log: false });
 
 // GET DEVICES
 /** @type {HTMLTemplateElement} */
@@ -103,6 +103,17 @@ device.addEventListener("connectionStatus", (event) => {
   toggleConnectionButton.disabled = disabled;
 });
 
+// RAW IMU
+
+let useRawImu = false;
+/** @type {HTMLInputElement} */
+const useRawImuCheckbox = document.getElementById("useRawImu");
+useRawImuCheckbox.addEventListener("input", () => {
+  useRawImu = useRawImuCheckbox.checked;
+  console.log({ useRawImu });
+});
+useRawImuCheckbox.dispatchEvent(new Event("input"));
+
 // 3D
 
 const target = document.querySelector(".target");
@@ -126,9 +137,12 @@ const position = new THREE.Vector3();
 const euler = new THREE.Euler(0, 0, 0, "YXZ");
 
 device.addEventListener("imu", (event) => {
+  if (!useRawImu) {
+    return;
+  }
   const { accelerometer, gyroscope } = event.message;
 
-  euler.set(...[gyroscope.x, gyroscope.y, gyroscope.z].map((value) => value * 0.00001));
+  euler.set(...[gyroscope.x, gyroscope.y, gyroscope.z].map((value) => value * 0.01));
   if (isMirrorMode) {
     euler.x *= -1;
     euler.y *= -1;
@@ -136,10 +150,19 @@ device.addEventListener("imu", (event) => {
   quaternion.setFromEuler(euler);
   targetRotation.object3D.quaternion.slerp(quaternion, 0.5);
 
-  position.copy(accelerometer).multiplyScalar(0.001);
+  position.copy(accelerometer).multiplyScalar(1);
   if (isMirrorMode) {
     position.x *= -1;
     position.z *= -1;
   }
   targetPosition.object3D.position.lerp(position, 0.5);
+});
+
+device.addEventListener("orientation", (event) => {
+  if (useRawImu) {
+    return;
+  }
+
+  quaternion.copy(event.message.quaternion);
+  targetRotation.object3D.quaternion.slerp(quaternion, 0.5);
 });

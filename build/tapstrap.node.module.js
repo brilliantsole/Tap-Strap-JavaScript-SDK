@@ -3,6 +3,8 @@
  * @license MIT
  */
 import autoBind from 'auto-bind';
+import AHRS from 'ahrs';
+import { degToRad } from 'three/src/math/MathUtils.js';
 import * as webbluetooth from 'webbluetooth';
 import noble from '@abandonware/noble';
 
@@ -22,9 +24,8 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-const __BRILLIANTSOLE__ENVIRONMENT__ = "__BRILLIANTSOLE__DEV__";
-const isInProduction = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__PROD__";
-const isInDev = __BRILLIANTSOLE__ENVIRONMENT__ == "__BRILLIANTSOLE__DEV__";
+const isInProduction = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__PROD__";
+const isInDev = "__BRILLIANTSOLE__PROD__" == "__BRILLIANTSOLE__DEV__";
 const isInBrowser = typeof window !== "undefined" && typeof window?.document !== "undefined";
 const isInNode = typeof process !== "undefined" && process?.versions?.node != null;
 const userAgent = (isInBrowser && navigator.userAgent) || "";
@@ -123,9 +124,6 @@ class Console {
     }
     static create(type, levelFlags) {
         const console = __classPrivateFieldGet(this, _a$2, "f", _Console_consoles)[type] || new _a$2(type);
-        if (levelFlags) {
-            console.setLevelFlags(levelFlags);
-        }
         return console;
     }
     get log() {
@@ -747,13 +745,15 @@ function sliceDataView(dataView, begin, length) {
     return new DataView(dataView.buffer.slice(dataView.byteOffset + begin, end));
 }
 
-var _RawSensorManager_instances, _RawSensorManager_dispatchEvent_get, _RawSensorManager_parseWhole, _RawSensorManager_parseSingle;
+var _RawSensorManager_instances, _RawSensorManager_dispatchEvent_get, _RawSensorManager_ahrs, _RawSensorManager_latestImuTimestamp, _RawSensorManager_parseWhole, _RawSensorManager_parseSingle, _RawSensorManager_updateAHRS;
 const _console$f = createConsole("RawSensorManager");
 const RawSensorMessageTypes = ["rawSensor"];
-const RawSensorEventTypes = [...RawSensorMessageTypes, ...RawSensorDataTypes];
+const RawSensorEventTypes = [...RawSensorMessageTypes, ...RawSensorDataTypes, "orientation"];
 class RawSensorManager {
     constructor() {
         _RawSensorManager_instances.add(this);
+        _RawSensorManager_ahrs.set(this, new AHRS({ sampleInterval: 18, algorithm: "Madgwick" }));
+        _RawSensorManager_latestImuTimestamp.set(this, 0);
         autoBind(this);
     }
     parseMessage(messageType, dataView) {
@@ -766,8 +766,11 @@ class RawSensorManager {
                 throw Error(`uncaught messageType ${messageType}`);
         }
     }
+    clear() {
+        __classPrivateFieldSet(this, _RawSensorManager_latestImuTimestamp, 0, "f");
+    }
 }
-_RawSensorManager_instances = new WeakSet(), _RawSensorManager_dispatchEvent_get = function _RawSensorManager_dispatchEvent_get() {
+_RawSensorManager_ahrs = new WeakMap(), _RawSensorManager_latestImuTimestamp = new WeakMap(), _RawSensorManager_instances = new WeakSet(), _RawSensorManager_dispatchEvent_get = function _RawSensorManager_dispatchEvent_get() {
     return this.eventDispatcher.dispatchEvent;
 }, _RawSensorManager_parseWhole = function _RawSensorManager_parseWhole(dataView) {
     _console$f.log("parsing whole", dataView);
@@ -806,7 +809,7 @@ _RawSensorManager_instances = new WeakSet(), _RawSensorManager_dispatchEvent_get
             -sensorData.getInt16(offset + 0, true),
             sensorData.getInt16(offset + 2, true),
             sensorData.getInt16(offset + 4, true),
-        ].map((value) => value * sensitivityFactor);
+        ].map((value) => value * sensitivityFactor * 0.001);
         _console$f.log({ x, y, z });
         const vector = { x, y, z };
         _console$f.log("vector", vector);
@@ -833,6 +836,14 @@ _RawSensorManager_instances = new WeakSet(), _RawSensorManager_dispatchEvent_get
         case "imu":
             message.accelerometer = vectors[RawSensorImuTypes.indexOf("accelerometer")];
             message.gyroscope = vectors[RawSensorImuTypes.indexOf("gyroscope")];
+            if (__classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f") != timestamp) {
+                __classPrivateFieldSet(this, _RawSensorManager_latestImuTimestamp, timestamp, "f");
+                const timestampDelta = __classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f") == 0 ? 55 : timestamp - __classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f");
+                __classPrivateFieldGet(this, _RawSensorManager_instances, "m", _RawSensorManager_updateAHRS).call(this, message.accelerometer, message.gyroscope, timestampDelta);
+                const quaternion = __classPrivateFieldGet(this, _RawSensorManager_ahrs, "f").getQuaternion();
+                const euler = __classPrivateFieldGet(this, _RawSensorManager_ahrs, "f").getEulerAngles();
+                __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, "orientation", { quaternion, euler, timestamp });
+            }
             break;
         case "device":
             message.fingers = {};
@@ -843,6 +854,9 @@ _RawSensorManager_instances = new WeakSet(), _RawSensorManager_dispatchEvent_get
     }
     __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, sensorDataType, message);
     __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, "rawSensor", message);
+}, _RawSensorManager_updateAHRS = function _RawSensorManager_updateAHRS(accelerometer, gyroscope, timestampDelta) {
+    _console$f.log("updating ahrs...");
+    __classPrivateFieldGet(this, _RawSensorManager_ahrs, "f").update(degToRad(gyroscope.x), degToRad(gyroscope.y), degToRad(gyroscope.z), accelerometer.x, accelerometer.y, accelerometer.z, undefined, undefined, undefined, timestampDelta / 1000);
 };
 
 var _TxManager_instances, _TxManager_eventDispatcher, _TxManager_rawSensorManager;
@@ -875,6 +889,9 @@ class TxManager {
             default:
                 throw Error(`uncaught messageType ${messageType}`);
         }
+    }
+    clear() {
+        __classPrivateFieldGet(this, _TxManager_rawSensorManager, "f").clear();
     }
 }
 _TxManager_eventDispatcher = new WeakMap(), _TxManager_rawSensorManager = new WeakMap(), _TxManager_instances = new WeakSet();
@@ -1732,6 +1749,7 @@ class InputManager {
         assertValidRawSensorSensitivityForType(rawSensorType, index);
         _console$6.log(`setting ${rawSensorType} sensitivity index to ${index}`);
         __classPrivateFieldGet(this, _InputManager_sensitivity, "f")[rawSensorType] = index;
+        __classPrivateFieldGet(this, _InputManager_timer, "f").restart(true);
     }
     get mode() {
         return __classPrivateFieldGet(this, _InputManager_mode, "f");
@@ -2121,6 +2139,7 @@ _a$1 = Device, _Device_eventDispatcher = new WeakMap(), _Device_connectionManage
 }, _Device_clear = function _Device_clear() {
     this.latestConnectionMessage.clear();
     __classPrivateFieldGet(this, _Device_deviceInformationManager, "f").clear();
+    __classPrivateFieldGet(this, _Device_txManager, "f").clear();
 }, _Device_onConnectionMessageReceived = function _Device_onConnectionMessageReceived(messageType, dataView) {
     _console$4.log({ messageType, dataView });
     switch (messageType) {
