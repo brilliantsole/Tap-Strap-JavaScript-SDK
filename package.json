@@ -1,6 +1,6 @@
 {
   "name": "tapstrap",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "JavaScript SDK for the Tap Strap",
   "main": "./build/tapstrap.module.js",
   "module": "./build/tapstrap.module.js",
@@ -32,9 +32,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zakaton/BrilliantSole.js.git"
+    "url": "https://github.com/brilliantsole/Tap-Strap-JavaScript-SDK.git"
   },
-  "homepage": "https://www.tapwithus.com/",
+  "homepage": "https://github.com/brilliantsole/Tap-Strap-JavaScript-SDK",
   "author": "Zack Qattan <zack@brilliantsole.com>",
   "license": "MIT",
   "devDependencies": {
