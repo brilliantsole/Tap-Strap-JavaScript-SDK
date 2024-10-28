@@ -16,6 +16,8 @@ declare class TxManager {
     set rawSensorSensitivity(sensitivity: RawSensorSensitivity);
     constructor();
     parseMessage(messageType: TxMessageType, dataView: DataView): void;
+    get calculateOrientation(): boolean;
+    set calculateOrientation(newValue: boolean);
     clear(): void;
 }
 export default TxManager;

@@ -63,6 +63,7 @@ class RawSensorManager {
 
   #ahrs = new AHRS({ sampleInterval: 18, algorithm: "Madgwick" });
   #latestImuTimestamp = 0;
+  calculateOrientation = false;
 
   parseMessage(messageType: RawSensorMessageType, dataView: DataView) {
     _console.log({ messageType });
@@ -161,7 +162,7 @@ class RawSensorManager {
         message.accelerometer = vectors[RawSensorImuTypes.indexOf("accelerometer")];
         message.gyroscope = vectors[RawSensorImuTypes.indexOf("gyroscope")];
 
-        if (this.#latestImuTimestamp != timestamp) {
+        if (this.calculateOrientation && this.#latestImuTimestamp != timestamp) {
           this.#latestImuTimestamp = timestamp;
           const timestampDelta = this.#latestImuTimestamp == 0 ? 55 : timestamp - this.#latestImuTimestamp;
           this.#updateAHRS(message.accelerometer, message.gyroscope, timestampDelta);

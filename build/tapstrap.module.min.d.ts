@@ -281,24 +281,24 @@ declare class Device {
     get bluetoothId(): string | undefined;
     get name(): string | undefined;
     constructor();
-    get addEventListener(): <T extends "rawSensor" | "imu" | "device" | "orientation" | "connectionMessage" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "tapData" | "tapAirGesture" | "mouseData" | "airGesture" | "isInAirGestureState" | "xrAirGesture">(type: T, listener: (event: {
+    get addEventListener(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "tapData" | "tapAirGesture" | "mouseData" | "imu" | "device" | "rawSensor" | "orientation" | "batteryLevel" | "airGesture" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionMessage" | "connectionStatus" | "isConnected" | "isInAirGestureState" | "xrAirGesture">(type: T, listener: (event: {
         type: T;
         target: Device;
         message: DeviceEventMessages[T];
     }) => void, options?: {
         once?: boolean;
     }) => void;
-    get removeEventListener(): <T extends "rawSensor" | "imu" | "device" | "orientation" | "connectionMessage" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "tapData" | "tapAirGesture" | "mouseData" | "airGesture" | "isInAirGestureState" | "xrAirGesture">(type: T, listener: (event: {
+    get removeEventListener(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "tapData" | "tapAirGesture" | "mouseData" | "imu" | "device" | "rawSensor" | "orientation" | "batteryLevel" | "airGesture" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionMessage" | "connectionStatus" | "isConnected" | "isInAirGestureState" | "xrAirGesture">(type: T, listener: (event: {
         type: T;
         target: Device;
         message: DeviceEventMessages[T];
     }) => void) => void;
-    get waitForEvent(): <T extends "rawSensor" | "imu" | "device" | "orientation" | "connectionMessage" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "tapData" | "tapAirGesture" | "mouseData" | "airGesture" | "isInAirGestureState" | "xrAirGesture">(type: T) => Promise<{
+    get waitForEvent(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "tapData" | "tapAirGesture" | "mouseData" | "imu" | "device" | "rawSensor" | "orientation" | "batteryLevel" | "airGesture" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionMessage" | "connectionStatus" | "isConnected" | "isInAirGestureState" | "xrAirGesture">(type: T) => Promise<{
         type: T;
         target: Device;
         message: DeviceEventMessages[T];
     }>;
-    get removeEventListeners(): <T extends "rawSensor" | "imu" | "device" | "orientation" | "connectionMessage" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionStatus" | "isConnected" | "batteryLevel" | "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "tapData" | "tapAirGesture" | "mouseData" | "airGesture" | "isInAirGestureState" | "xrAirGesture">(type: T) => void;
+    get removeEventListeners(): <T extends "manufacturerName" | "modelNumber" | "softwareRevision" | "hardwareRevision" | "firmwareRevision" | "pnpId" | "serialNumber" | "deviceInformation" | "tapData" | "tapAirGesture" | "mouseData" | "imu" | "device" | "rawSensor" | "orientation" | "batteryLevel" | "airGesture" | "notConnected" | "connecting" | "connected" | "disconnecting" | "connectionMessage" | "connectionStatus" | "isConnected" | "isInAirGestureState" | "xrAirGesture">(type: T) => void;
     get removeAllEventListeners(): () => void;
     get connectionManager(): BaseConnectionManager | undefined;
     set connectionManager(newConnectionManager: BaseConnectionManager | undefined);

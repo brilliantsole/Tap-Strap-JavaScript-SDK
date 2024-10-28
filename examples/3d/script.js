@@ -77,6 +77,15 @@ TS.DeviceManager.AddEventListener("availableDevices", (event) => {
 });
 getDevices();
 
+// BATTERY LEVEL
+
+/** @type {HTMLSpanElement} */
+const batteryLevelSpan = document.getElementById("batteryLevel");
+device.addEventListener("batteryLevel", () => {
+  console.log(`batteryLevel updated to ${device.batteryLevel}%`);
+  batteryLevelSpan.innerText = `${device.batteryLevel}%`;
+});
+
 // CONNECTION
 
 /** @type {HTMLButtonElement} */

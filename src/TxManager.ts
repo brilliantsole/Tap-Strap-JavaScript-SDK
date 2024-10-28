@@ -57,6 +57,13 @@ class TxManager {
 
   #rawSensorManager = new RawSensorManager();
 
+  get calculateOrientation() {
+    return this.#rawSensorManager.calculateOrientation;
+  }
+  set calculateOrientation(newValue) {
+    this.#rawSensorManager.calculateOrientation = newValue;
+  }
+
   clear() {
     this.#rawSensorManager.clear();
   }

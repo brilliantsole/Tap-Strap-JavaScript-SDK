@@ -754,6 +754,7 @@ class RawSensorManager {
         _RawSensorManager_instances.add(this);
         _RawSensorManager_ahrs.set(this, new AHRS({ sampleInterval: 18, algorithm: "Madgwick" }));
         _RawSensorManager_latestImuTimestamp.set(this, 0);
+        this.calculateOrientation = false;
         autoBind(this);
     }
     parseMessage(messageType, dataView) {
@@ -836,7 +837,7 @@ _RawSensorManager_ahrs = new WeakMap(), _RawSensorManager_latestImuTimestamp = n
         case "imu":
             message.accelerometer = vectors[RawSensorImuTypes.indexOf("accelerometer")];
             message.gyroscope = vectors[RawSensorImuTypes.indexOf("gyroscope")];
-            if (__classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f") != timestamp) {
+            if (this.calculateOrientation && __classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f") != timestamp) {
                 __classPrivateFieldSet(this, _RawSensorManager_latestImuTimestamp, timestamp, "f");
                 const timestampDelta = __classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f") == 0 ? 55 : timestamp - __classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f");
                 __classPrivateFieldGet(this, _RawSensorManager_instances, "m", _RawSensorManager_updateAHRS).call(this, message.accelerometer, message.gyroscope, timestampDelta);
@@ -889,6 +890,12 @@ class TxManager {
             default:
                 throw Error(`uncaught messageType ${messageType}`);
         }
+    }
+    get calculateOrientation() {
+        return __classPrivateFieldGet(this, _TxManager_rawSensorManager, "f").calculateOrientation;
+    }
+    set calculateOrientation(newValue) {
+        __classPrivateFieldGet(this, _TxManager_rawSensorManager, "f").calculateOrientation = newValue;
     }
     clear() {
         __classPrivateFieldGet(this, _TxManager_rawSensorManager, "f").clear();
@@ -2066,6 +2073,12 @@ class Device {
     }
     get setXRState() {
         return __classPrivateFieldGet(this, _Device_xrStateManager, "f").setState;
+    }
+    get calculateOrientation() {
+        return __classPrivateFieldGet(this, _Device_txManager, "f").calculateOrientation;
+    }
+    set calculateOrientation(newValue) {
+        __classPrivateFieldGet(this, _Device_txManager, "f").calculateOrientation = newValue;
     }
     get vibrate() {
         return __classPrivateFieldGet(this, _Device_vibrationManager, "f").vibrate;

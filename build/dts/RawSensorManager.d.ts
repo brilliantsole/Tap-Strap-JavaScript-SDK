@@ -38,6 +38,7 @@ declare class RawSensorManager {
     eventDispatcher: RawSensorEventDispatcher;
     sensitivity: RawSensorSensitivity;
     constructor();
+    calculateOrientation: boolean;
     parseMessage(messageType: RawSensorMessageType, dataView: DataView): void;
     clear(): void;
 }

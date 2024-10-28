@@ -19,7 +19,6 @@ import DeviceInformationManager, {
 } from "./DeviceInformationManager.ts";
 import DeviceManager from "./DeviceManager.ts";
 import InputManager from "./InputManager.ts";
-import RawSensorManager from "./RawSensorManager.ts";
 import TapDataManager, {
   TapDataEventDispatcher,
   TapDataEventMessages,
@@ -478,6 +477,12 @@ class Device {
 
   // TX
   #txManager = new TxManager();
+  get calculateOrientation() {
+    return this.#txManager.calculateOrientation;
+  }
+  set calculateOrientation(newValue) {
+    this.#txManager.calculateOrientation = newValue;
+  }
 
   // VIBRATION
   #vibrationManager = new VibrationManager();
