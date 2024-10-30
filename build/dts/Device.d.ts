@@ -73,6 +73,8 @@ declare class Device {
     get xrState(): "user" | "airMouse" | "tapping" | "dontSend";
     set xrState(newXrState: "user" | "airMouse" | "tapping" | "dontSend");
     get setXRState(): (newState: import("./XRStateManager.ts").XRState) => void;
+    get xrAirGestureMinCount(): number;
+    set xrAirGestureMinCount(count: number);
     get calculateOrientation(): boolean;
     set calculateOrientation(newValue: boolean);
     /** [hapticsMs, pauseMs, hapticsMs, pauseMs...] */

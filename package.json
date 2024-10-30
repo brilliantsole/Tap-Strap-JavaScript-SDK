@@ -1,6 +1,6 @@
 {
   "name": "tapstrap",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "JavaScript SDK for the Tap Strap",
   "main": "./build/tapstrap.module.js",
   "module": "./build/tapstrap.module.js",

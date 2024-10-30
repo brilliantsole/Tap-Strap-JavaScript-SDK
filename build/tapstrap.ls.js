@@ -626,7 +626,7 @@
         __classPrivateFieldGet(this, _MouseDataManager_instances, "a", _MouseDataManager_dispatchEvent_get).call(this, "mouseData", { velocity, isMouse });
     };
 
-    var _AirGestureManager_instances, _AirGestureManager_dispatchEvent_get, _AirGestureManager_isInState, _AirGestureManager_updateIsInState, _AirGestureManager_parseAirGesture;
+    var _AirGestureManager_instances, _AirGestureManager_dispatchEvent_get, _AirGestureManager_isInState, _AirGestureManager_updateIsInState, _AirGestureManager_latestXrAirGesture, _AirGestureManager_parseAirGesture;
     const _console$e = createConsole("AirGestureManager");
     const AirGestureMessageTypes = ["airGesture"];
     const AirGestureEventTypes = [...AirGestureMessageTypes, "isInAirGestureState", "xrAirGesture"];
@@ -634,6 +634,9 @@
         constructor() {
             _AirGestureManager_instances.add(this);
             _AirGestureManager_isInState.set(this, false);
+            _AirGestureManager_latestXrAirGesture.set(this, void 0);
+            this.xrAirGestureCount = 0;
+            this.xrAirGestureMinCount = 1;
             autoBind(this);
         }
         get isInState() {
@@ -650,7 +653,7 @@
             }
         }
     }
-    _AirGestureManager_isInState = new WeakMap(), _AirGestureManager_instances = new WeakSet(), _AirGestureManager_dispatchEvent_get = function _AirGestureManager_dispatchEvent_get() {
+    _AirGestureManager_isInState = new WeakMap(), _AirGestureManager_latestXrAirGesture = new WeakMap(), _AirGestureManager_instances = new WeakSet(), _AirGestureManager_dispatchEvent_get = function _AirGestureManager_dispatchEvent_get() {
         return this.eventDispatcher.dispatchEvent;
     }, _AirGestureManager_updateIsInState = function _AirGestureManager_updateIsInState(newIsInState) {
         __classPrivateFieldSet(this, _AirGestureManager_isInState, newIsInState, "f");
@@ -667,7 +670,21 @@
             let airGesture = AirGestureEnumLookup[first];
             _console$e.log({ airGesture });
             if (airGesture) {
-                __classPrivateFieldGet(this, _AirGestureManager_instances, "a", _AirGestureManager_dispatchEvent_get).call(this, "airGesture", { airGesture });
+                if (airGesture.startsWith("xrAirGesture")) {
+                    if (airGesture == __classPrivateFieldGet(this, _AirGestureManager_latestXrAirGesture, "f")) {
+                        this.xrAirGestureCount++;
+                    }
+                    else {
+                        this.xrAirGestureCount = 1;
+                        __classPrivateFieldSet(this, _AirGestureManager_latestXrAirGesture, airGesture, "f");
+                    }
+                    if (this.xrAirGestureCount >= this.xrAirGestureMinCount) {
+                        __classPrivateFieldGet(this, _AirGestureManager_instances, "a", _AirGestureManager_dispatchEvent_get).call(this, "airGesture", { airGesture });
+                    }
+                }
+                else {
+                    __classPrivateFieldGet(this, _AirGestureManager_instances, "a", _AirGestureManager_dispatchEvent_get).call(this, "airGesture", { airGesture });
+                }
             }
             else {
                 const xrAirGesture = XRAirGestureEnumLookup[first];
@@ -2596,6 +2613,12 @@
         }
         get setXRState() {
             return __classPrivateFieldGet(this, _Device_xrStateManager, "f").setState;
+        }
+        get xrAirGestureMinCount() {
+            return __classPrivateFieldGet(this, _Device_airGestureManager, "f").xrAirGestureMinCount;
+        }
+        set xrAirGestureMinCount(count) {
+            __classPrivateFieldGet(this, _Device_airGestureManager, "f").xrAirGestureMinCount = count;
         }
         get calculateOrientation() {
             return __classPrivateFieldGet(this, _Device_txManager, "f").calculateOrientation;

@@ -52,6 +52,9 @@ class AirGestureManager {
     }
   }
 
+  #latestXrAirGesture?: AirGesture;
+  xrAirGestureCount = 0;
+  xrAirGestureMinCount = 1;
   #parseAirGesture(dataView: DataView) {
     _console.log("parsing air gesture", dataView);
 
@@ -63,7 +66,19 @@ class AirGestureManager {
       let airGesture = AirGestureEnumLookup[first];
       _console.log({ airGesture });
       if (airGesture) {
-        this.#dispatchEvent("airGesture", { airGesture });
+        if (airGesture.startsWith("xrAirGesture")) {
+          if (airGesture == this.#latestXrAirGesture) {
+            this.xrAirGestureCount++;
+          } else {
+            this.xrAirGestureCount = 1;
+            this.#latestXrAirGesture = airGesture;
+          }
+          if (this.xrAirGestureCount >= this.xrAirGestureMinCount) {
+            this.#dispatchEvent("airGesture", { airGesture });
+          }
+        } else {
+          this.#dispatchEvent("airGesture", { airGesture });
+        }
       } else {
         const xrAirGesture = XRAirGestureEnumLookup[first];
         _console.log({ xrAirGesture });

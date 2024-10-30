@@ -120,6 +120,7 @@ const useRawImuCheckbox = document.getElementById("useRawImu");
 useRawImuCheckbox.addEventListener("input", () => {
   useRawImu = useRawImuCheckbox.checked;
   console.log({ useRawImu });
+  device.calculateOrientation = !useRawImu;
 });
 useRawImuCheckbox.dispatchEvent(new Event("input"));
 

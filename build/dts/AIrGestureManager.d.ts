@@ -23,5 +23,7 @@ declare class AirGestureManager {
     constructor();
     get isInState(): boolean;
     parseMessage(messageType: AirGestureMessageType, dataView: DataView): void;
+    xrAirGestureCount: number;
+    xrAirGestureMinCount: number;
 }
 export default AirGestureManager;

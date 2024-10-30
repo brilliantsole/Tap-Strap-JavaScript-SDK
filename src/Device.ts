@@ -474,6 +474,12 @@ class Device {
 
   // AIR GESTURE
   #airGestureManager = new AirGestureManager();
+  get xrAirGestureMinCount() {
+    return this.#airGestureManager.xrAirGestureMinCount;
+  }
+  set xrAirGestureMinCount(count) {
+    this.#airGestureManager.xrAirGestureMinCount = count;
+  }
 
   // TX
   #txManager = new TxManager();
