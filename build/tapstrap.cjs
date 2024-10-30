@@ -570,12 +570,16 @@ _TapDataManager_instances = new WeakSet(), _TapDataManager_dispatchEvent_get = f
             };
         }
         const fingers = {};
+        const fingerArray = [];
         _console$k.log("fingerBits", first.toString(2));
         TapFingers.forEach((finger, index) => {
             fingers[finger] = (first & (1 << index)) != 0;
+            if (fingers[finger]) {
+                fingerArray.push(finger);
+            }
         });
         _console$k.log("fingers", fingers);
-        __classPrivateFieldGet(this, _TapDataManager_instances, "a", _TapDataManager_dispatchEvent_get).call(this, "tapData", { fingers, keyboardState });
+        __classPrivateFieldGet(this, _TapDataManager_instances, "a", _TapDataManager_dispatchEvent_get).call(this, "tapData", { fingers, keyboardState, fingerArray });
     }
 };
 

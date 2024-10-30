@@ -24,7 +24,7 @@ type KeyboardState = {
 
 export interface TapDataEventMessages {
   tapAirGesture: { tapAirGesture: AirGesture };
-  tapData: { fingers: BooleanFingers; keyboardState?: KeyboardState };
+  tapData: { fingers: BooleanFingers; keyboardState?: KeyboardState; fingerArray: TapFinger[] };
 }
 
 export type TapDataEventDispatcher = EventDispatcher<Device, TapDataEventType, TapDataEventMessages>;
@@ -74,12 +74,16 @@ class TapDataManager {
       }
       // @ts-ignore
       const fingers: BooleanFingers = {};
+      const fingerArray: TapFinger[] = [];
       _console.log("fingerBits", first.toString(2));
       TapFingers.forEach((finger, index) => {
         fingers[finger] = (first & (1 << index)) != 0;
+        if (fingers[finger]) {
+          fingerArray.push(finger);
+        }
       });
       _console.log("fingers", fingers);
-      this.#dispatchEvent("tapData", { fingers, keyboardState });
+      this.#dispatchEvent("tapData", { fingers, keyboardState, fingerArray });
     }
   }
 }

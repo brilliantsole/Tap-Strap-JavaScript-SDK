@@ -22,6 +22,7 @@ export interface TapDataEventMessages {
     tapData: {
         fingers: BooleanFingers;
         keyboardState?: KeyboardState;
+        fingerArray: TapFinger[];
     };
 }
 export type TapDataEventDispatcher = EventDispatcher<Device, TapDataEventType, TapDataEventMessages>;

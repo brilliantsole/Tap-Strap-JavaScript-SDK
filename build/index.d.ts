@@ -190,6 +190,7 @@ interface TapDataEventMessages {
     tapData: {
         fingers: BooleanFingers;
         keyboardState?: KeyboardState;
+        fingerArray: TapFinger[];
     };
 }
 
