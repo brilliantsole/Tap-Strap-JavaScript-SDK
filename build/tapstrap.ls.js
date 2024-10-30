@@ -582,15 +582,17 @@
             }
             const fingers = {};
             const fingerArray = [];
+            const fingerIndices = [];
             _console$g.log("fingerBits", first.toString(2));
             TapFingers.forEach((finger, index) => {
                 fingers[finger] = (first & (1 << index)) != 0;
                 if (fingers[finger]) {
                     fingerArray.push(finger);
+                    fingerIndices.push(index);
                 }
             });
             _console$g.log("fingers", fingers);
-            __classPrivateFieldGet(this, _TapDataManager_instances, "a", _TapDataManager_dispatchEvent_get).call(this, "tapData", { fingers, keyboardState, fingerArray });
+            __classPrivateFieldGet(this, _TapDataManager_instances, "a", _TapDataManager_dispatchEvent_get).call(this, "tapData", { fingers, keyboardState, fingerArray, fingerIndices });
         }
     };
 
