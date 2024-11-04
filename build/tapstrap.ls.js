@@ -495,6 +495,21 @@
     	return self;
     }
 
+    const AirGestures = [
+        "oneFingerUp",
+        "twoFingersUp",
+        "oneFingerDown",
+        "twoFingersDown",
+        "oneFingerLeft",
+        "twoFingersLeft",
+        "oneFingerRight",
+        "twoFingersRight",
+        "indexToThumbTouch",
+        "middleToThumbTouch",
+        "xrAirGestureNone",
+        "xrAirGestureThumbIndex",
+        "xrAirGestureThumbMiddle",
+    ];
     function tapByteToAirGesture(tapByte) {
         switch (tapByte) {
             case 2:
@@ -2798,6 +2813,7 @@
         __classPrivateFieldGet(this, _RangeHelper_range, "f").span = __classPrivateFieldGet(this, _RangeHelper_range, "f").max - __classPrivateFieldGet(this, _RangeHelper_range, "f").min;
     };
 
+    exports.AirGestures = AirGestures;
     exports.Device = Device;
     exports.DeviceManager = DeviceManager$1;
     exports.Environment = environment;

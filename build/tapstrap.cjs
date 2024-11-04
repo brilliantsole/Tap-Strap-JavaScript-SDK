@@ -484,6 +484,21 @@ _DeviceInformationManager_information = new WeakMap(), _DeviceInformationManager
     }
 };
 
+const AirGestures = [
+    "oneFingerUp",
+    "twoFingersUp",
+    "oneFingerDown",
+    "twoFingersDown",
+    "oneFingerLeft",
+    "twoFingersLeft",
+    "oneFingerRight",
+    "twoFingersRight",
+    "indexToThumbTouch",
+    "middleToThumbTouch",
+    "xrAirGestureNone",
+    "xrAirGestureThumbIndex",
+    "xrAirGestureThumbMiddle",
+];
 function tapByteToAirGesture(tapByte) {
     switch (tapByte) {
         case 2:
@@ -2757,6 +2772,7 @@ else {
 }
 var scanner$1 = scanner;
 
+exports.AirGestures = AirGestures;
 exports.Device = Device;
 exports.DeviceManager = DeviceManager$1;
 exports.Environment = environment;

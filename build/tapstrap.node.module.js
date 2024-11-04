@@ -463,6 +463,21 @@ _DeviceInformationManager_information = new WeakMap(), _DeviceInformationManager
     }
 };
 
+const AirGestures = [
+    "oneFingerUp",
+    "twoFingersUp",
+    "oneFingerDown",
+    "twoFingersDown",
+    "oneFingerLeft",
+    "twoFingersLeft",
+    "oneFingerRight",
+    "twoFingersRight",
+    "indexToThumbTouch",
+    "middleToThumbTouch",
+    "xrAirGestureNone",
+    "xrAirGestureThumbIndex",
+    "xrAirGestureThumbMiddle",
+];
 function tapByteToAirGesture(tapByte) {
     switch (tapByte) {
         case 2:
@@ -2736,5 +2751,5 @@ else {
 }
 var scanner$1 = scanner;
 
-export { Device, DeviceManager$1 as DeviceManager, environment as Environment, InputModes, MaxNumberOfVibrationSegments, MaxNumberOfVibrations, RangeHelper, RawSensorSensitivityFactors, RawSensorTypes, scanner$1 as Scanner, XRStates, setAllConsoleLevelFlags, setConsoleLevelFlagsForType };
+export { AirGestures, Device, DeviceManager$1 as DeviceManager, environment as Environment, InputModes, MaxNumberOfVibrationSegments, MaxNumberOfVibrations, RangeHelper, RawSensorSensitivityFactors, RawSensorTypes, scanner$1 as Scanner, XRStates, setAllConsoleLevelFlags, setConsoleLevelFlagsForType };
 //# sourceMappingURL=tapstrap.node.module.js.map

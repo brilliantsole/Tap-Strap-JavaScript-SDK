@@ -8,6 +8,7 @@ export { InputModes, type InputMode } from "./InputManager.ts";
 export { default as RangeHelper } from "./utils/RangeHelper.ts";
 export { type RawSensorType, RawSensorTypes, type RawSensorSensitivity, RawSensorSensitivityFactors, } from "./utils/RawSensorUtils.ts";
 export { type XRState, XRStates } from "./XRStateManager.ts";
+export { AirGestures, type AirGesture } from "./utils/GestureUtils.ts";
 export { DiscoveredDevice } from "./scanner/BaseScanner.ts";
 /** NODE_START */
 export { default as Scanner } from "./scanner/Scanner.ts";

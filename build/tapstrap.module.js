@@ -489,6 +489,21 @@ function autoBind(self, {include, exclude} = {}) {
 	return self;
 }
 
+const AirGestures = [
+    "oneFingerUp",
+    "twoFingersUp",
+    "oneFingerDown",
+    "twoFingersDown",
+    "oneFingerLeft",
+    "twoFingersLeft",
+    "oneFingerRight",
+    "twoFingersRight",
+    "indexToThumbTouch",
+    "middleToThumbTouch",
+    "xrAirGestureNone",
+    "xrAirGestureThumbIndex",
+    "xrAirGestureThumbMiddle",
+];
 function tapByteToAirGesture(tapByte) {
     switch (tapByte) {
         case 2:
@@ -2798,5 +2813,5 @@ _RangeHelper_range = new WeakMap(), _RangeHelper_instances = new WeakSet(), _Ran
     __classPrivateFieldGet(this, _RangeHelper_range, "f").span = __classPrivateFieldGet(this, _RangeHelper_range, "f").max - __classPrivateFieldGet(this, _RangeHelper_range, "f").min;
 };
 
-export { Device, DeviceManager$1 as DeviceManager, environment as Environment, InputModes, MaxNumberOfVibrationSegments, MaxNumberOfVibrations, RangeHelper, RawSensorSensitivityFactors, RawSensorTypes, XRStates, setAllConsoleLevelFlags, setConsoleLevelFlagsForType };
+export { AirGestures, Device, DeviceManager$1 as DeviceManager, environment as Environment, InputModes, MaxNumberOfVibrationSegments, MaxNumberOfVibrations, RangeHelper, RawSensorSensitivityFactors, RawSensorTypes, XRStates, setAllConsoleLevelFlags, setConsoleLevelFlagsForType };
 //# sourceMappingURL=tapstrap.module.js.map
