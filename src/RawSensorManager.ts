@@ -122,9 +122,9 @@ class RawSensorManager {
     for (let offset = 0; offset < sensorData.byteLength; offset += 6) {
       const sensitivityFactorIndex = this.sensitivity[rawSensorType];
       const sensitivityFactor = RawSensorSensitivityFactors[rawSensorType][sensitivityFactorIndex];
-      const [z, y, x] = [
+      const [z, x, y] = [
         -sensorData.getInt16(offset + 0, true),
-        sensorData.getInt16(offset + 2, true),
+        -sensorData.getInt16(offset + 2, true),
         sensorData.getInt16(offset + 4, true),
       ].map((value) => value * sensitivityFactor * 0.001);
       _console.log({ x, y, z });
@@ -163,10 +163,17 @@ class RawSensorManager {
         message.gyroscope = vectors[RawSensorImuTypes.indexOf("gyroscope")];
 
         if (this.calculateOrientation && this.#latestImuTimestamp != timestamp) {
-          this.#latestImuTimestamp = timestamp;
           const timestampDelta = this.#latestImuTimestamp == 0 ? 55 : timestamp - this.#latestImuTimestamp;
+          _console.log({ timestampDelta });
+          this.#latestImuTimestamp = timestamp;
           this.#updateAHRS(message.accelerometer, message.gyroscope, timestampDelta);
-          const quaternion = this.#ahrs.getQuaternion();
+          const { x, y, z, w } = this.#ahrs.getQuaternion();
+          const quaternion = {
+            x: y,
+            y: z,
+            z: x,
+            w: w,
+          };
           const euler = this.#ahrs.getEulerAngles();
           this.#dispatchEvent("orientation", { quaternion, euler, timestamp });
         }
@@ -187,14 +194,13 @@ class RawSensorManager {
 
   #updateAHRS(accelerometer: Vector3, gyroscope: Vector3, timestampDelta: number) {
     _console.log("updating ahrs...");
-
     this.#ahrs.update(
+      degToRad(gyroscope.z),
       degToRad(gyroscope.x),
       degToRad(gyroscope.y),
-      degToRad(gyroscope.z),
+      accelerometer.z,
       accelerometer.x,
       accelerometer.y,
-      accelerometer.z,
       undefined,
       undefined,
       undefined,

@@ -168,11 +168,19 @@ device.addEventListener("imu", (event) => {
   targetPosition.object3D.position.lerp(position, 0.5);
 });
 
+let useQuaternion = true;
 device.addEventListener("orientation", (event) => {
   if (useRawImu) {
     return;
   }
 
-  quaternion.copy(event.message.quaternion);
+  if (useQuaternion) {
+    quaternion.copy(event.message.quaternion);
+  } else {
+    const { heading, pitch, roll } = event.message.euler;
+    euler.set(pitch, heading, roll);
+    quaternion.setFromEuler(euler);
+    console.log("change", event.message.quaternion, "to", quaternion);
+  }
   targetRotation.object3D.quaternion.slerp(quaternion, 0.5);
 });

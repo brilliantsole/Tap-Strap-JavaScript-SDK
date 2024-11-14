@@ -1367,9 +1367,9 @@ _RawSensorManager_ahrs = new WeakMap(), _RawSensorManager_latestImuTimestamp = n
     for (let offset = 0; offset < sensorData.byteLength; offset += 6) {
         const sensitivityFactorIndex = this.sensitivity[rawSensorType];
         const sensitivityFactor = RawSensorSensitivityFactors[rawSensorType][sensitivityFactorIndex];
-        const [z, y, x] = [
+        const [z, x, y] = [
             -sensorData.getInt16(offset + 0, true),
-            sensorData.getInt16(offset + 2, true),
+            -sensorData.getInt16(offset + 2, true),
             sensorData.getInt16(offset + 4, true),
         ].map((value) => value * sensitivityFactor * 0.001);
         _console$b.log({ x, y, z });
@@ -1399,10 +1399,17 @@ _RawSensorManager_ahrs = new WeakMap(), _RawSensorManager_latestImuTimestamp = n
             message.accelerometer = vectors[RawSensorImuTypes.indexOf("accelerometer")];
             message.gyroscope = vectors[RawSensorImuTypes.indexOf("gyroscope")];
             if (this.calculateOrientation && __classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f") != timestamp) {
-                __classPrivateFieldSet(this, _RawSensorManager_latestImuTimestamp, timestamp, "f");
                 const timestampDelta = __classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f") == 0 ? 55 : timestamp - __classPrivateFieldGet(this, _RawSensorManager_latestImuTimestamp, "f");
+                _console$b.log({ timestampDelta });
+                __classPrivateFieldSet(this, _RawSensorManager_latestImuTimestamp, timestamp, "f");
                 __classPrivateFieldGet(this, _RawSensorManager_instances, "m", _RawSensorManager_updateAHRS).call(this, message.accelerometer, message.gyroscope, timestampDelta);
-                const quaternion = __classPrivateFieldGet(this, _RawSensorManager_ahrs, "f").getQuaternion();
+                const { x, y, z, w } = __classPrivateFieldGet(this, _RawSensorManager_ahrs, "f").getQuaternion();
+                const quaternion = {
+                    x: y,
+                    y: z,
+                    z: x,
+                    w: w,
+                };
                 const euler = __classPrivateFieldGet(this, _RawSensorManager_ahrs, "f").getEulerAngles();
                 __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, "orientation", { quaternion, euler, timestamp });
             }
@@ -1418,7 +1425,7 @@ _RawSensorManager_ahrs = new WeakMap(), _RawSensorManager_latestImuTimestamp = n
     __classPrivateFieldGet(this, _RawSensorManager_instances, "a", _RawSensorManager_dispatchEvent_get).call(this, "rawSensor", message);
 }, _RawSensorManager_updateAHRS = function _RawSensorManager_updateAHRS(accelerometer, gyroscope, timestampDelta) {
     _console$b.log("updating ahrs...");
-    __classPrivateFieldGet(this, _RawSensorManager_ahrs, "f").update(degToRad(gyroscope.x), degToRad(gyroscope.y), degToRad(gyroscope.z), accelerometer.x, accelerometer.y, accelerometer.z, undefined, undefined, undefined, timestampDelta / 1000);
+    __classPrivateFieldGet(this, _RawSensorManager_ahrs, "f").update(degToRad(gyroscope.z), degToRad(gyroscope.x), degToRad(gyroscope.y), accelerometer.z, accelerometer.x, accelerometer.y, undefined, undefined, undefined, timestampDelta / 1000);
 };
 
 var _TxManager_instances, _TxManager_eventDispatcher, _TxManager_rawSensorManager;
