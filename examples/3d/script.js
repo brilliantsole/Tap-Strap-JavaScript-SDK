@@ -181,5 +181,11 @@ device.addEventListener("orientation", (event) => {
     euler.set(pitch, heading, roll);
     quaternion.setFromEuler(euler);
   }
+  euler.setFromQuaternion(quaternion);
+  if (isMirrorMode) {
+    euler.x *= -1;
+    euler.y *= -1;
+  }
+  quaternion.setFromEuler(euler);
   targetRotation.object3D.quaternion.slerp(quaternion, 0.5);
 });
