@@ -180,7 +180,6 @@ device.addEventListener("orientation", (event) => {
     const { heading, pitch, roll } = event.message.euler;
     euler.set(pitch, heading, roll);
     quaternion.setFromEuler(euler);
-    console.log("change", event.message.quaternion, "to", quaternion);
   }
   targetRotation.object3D.quaternion.slerp(quaternion, 0.5);
 });
